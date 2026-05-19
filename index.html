@@ -1,4 +1,1141 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, maximum-scale=5, minimum-scale=0.5, user-scalable=yes">
+<title>EL-Morrel Dispečink</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<script>
+const supabaseClient = supabase.createClient(
+  "https://rakampnnjueauqvuchla.supabase.co",
+  "sb_publishable_6zKZ9_884ZLe1pB8NX_70g_Ka4nRGnw"
+);
+</script>
+
 <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <h1>EL-Morrel Dispečink</h1>
+  <div class="right" id="status">Připraveno</div>
+  <div id="authBar">
+    <div id="loginBox">
+      <input id="loginEmail" placeholder="Email" style="max-width:220px">
+      <input id="loginPassword" type="password" placeholder="Heslo" style="max-width:220px">
+      <button onclick="login()">Přihlásit</button>
+      <button onclick="register()">Registrace</button>
+    </div>
+    <button id="logoutBtn" onclick="logout()" style="display:none">
+      Odhlásit
+    </button>
+    <div id="currentUserBox" style="margin-left:auto;font-weight:bold;"></div>
+  </div>
+</header>
+<div class="toolbar">
+<button onclick="openJob()">+ Zakázka</button><button onclick="openWorker()">+ Pracovník</button><button onclick="openVehicle()">+ Vozidlo</button>
+<button class="secondary" onclick="prevWeek()">← týden</button><button class="secondary" onclick="goToday()">dnes</button><button class="secondary" onclick="nextWeek()">týden →</button>
+<input id="search" placeholder="Hledat zakázku, adresu, kontakt..." oninput="render()">
+<select id="viewMode" onchange="render()"><option value="workers">Pohled podle pracovníků</option><option value="vehicles">Pohled podle vozidel</option></select>
+<select id="jobFilter" onchange="render()"><option value="active">Aktivní</option><option value="archive">Archiv</option><option value="all">Vše</option><option value="to_invoice">Čeká na fakturaci</option><option value="overrun">Přetažené</option></select>
+<button class="secondary" onclick="exportData()">Export</button><button class="secondary" onclick="document.getElementById('importFile').click()">Import</button><input id="importFile" type="file" accept="application/json" class="hidden" onchange="importData(event)">
+</div>
+<div class="layout">
+<aside>
+<div class="tabs"><div class="tab active" id="tabJobs" onclick="switchTab('jobs')">Zakázky</div><div class="tab" id="tabPeople" onclick="switchTab('people')">Lidé</div><div class="tab" id="tabCars" onclick="switchTab('cars')">Vozidla</div></div>
+<section id="sideJobs"><h2 id="jobsTitle">Zakázky</h2><div id="unassigned" class="list"></div></section>
+<section id="sidePeople" class="hidden"><h2>Pracovníci</h2><div id="peopleList" class="list"></div></section>
+<section id="sideCars" class="hidden"><h2>Vozidla</h2><div id="carsList" class="list"></div></section>
+</aside>
+<main class="board-wrap"><div class="board"><div id="head" class="head"></div><div id="body"></div></div></main>
+</div>
+<div id="jobModal" class="modal"><div class="dialog"><h2 id="jobModalTitle">Zakázka</h2>
+<div class="grid">
+<label>Název zakázky<input id="j_title"></label>
+<label>Priorita<select id="j_priority"><option>Vysoká</option><option>Střední</option><option>Nízká</option></select></label>
+<label>Požadovaná odbornost<select id="j_skill"><option>Elektroinstalace</option><option>Optika</option><option>Kancelář</option><option>Servis</option><option>Montáž</option><option>Revize</option><option>Bez požadavku</option></select></label>
+<label>Stav<select id="j_state"><option>Nová</option><option>Naplánováno</option><option>Probíhá</option><option>Dokončeno</option><option>Vyfakturováno</option><option>Storno</option></select></label>
+<label class="full">Adresa<input id="j_address"></label><label>Kontakt<input id="j_contact"></label><label>Telefon<input id="j_phone"></label><label>
+  Hlavní technik
+  <select id="j_lead_worker"></select>
+</label>
+<label>Počet dní<input id="j_days" type="number" min="0" step="0.5" value="1" oninput="syncEstimateFromDaysPeople()"></label>
+<label>Počet pracovníků<input id="j_people" type="number" min="0" step="1" value="1" oninput="syncEstimateFromDaysPeople()"></label>
+<label>Odhad hodin<input id="j_estimated" type="number" min="0" step="0.5" value="10"></label>
+<label>Hodin Pracovníka<input id="j_load" type="number" min="0" max="24" step="0.5" value="10"></label>
+<label>Hodin vozidla hod.<input id="j_vehicle_load" type="number" min="0" max="24" step="0.5" value="10"></label>
+<label>Čas od
+  <input
+    id="j_from"
+    type="time"
+    oninput="syncHoursFromTime()">
+</label>
+<label>Čas do
+  <input
+    id="j_to"
+    type="time"
+    oninput="syncHoursFromTime()">
+</label>
+<label class="full">Poznámka<textarea id="j_note" rows="4"></textarea></label>
+</div><div id="jobStats" class="small" style="margin-top:10px"></div>
+<div class="actions"><button class="secondary" onclick="closeModal('jobModal')">Zavřít</button><button class="secondary" id="duplicateJobBtn" onclick="duplicateJob()">Duplikovat</button><button class="secondary" id="completeJobBtn" onclick="setJobState('Dokončeno')">Dokončeno</button><button class="secondary" id="invoiceJobBtn" onclick="setJobState('Vyfakturováno')">Vyfakturováno</button><button class="danger" id="deleteJobBtn" onclick="deleteJob()">Smazat</button><button onclick="saveJob()">Uložit</button></div>
+</div></div>
+<div id="workerModal" class="modal"><div class="dialog"><h2 id="workerModalTitle">Pracovník</h2><div class="grid">
+<label>Jméno<input id="w_title"></label><label>Email<input id="w_email"></label><label>Telefon<input id="w_phone"></label><label>Kapacita hodin / den<input id="w_capacity" type="number" min="0" max="24" value="10"></label>
+<label class="full">Specializace pracovníka<select id="w_skills" multiple size="6"><option>Elektroinstalace</option><option>Optika</option><option>Kancelář</option><option>Servis</option><option>Montáž</option><option>Revize</option></select><div class="small">Podrž Ctrl pro výběr více specializací.</div></label>
+</div><div class="actions"><button class="secondary" onclick="closeModal('workerModal')">Zavřít</button><button class="danger" id="deleteWorkerBtn" onclick="deleteWorker()">Smazat</button><button onclick="saveWorker()">Uložit</button></div></div></div>
+<div id="vehicleModal" class="modal"><div class="dialog"><h2 id="vehicleModalTitle">Vozidlo</h2><div class="grid">
+<label>Název / označení<input id="v_title"></label><label>SPZ<input id="v_spz"></label><label>Typ<input id="v_type"></label><label>Kapacita hod.<input id="v_capacity" type="number" min="0" max="24" value="10"></label><label class="full">Poznámka<textarea id="v_note" rows="3"></textarea></label>
+</div><div class="actions"><button class="secondary" onclick="closeModal('vehicleModal')">Zavřít</button><button class="danger" id="deleteVehicleBtn" onclick="deleteVehicle()">Smazat</button><button onclick="saveVehicle()">Uložit</button></div></div></div>
+<div id="assignModal" class="modal"><div class="dialog"><h2>Přiřazení zakázky</h2><p class="small">Zakázku můžeš přiřadit pracovníkovi i vozidlu. Nesoulad odbornosti se jen označí, neblokuje.</p>
+<div class="grid"><label>Zakázka<input id="a_job_title" disabled></label><label>Datum<input id="a_date" type="date"></label><label>Pracovník<select id="a_worker"></select></label><label>Vozidlo<select id="a_vehicle"></select></label><label>Vytížení pracovníka hod.<input id="a_load" type="number" min="0" max="24" step="0.5"></label><label>Vytížení vozidla hod.<input id="a_vehicle_load" type="number" min="0" max="24" step="0.5"></label></div>
+<div class="actions"><button class="secondary" onclick="closeModal('assignModal')">Zavřít</button><button class="danger" onclick="unassignCurrent()">Odebrat z plánu</button><button onclick="saveAssignmentFromModal()">Uložit přiřazení</button></div></div></div>
+
+<script>
+
+let db = {
+  jobs: [],
+  workers: [],
+  vehicles: [],
+  assignments: [],
+  notes: [],
+  absences: []
+};
+let weekStart = monday(new Date());
+let selectedJobId = null;
+let selectedWorkerId = null;
+let selectedVehicleId = null;
+let selectedAssignmentId = null;
+let currentUser = null;
+let realtimeSubscribed = false;
+let canEdit = false; 
+
+function createEmptyDb(){return{jobs:[],workers:[],vehicles:[],assignments:[],notes:[],absences:[]}}
+async function loadDb(){
+  if(!currentUser) return;
+
+  const { data, error } = await supabaseClient
+    .from("app_state")
+    .select("data")
+    .eq("id", 1)
+    .maybeSingle();
+
+  if(error){
+    console.error("LOAD ERROR:", error);
+    alert("Chyba načtení supabase: " + error.message);
+    return;
+  }
+
+  if(data?.data){
+    db = data.data;
+  }else{
+    db = createEmptyDb();
+    await saveDb();
+  }
+
+  // DOPLNIT ↓↓↓
+
+  if(!db.notes){
+    db.notes = [];
+  }
+
+  if(!db.absences){
+    db.absences = [];
+  }
+
+  // migrace starých procent na hodiny
+  db.workers.forEach(w => {
+    if(w.capacity === 100){
+      w.capacity = 10;
+    }
+  });
+
+  db.vehicles.forEach(v => {
+    if(v.capacity === 100){
+      v.capacity = 10;
+    }
+  });
+
+  render();
+}
+async function saveDb(){
+  if(!currentUser){
+    alert("Nejste přihlášen");
+    return false;
+  }
+  const { error } = await supabaseClient
+    .from("app_state")
+    .upsert({
+      id: 1,
+      data: db,
+      updated_by: currentUser.email
+    });
+  if(error){
+    console.error("SAVE ERROR:", error);
+    alert("Chyba ukládání: " + error.message);
+    return false;
+  }
+  setStatus("Uloženo do cloudu");
+  return true;
+}
+function nextId(c){return c.reduce((m,i)=>Math.max(m,Number(i.id)||0),0)+1}
+function setStatus(t){document.getElementById("status").textContent=t}
+function esc(v){return String(v??"").replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]))}
+function monday(d){const x=new Date(d),day=x.getDay()||7;x.setDate(x.getDate()-day+1);x.setHours(0,0,0,0);return x}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function iso(d){const x=new Date(d);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,"0")}-${String(x.getDate()).padStart(2,"0")}`}
+function czDate(d){return d.toLocaleDateString("cs-CZ",{weekday:"short",day:"numeric",month:"numeric"})}
+function priorityClass(p){p=String(p||"").toLowerCase();if(p.includes("vys"))return"high";if(p.includes("níz")||p.includes("niz"))return"low";return"medium"}
+function jobVisualState(j){if(j.state==="Vyfakturováno")return"invoiced";if(j.state==="Dokončeno")return"done";return""}
+function openModal(id){document.getElementById(id).classList.add("open")}
+function closeModal(id){document.getElementById(id).classList.remove("open")}
+function jobById(id){return db.jobs.find(j=>Number(j.id)===Number(id))}
+function workerById(id){return db.workers.find(w=>Number(w.id)===Number(id))}
+function vehicleById(id){return db.vehicles.find(v=>Number(v.id)===Number(id))}
+function assignmentById(id){return db.assignments.find(a=>Number(a.id)===Number(id))}
+function getSelectedMulti(id){return Array.from(document.getElementById(id).selectedOptions).map(o=>o.value)}
+function setSelectedMulti(id,values){const set=new Set(values||[]);Array.from(document.getElementById(id).options).forEach(o=>o.selected=set.has(o.value))}
+function workerHasSkill(w,skill){if(!skill||skill==="Bez požadavku")return true;return Array.isArray(w?.skills)&&w.skills.includes(skill)}
+function plannedUnits(jobId){
+  return db.assignments
+    .filter(a=>Number(a.jobId)===Number(jobId))
+    .reduce((s,a)=>s+Number(a.load||0),0)
+}
+function jobProgress(j){const estimated=Math.max(Number(j.estimated||0),0),actual=plannedUnits(j.id),pct = estimated > 0
+  ? Math.round((actual / estimated) * 100)
+  : 0;let color="#16a34a";if(pct>100)color="#dc2626";else if(pct>=85)color="#d97706";return{estimated,actual,pct,color,over:estimated>0&&actual>estimated}}
+function isArchiveState(j){return["Dokončeno","Vyfakturováno","Storno"].includes(j.state)}
+function matchesSearch(j){const q=document.getElementById("search").value.trim().toLowerCase();if(!q)return true;return[j.title,j.address,j.contact,j.phone,j.note,j.state,j.skill].join(" ").toLowerCase().includes(q)}
+function matchesFilter(j){const f=document.getElementById("jobFilter").value,p=jobProgress(j);if(f==="active")return!isArchiveState(j);if(f==="archive")return isArchiveState(j);if(f==="to_invoice")return j.state==="Dokončeno";if(f==="overrun")return p.over;return true}
+function switchTab(t){sideJobs.classList.toggle("hidden",t!=="jobs");sidePeople.classList.toggle("hidden",t!=="people");sideCars.classList.toggle("hidden",t!=="cars");tabJobs.classList.toggle("active",t==="jobs");tabPeople.classList.toggle("active",t==="people");tabCars.classList.toggle("active",t==="cars")}
+function prevWeek(){weekStart=addDays(weekStart,-7);render()}
+function nextWeek(){weekStart=addDays(weekStart,7);render()}
+function goToday(){weekStart=monday(new Date());render()}
+function rows(){const mode=viewMode.value;if(mode==="vehicles")return db.vehicles.map(v=>({kind:"vehicle",id:v.id,title:v.title,sub:[v.spz,v.type].filter(Boolean).join(" · "),capacity:Number(v.capacity||10)}));return db.workers.map(w=>({kind:"worker",id:w.id,title:w.title,sub:[w.email,w.phone].filter(Boolean).join(" · "),capacity:Number(w.capacity||10)}))}
+function assignmentsFor(row,date){const d=iso(date);if(row.kind==="worker")return db.assignments.filter(a=>Number(a.workerId)===Number(row.id)&&a.date===d);return db.assignments.filter(a=>Number(a.vehicleId)===Number(row.id)&&a.date===d)}
+function usedCapacity(row,ass,date){
+
+  let used = row.kind==="worker"
+    ? ass.reduce((s,a)=>s+Number(a.load||10),0)
+    : ass.reduce((s,a)=>s+Number(a.vehicleLoad||10),0);
+
+  if(row.kind === "worker"){
+
+    const hasAbsence = db.absences.some(a =>
+  Number(a.workerId) === Number(row.id) &&
+  a.date === (
+    typeof date === "string"
+      ? date
+      : iso(date)
+  )
+);
+    if(hasAbsence){
+      used += row.capacity;
+    }
+  }
+
+  return used;
+}
+function getDayNotes(workerId,date){
+  if(!db.notes){
+    db.notes = [];
+  }
+  return db.notes.filter(n =>
+    Number(n.workerId) === Number(workerId) &&
+    n.date === date
+  );
+}
+
+async function editDayNote(workerId,date){
+
+  if(!canEdit){
+    alert("Nemáte oprávnění");
+    return;
+  }
+
+  if(!db.notes){
+    db.notes = [];
+  }
+  const text = prompt("Nová poznámka:");
+
+  if(!text){
+    return;
+  }
+  db.notes.push({
+    id: Date.now(),
+    workerId,
+    date,
+    text
+  });
+  await saveDb();
+  render();
+}
+async function deleteDayNote(noteId){
+  if(!canEdit){
+    alert("Nemáte oprávnění");
+    return;
+  }
+  if(!confirm("Smazat poznámku?")){
+    return;
+  }
+  db.notes = db.notes.filter(
+    n => Number(n.id) !== Number(noteId)
+  );
+  await saveDb();
+  render();
+}
+async function addAbsence(workerId,date){
+
+  if(!canEdit){
+    alert("Nemáte oprávnění k úpravám");
+    return;
+  }
+
+  const type = prompt(
+    "Typ volna:\n\nDovolená\nNemoc\nŠkolení\nHome office\nVolno"
+  );
+
+  if(!type) return;
+
+  db.absences.push({
+    id: nextId(db.absences),
+    workerId,
+    date,
+    type
+  });
+
+  await saveDb();
+
+  render();
+}
+async function deleteAbsence(id){
+
+  if(!canEdit){
+    alert("Nemáte oprávnění k úpravám");
+    return;
+  }
+
+  if(!confirm("Smazat volno?")){
+    return;
+  }
+
+  db.absences = db.absences.filter(
+    a => Number(a.id) !== Number(id)
+  );
+
+  await saveDb();
+
+  render();
+}
+async function editExistingNote(noteId){
+
+  if(!canEdit){
+    alert("Nemáte oprávnění k úpravám");
+    return;
+  }
+
+  const note = db.notes.find(
+    n => Number(n.id) === Number(noteId)
+  );
+
+  if(!note) return;
+
+  const text = prompt(
+    "Upravit poznámku:",
+    note.text
+  );
+
+  if(text === null){
+    return;
+  }
+
+  note.text = text;
+
+  await saveDb();
+
+  render();
+}  
+function render(){renderHeader();renderSide();renderBoard()}
+function renderHeader(){const days=["Pracovník"];for(let i=0;i<7;i++)days.push(czDate(addDays(weekStart,i)));head.innerHTML=days.map(d=>`<div>${esc(d)}</div>`).join("")}
+function renderSide(){const assigned=new Set(db.assignments.map(a=>Number(a.jobId))),filter=jobFilter.value;jobsTitle.textContent=filter==="archive"?"Archiv zakázek":filter==="to_invoice"?"Čeká na fakturaci":filter==="overrun"?"Přetažené zakázky":"Zakázky";
+  let visible=db.jobs.filter(j=>matchesFilter(j)&&matchesSearch(j));
+  let side = visible;if(filter !== "archive"){
+  side = visible.filter(j => j.state !== "Vyfakturováno")};unassigned.innerHTML=side.length?side.map(j=>jobCard(j,null)).join(""):`<div class="empty">Žádné zakázky v tomto pohledu.</div>`;
+peopleList.innerHTML=db.workers.length?db.workers.map(w=>`<div class="mini-card" ondblclick="openWorker(${w.id})"><div class="job-title">${esc(w.title)}</div><div class="job-meta">${esc(w.email||"")}</div><div class="badges">${(w.skills||[]).map(s=>`<span class="badge skill">${esc(s)}</span>`).join("")}</div><div class="quick-actions"><button class="secondary" onclick="openWorker(${w.id})">Upravit</button><button class="danger" onclick="deleteWorkerDirect(${w.id})">Smazat</button></div></div>`).join(""):`<div class="empty">Zatím nejsou založení pracovníci.</div>`;
+carsList.innerHTML=db.vehicles.length?db.vehicles.map(v=>`<div class="mini-card" ondblclick="openVehicle(${v.id})"><div class="job-title">${esc(v.title)}</div><div class="job-meta">${esc(v.spz||"")} ${esc(v.type||"")}</div><div class="quick-actions"><button class="secondary" onclick="openVehicle(${v.id})">Upravit</button><button class="danger" onclick="deleteVehicleDirect(${v.id})">Smazat</button></div></div>`).join(""):`<div class="empty">Zatím nejsou založená vozidla.</div>`}
+function renderBoard(){
+  const r = rows();
+  if(!r.length){
+    body.innerHTML = `
+      <div class="row">
+        <div class="name-cell">Bez dat</div>
+        <div class="cell" style="grid-column:span 7">
+          <div class="empty">
+            Nejdřív přidej pracovníky nebo vozidla.
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+  body.innerHTML = r.map(row => {
+    let html = `
+      <div class="row">
+        <div class="name-cell">
+          <strong>${esc(row.title)}</strong>
+          <div class="sub">${esc(row.sub)}</div>
+        </div>
+    `;
+    for(let i=0;i<7;i++){
+      const date = addDays(weekStart,i);
+      let ass = assignmentsFor(row,date).filter(a => {
+        const j = jobById(a.jobId);
+        return j && matchesFilter(j) && matchesSearch(j);
+      });
+      if(jobFilter.value === "active"){
+        ass = ass.filter(a =>
+          !isArchiveState(jobById(a.jobId))
+        );
+      }
+     const used = usedCapacity(row,ass,date);
+     const absences = db.absences.filter(x =>
+  Number(x.workerId) === Number(row.id) &&
+  x.date === iso(date)
+);
+
+const hasAbsence = absences.length > 0;
+  html += `
+    <div
+      class="cell ${hasAbsence ? "cell-absence" : ""}"
+      data-row-kind="${row.kind}"
+      data-row-id="${row.id}"
+      data-date="${iso(date)}"
+      ondragover="allowDrop(event)"
+      ondragleave="leaveDrop(event)"
+      ondrop="dropJob(event)"
+    >
+  
+      <div class="capacity ${used > row.capacity ? "over" : ""}">
+        <span>${used}/${row.capacity} hod.</span>
+        <span>${used > row.capacity ? "PŘETÍŽENO" : ""}</span>
+      </div>
+  
+      ${row.kind === "worker" ? `
+        <button
+          class="secondary"
+          style="width:100%;margin-bottom:4px;padding:4px;font-size:10px"
+          onclick="addAbsence(${row.id},'${iso(date)}')">
+          Volno
+        </button>
+      ` : ""}
+  
+      ${row.kind === "worker" ? `
+        <button
+          class="day-note-add"
+          onclick="editDayNote(${row.id},'${iso(date)}')">
+          📝 Přidat poznámku
+        </button>
+      ` : ""}
+  `;
+      const notes =
+  row.kind === "worker"
+    ? getDayNotes(row.id, iso(date))
+    : [];
+notes.forEach(note => {
+ html += `
+  <div
+    class="day-note"
+    onclick="editExistingNote(${note.id})"
+  >
+    <span>📝 ${esc(note.text)}</span>
+
+    <button
+      class="note-delete"
+      onclick="event.stopPropagation(); deleteDayNote(${note.id})">
+      ✕
+    </button>
+  </div>
+`;
+});
+absences.forEach(a => {
+
+  let color = "#94a3b8";
+
+  if(a.type.includes("Dovolená")){
+    color = "#0ea5e9";
+  }
+
+  if(a.type.includes("Nemoc")){
+    color = "#dc2626";
+  }
+
+  if(a.type.includes("Školení")){
+    color = "#8b5cf6";
+  }
+
+  html += `
+    <div
+      class="job"
+      style="
+        background:${color};
+        color:white;
+        border-left:none;
+        position:relative;
+      "
+    >
+
+      <button
+        onclick="deleteAbsence(${a.id})"
+        style="
+          position:absolute;
+          top:4px;
+          right:4px;
+          border:none;
+          background:rgba(255,255,255,.2);
+          color:white;
+          border-radius:6px;
+          cursor:pointer;
+          padding:2px 6px;
+          font-size:11px;
+        "
+      >
+        ✕
+      </button>
+
+      <div class="job-title">
+        ${esc(a.type)}
+      </div>
+
+    </div>
+  `;
+});
+      ass.forEach(a => {
+        const j = jobById(a.jobId);
+        if(j){
+          html += jobCard(j,a);
+        }
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
+    return html;
+  }).join("");
+}
+function skillClass(skill){
+
+  if(!skill) return "";
+
+  if(skill.includes("Elektro")) return "skill-elektro";
+
+  if(skill.includes("Optika")) return "skill-optika";
+
+  if(skill.includes("Servis")) return "skill-servis";
+
+  if(skill.includes("Montáž")) return "skill-montaz";
+
+  if(skill.includes("Revize")) return "skill-revize";
+
+  if(skill.includes("Kancelář")) return "skill-kancelar";
+
+  return "";
+}
+function jobCard(j,a){
+  const worker = a ? workerById(a.workerId) : null;
+  const vehicle = a ? vehicleById(a.vehicleId) : null;
+  const leadWorker = j.leadWorkerId
+  ? workerById(j.leadWorkerId)
+  : null;
+  const sameDayAssignments = a
+  ? db.assignments.filter(x =>
+      x.date === a.date &&
+      Number(x.jobId) === Number(a.jobId) &&
+      x.workerId
+    )
+  : [];
+  const crewNames = sameDayAssignments
+  .map(x => workerById(x.workerId)?.title)
+  .filter(Boolean);
+  const otherCrew = worker
+  ? crewNames.filter(n => n !== worker.title)
+  : crewNames;
+  const mismatch = 
+    a && 
+    worker &&
+    !workerHasSkill(worker,j.skill);
+  const p = jobProgress(j);
+  const badgeClass = 
+    p.over
+      ?"red"
+      :(p.pct>=85?"orange":"green");
+return `
+<div
+  class="
+    job
+    ${priorityClass(j.priority)}
+    ${skillClass(j.skill)}
+    ${jobVisualState(j)}
+    ${mismatch ? "skill-mismatch" : ""}
+  " 
+  draggable="true" data-job-id="${j.id}" data-assignment-id="${a?a.id:""}" ondragstart="dragJob(event)" ondblclick="${a?`openAssignment(${a.id})`:`openJob(${j.id})`}"><div class="job-title">${esc(j.title)}</div><div class="job-meta">${esc(j.address||"")}</div><div class="job-meta">${esc(j.contact||"")} ${esc(j.phone||"")}</div><div class="badges"><span class="badge">${esc(j.state||"Nová")}</span><span class="badge ${badgeClass}">${p.actual.toFixed(2)}/${p.estimated||0} hod.</span>${j.skill&&j.skill!=="Bez požadavku"?`<span class="badge skill">Pož.: ${esc(j.skill)}</span>`:""}${leadWorker ? `
+  <span class="badge">
+    ⭐ Vedoucí: ${esc(leadWorker.title)}
+  </span>
+` : ""}${worker ? `
+  <span class="badge">
+    👤 ${esc(worker.title)}
+  </span>
+` : ""}${otherCrew.length ? `
+  <span class="badge skill">
+    👥 ${esc(otherCrew.join(", "))}
+  </span>
+` : ""}${vehicle?`<span class="badge">🚐 ${esc(vehicle.title)}</span>`:""}${mismatch?`<span class="badge warn">⚠ odbornost</span>`:""}</div>${a ? `
+  <div class="quick-actions">
+    <button
+      class="secondary"
+      onclick="openAssignment(${a.id})">
+      Upravit plán
+    </button>
+  </div>
+` : ""}<div class="progress"><div style="width:${Math.min(p.pct,100)}%;background:${p.color}"></div></div>${p.over?`<div class="job-meta" style="color:#991b1b;font-weight:700">Přetaženo o ${(p.actual-p.estimated).toFixed(1)} hodin</div>`:""}
+${mismatch?`<div class="skill-note">⚠ Pracovník nemá požadovanou specializaci</div>`:""}</div>`;
+}
+function dragJob(ev){const card=ev.target.closest(".job");ev.dataTransfer.setData("jobId",card.dataset.jobId);ev.dataTransfer.setData("assignmentId",card.dataset.assignmentId||"");ev.dataTransfer.effectAllowed="move"}
+function allowDrop(ev){
+  ev.preventDefault();
+  ev.currentTarget.classList.add("dragover");
+}
+
+function leaveDrop(ev){
+  ev.currentTarget.classList.remove("dragover");
+}
+async function dropJob(ev){
+  if(!canEdit){
+    alert("Nemáte oprávnění k úpravám");
+    return;
+  }
+  ev.preventDefault();
+  ev.currentTarget.classList.remove("dragover");
+  const jobId = Number(ev.dataTransfer.getData("jobId"));
+  const assignmentId = Number(ev.dataTransfer.getData("assignmentId") || 0);
+  const rowKind = ev.currentTarget.dataset.rowKind;
+  const rowId = Number(ev.currentTarget.dataset.rowId);
+  const date = ev.currentTarget.dataset.date;
+  const job = jobById(jobId);
+  if(!job) return;
+  let a = assignmentId
+    ? assignmentById(assignmentId)
+    : null;
+  if(!a){
+    a = {
+      id: nextId(db.assignments),
+      jobId,
+      workerId: null,
+      vehicleId: null,
+      date,
+      load: Number(job.load || 10),
+      vehicleLoad: Number(job.vehicleLoad || 10)
+    };
+    db.assignments.push(a);
+  }
+  a.date = date;
+  if(rowKind === "worker"){
+    const hasAbsence = db.absences.some(x =>
+  Number(x.workerId) === Number(rowId) &&
+  x.date === date
+);
+
+if(hasAbsence){
+
+  alert("Pracovník má v tento den volno.");
+
+  return;
+}
+    a.workerId = rowId;
+    const w = workerById(rowId);
+    if(w && !workerHasSkill(w, job.skill)){
+      setStatus("Upozornění: pracovník nemá požadovanou specializaci");
+    }
+  }
+  if(rowKind === "vehicle"){
+    a.vehicleId = rowId;
+  }
+  if(job.state === "Nová"){
+    job.state = "Naplánováno";
+  }
+  await saveDb();
+  render();
+}
+function syncEstimateFromDaysPeople(){
+  j_estimated.value =
+    (
+      Number(j_days.value || 0) *
+      Number(j_people.value || 0) *
+      10
+    ).toString();
+}
+function openJob(id){selectedJobId=id||null;const j=id?jobById(id):null;jobModalTitle.textContent=j?"Detail zakázky":"Nová zakázka";j_title.value=j?.title||"";j_address.value=j?.address||"";j_contact.value=j?.contact||"";j_phone.value = j?.phone || "";
+j_lead_worker.innerHTML =
+  `<option value="">Bez technika</option>` +
+  db.workers.map(w =>
+    `<option value="${w.id}">
+      ${esc(w.title)}
+    </option>`
+  ).join("");
+j_lead_worker.value = j?.leadWorkerId || "";j_priority.value=j?.priority||"Střední";j_skill.value=j?.skill||"Bez požadavku";j_state.value=j?.state||"Nová";j_days.value=j?.days||1;j_people.value=j?.people||1;j_estimated.value = j?.estimated || ((j?.days || 1) * (j?.people || 1) * 10);
+j_load.value = j?.load || 10;
+j_vehicle_load.value = j?.vehicleLoad || 10;j_from.value=j?.timeFrom||"";j_to.value=j?.timeTo||"";j_note.value=j?.note||"";deleteJobBtn.classList.toggle("hidden",!j);duplicateJobBtn.classList.toggle("hidden",!j);completeJobBtn.classList.toggle("hidden",!j);invoiceJobBtn.classList.toggle("hidden",!j);if(j){
+  const p = jobProgress(j);
+  jobStats.innerHTML = `
+    Odhad: <b>${p.estimated}</b> hodin ·
+    Naplánováno: <b>${p.actual.toFixed(1)}</b> ·
+    Zbývá: <b>${(p.estimated - p.actual).toFixed(1)}</b> hod.
+    ${p.over ? " · <b style='color:#b91c1c'>PŘETAŽENO</b>" : ""}
+  `;
+  if(j.updatedBy){
+    jobStats.innerHTML += `
+      <br>
+      Poslední změna:
+      <b>${j.updatedBy}</b>
+    `;
+  }
+}else{
+  jobStats.innerHTML = "";
+}
+openModal("jobModal");
+}
+function getJobPayload(){
+  return{
+    title:j_title.value.trim(),
+    address:j_address.value.trim(),
+    contact:j_contact.value.trim(),
+    phone:j_phone.value.trim(),
+    leadWorkerId: j_lead_worker.value
+  ? Number(j_lead_worker.value)
+  : null,
+    priority:j_priority.value,
+    skill:j_skill.value,
+    state:j_state.value,
+    days:Number(j_days.value||1),
+    people:Number(j_people.value||1),
+    estimated:Number(j_estimated.value||10),
+    load:Number(j_load.value||10),
+    vehicleLoad:Number(j_vehicle_load.value||10),
+    timeFrom:j_from.value,
+    timeTo:j_to.value,
+    note:j_note.value.trim(),
+    updatedAt:new Date().toISOString(),
+    updatedBy:currentUser?.email || "neznámý"
+  }
+}
+ function syncHoursFromTime(){
+  if(!j_from.value || !j_to.value) return;
+  const [fh,fm] = j_from.value.split(":").map(Number);
+  const [th,tm] = j_to.value.split(":").map(Number);
+  const from = fh + fm / 60;
+  const to = th + tm / 60;
+  let diff = to - from;
+  if(diff < 0){
+    diff += 24;
+  }
+  j_load.value = diff.toFixed(1);
+  j_vehicle_load.value = diff.toFixed(1);
+  if(diff > 10){
+    setStatus("Pozor: překročen standard 10 hodin");
+  }
+}
+async function saveJob(){
+  if(!canEdit){
+    alert("Nemáte oprávnění k úpravám");
+    return;
+  }
+  const p = getJobPayload();
+  if(!p.title){
+    alert("Vyplň název zakázky.");
+    return;
+  }
+  if(selectedJobId){
+    const i = db.jobs.findIndex(
+      j => Number(j.id) === Number(selectedJobId)
+    );
+    db.jobs[i] = {
+      ...db.jobs[i],
+      ...p
+    };
+  }else{
+    db.jobs.push({
+      id: nextId(db.jobs),
+      invoiced: p.state === "Vyfakturováno",
+      ...p
+    });
+  }
+  if(p.state === "Vyfakturováno"){
+    const j = selectedJobId
+      ? jobById(selectedJobId)
+      : db.jobs[db.jobs.length - 1];
+    if(j){
+      j.invoiced = true;
+    }
+  }
+  const ok = await saveDb();
+  if(!ok) return;
+  closeModal("jobModal");
+  render();
+}
+async function deleteJob(){
+  if(!canEdit){
+    alert("Nemáte oprávnění k úpravám");
+    return;
+  }
+  if(!selectedJobId) return;
+  if(!confirm("Smazat zakázku včetně jejího přiřazení v plánu?")){
+    return;
+  }
+  db.jobs = db.jobs.filter(
+    j => Number(j.id) !== Number(selectedJobId)
+  );
+  db.assignments = db.assignments.filter(
+    a => Number(a.jobId) !== Number(selectedJobId)
+  );
+  await saveDb();
+  closeModal("jobModal");
+  render();
+}
+async function duplicateJob(){if(!selectedJobId)return;const j=jobById(selectedJobId);if(!j)return;db.jobs.push({...j,id:nextId(db.jobs),title:j.title+" - kopie",state:"Nová",invoiced:false});await saveDb();closeModal("jobModal");render()}
+async function setJobState(state){if(!selectedJobId)return;const j=jobById(selectedJobId);if(!j)return;j.state=state;if(state==="Vyfakturováno")j.invoiced=true;await saveDb();closeModal("jobModal");render()}
+function openWorker(id){selectedWorkerId=id||null;const w=id?workerById(id):null;workerModalTitle.textContent=w?"Detail pracovníka":"Nový pracovník";w_title.value=w?.title||"";w_email.value=w?.email||"";w_phone.value=w?.phone||"";w_capacity.value=w?.capacity||10;setSelectedMulti("w_skills",w?.skills||[]);deleteWorkerBtn.classList.toggle("hidden",!w);openModal("workerModal")}
+async function saveWorker(){
+  if(!canEdit){
+    alert("Nemáte oprávnění k úpravám");
+    return;
+  }
+  const p = {
+    title: w_title.value.trim(),
+    email: w_email.value.trim(),
+    phone: w_phone.value.trim(),
+    capacity: Number(w_capacity.value || 0),
+    skills: getSelectedMulti("w_skills")
+  };
+  if(!p.title){
+    alert("Vyplň jméno pracovníka.");
+    return;
+  }
+  if(selectedWorkerId){
+    const i = db.workers.findIndex(
+      w => Number(w.id) === Number(selectedWorkerId)
+    );
+    db.workers[i] = {
+      ...db.workers[i],
+      ...p
+    };
+  }else{
+    db.workers.push({
+      id: nextId(db.workers),
+      ...p
+    });
+  }
+  const ok = await saveDb();
+  if(!ok) return;
+  closeModal("workerModal");
+  render();
+}
+async function deleteWorker(){
+  if(!canEdit){
+    alert("Nemáte oprávnění k úpravám");
+    return;
+  }
+  if(!selectedWorkerId) return;
+  if(!confirm("Smazat pracovníka? Zakázky zůstanou, jen se odebere pracovník z přiřazení.")){
+    return;
+  }
+  db.workers = db.workers.filter(
+    w => Number(w.id) !== Number(selectedWorkerId)
+  );
+  db.assignments.forEach(a => {
+    if(Number(a.workerId) === Number(selectedWorkerId)){
+      a.workerId = null;
+    }
+  });
+  db.assignments = db.assignments.filter(
+    a => a.workerId || a.vehicleId
+  );
+  await saveDb();
+  closeModal("workerModal");
+  render();
+}
+function openVehicle(id){selectedVehicleId=id||null;const v=id?vehicleById(id):null;vehicleModalTitle.textContent=v?"Detail vozidla":"Nové vozidlo";v_title.value=v?.title||"";v_spz.value=v?.spz||"";v_type.value=v?.type||"";v_capacity.value=v?.capacity||10;v_note.value=v?.note||"";deleteVehicleBtn.classList.toggle("hidden",!v);openModal("vehicleModal")}
+async function saveVehicle(){
+  if(!canEdit){
+    alert("Nemáte oprávnění k úpravám");
+    return;
+  }
+  const p = {
+    title: v_title.value.trim(),
+    spz: v_spz.value.trim(),
+    type: v_type.value.trim(),
+    capacity: Number(v_capacity.value || 10),
+    note: v_note.value.trim()
+  };
+  if(!p.title){
+    alert("Vyplň název vozidla.");
+    return;
+  }
+  if(selectedVehicleId){
+    const i = db.vehicles.findIndex(
+      v => Number(v.id) === Number(selectedVehicleId)
+    );
+    db.vehicles[i] = {
+      ...db.vehicles[i],
+      ...p
+    };
+  }else{
+    db.vehicles.push({
+      id: nextId(db.vehicles),
+      ...p
+    });
+  }
+  const ok = await saveDb();
+  if(!ok) return;
+  closeModal("vehicleModal");
+  render();
+}
+async function deleteVehicleDirect(id){selectedVehicleId=id;deleteVehicle()}
+async function deleteVehicle(){
+  if(!canEdit){
+    alert("Nemáte oprávnění k úpravám");
+    return;
+  }
+  if(!selectedVehicleId) return;
+  if(!confirm("Smazat vozidlo? Zakázky zůstanou, jen se odebere vozidlo z přiřazení.")){
+    return;
+  }
+  db.vehicles = db.vehicles.filter(
+    v => Number(v.id) !== Number(selectedVehicleId)
+  );
+  db.assignments.forEach(a => {
+    if(Number(a.vehicleId) === Number(selectedVehicleId)){
+      a.vehicleId = null;
+    }
+  });
+  db.assignments = db.assignments.filter(
+    a => a.workerId || a.vehicleId
+  );
+  await saveDb();
+  closeModal("vehicleModal");
+  render();
+}
+function openAssignment(id){selectedAssignmentId=id;const a=assignmentById(id);if(!a)return;const j=jobById(a.jobId);a_job_title.value=j?.title||"";a_date.value=a.date||iso(new Date());a_load.value=a.load||10;a_vehicle_load.value=a.vehicleLoad||10;a_worker.innerHTML=`<option value="">Bez pracovníka</option>`+db.workers.map(w=>`<option value="${w.id}">${esc(w.title)}</option>`).join("");a_worker.value=a.workerId||"";a_vehicle.innerHTML=`<option value="">Bez vozidla</option>`+db.vehicles.map(v=>`<option value="${v.id}">${esc(v.title)} ${v.spz?"· "+esc(v.spz):""}</option>`).join("");a_vehicle.value=a.vehicleId||"";openModal("assignModal")}
+async function saveAssignmentFromModal(){
+  if(!canEdit){
+    alert("Nemáte oprávnění k úpravám");
+    return;
+  }
+  const a = assignmentById(selectedAssignmentId);
+  if(!a) return;
+  a.date = a_date.value;
+  a.workerId = a_worker.value
+    ? Number(a_worker.value)
+    : null;
+  a.vehicleId = a_vehicle.value
+    ? Number(a_vehicle.value)
+    : null;
+  a.load = Number(a_load.value || 10);
+  a.vehicleLoad = Number(a_vehicle_load.value || 10);
+  if(!a.workerId && !a.vehicleId){
+    db.assignments = db.assignments.filter(
+      x => Number(x.id) !== Number(a.id)
+    );
+  }
+  await saveDb();
+  closeModal("assignModal");
+  render();
+}
+async function unassignCurrent(){
+  if(!canEdit){
+    alert("Nemáte oprávnění k úpravám");
+    return;
+  }
+  if(!selectedAssignmentId) return;
+  db.assignments = db.assignments.filter(
+    a => Number(a.id) !== Number(selectedAssignmentId)
+  );
+  await saveDb();
+  closeModal("assignModal");
+  render();
+}
+function exportData(){
+  if(!canEdit){
+    alert("Nemáte oprávnění k exportu");
+    return;
+  }
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="elmorrel-dispecink-data.json";a.click();URL.revokeObjectURL(url)
+}
+async function importData(e){
+  if(!canEdit){
+    alert("Nemáte oprávnění k úpravám");
+    return;
+  }
+  const file = e.target.files[0];
+  if(!file) return;
+  const r = new FileReader();
+  r.onload = async () => {
+    try{
+      let imported = JSON.parse(r.result);
+      if(imported.data){
+        imported = imported.data;
+      }
+      if(
+        !Array.isArray(imported.jobs) ||
+        !Array.isArray(imported.workers) ||
+        !Array.isArray(imported.vehicles) ||
+        !Array.isArray(imported.assignments)
+      ){
+        alert("Soubor nemá správnou strukturu.");
+        return;
+      }
+      db = imported;
+      const ok = await saveDb();
+      if(!ok) return;
+      render();
+      alert("Import hotový.");
+    }catch(err){
+      console.error("IMPORT ERROR:", err);
+      alert("Import se nepodařil: " + err.message);
+    }
+  };
+  r.readAsText(file);
+  e.target.value = "";
+}
+let realtimeChannel = null;
+function startRealtime(){
+  if(!currentUser) return;
+  if(realtimeChannel){
+    supabaseClient.removeChannel(realtimeChannel);
+  }
+  realtimeChannel = supabaseClient
+    .channel("app_state_changes")
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "app_state"
+      },
+      async (payload) => {
+        console.log("Realtime změna", payload);
+        const { data, error } = await supabaseClient
+          .from("app_state")
+          .select("data")
+          .eq("id",1)
+          .single();
+        if(error){
+          console.error(error);
+          return;
+        }
+        if(data?.data){
+          db = data.data;
+          if(!db.notes){
+            db.notes = [];
+          }
+        if(!db.absences){
+          db.absences = [];
+        }
+          render();
+          setStatus("Aktualizováno z cloudu");
+        }
+      }
+    )
+    .subscribe((status)=>{
+      console.log("Realtime status:", status);
+    });
+}
+async function register(){
+  const email = loginEmail.value;
+  const password = loginPassword.value;
+  const { error } = await supabaseClient.auth.signUp({
+    email,
+    password
+  });
+  if(error){
+    alert(error.message);
+    return;
+  }
+  alert("Uživatel vytvořen");
+}
+async function login(){ 
+  const email = loginEmail.value;
+  const password = loginPassword.value;
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+  if(error){
+    alert(error.message);
+    return;
+  }
+currentUser = data.user;
+document.querySelector(".layout").style.display = "";
+document.querySelector(".toolbar").style.display = "";
+await checkEditor();
+await loadDb();
+startRealtime();
+currentUserDiv();
+}
+async function logout(){
+  await supabaseClient.auth.signOut();
+  currentUser = null;
+  realtimeSubscribed = false;
+document.querySelector(".layout").style.display = "none";
+document.querySelector(".toolbar").style.display = "none";
+currentUserDiv();
+setStatus("Nepřihlášen");
+}
+function currentUserDiv(){
+  const el = document.getElementById("currentUserBox");
+  const loginBox = document.getElementById("loginBox");
+  const logoutBtn = document.getElementById("logoutBtn");
+  if(currentUser){
+    el.innerHTML = "Přihlášen: " + currentUser.email;
+    loginBox.style.display = "none";
+    logoutBtn.style.display = "";
+  }else{
+    el.innerHTML = "Nepřihlášen";
+    loginBox.style.display = "";
+    logoutBtn.style.display = "none";
+  }
+}
+async function checkEditor(){
+  if(!currentUser){
+    canEdit = false;
+    return;
+  }
+  const { data } = await supabaseClient
+    .from("editors")
+    .select("email")
+    .eq("email", currentUser.email)
+    .maybeSingle();
+  canEdit = !!data;
+}
+supabaseClient.auth.getUser().then(async ({ data }) => {
+  currentUser = data.user;
+  currentUserDiv();
+  if(currentUser){
+    document.querySelector(".layout").style.display = "";
+    document.querySelector(".toolbar").style.display = "";
+    await checkEditor();
+    await loadDb();
+    startRealtime();
+  }else{
+    document.querySelector(".layout").style.display = "none";
+    document.querySelector(".toolbar").style.display = "none";
+    setStatus("Nepřihlášen");
+  }
+});
+</script>
+</body>
+</html>
+
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
