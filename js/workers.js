@@ -1,4 +1,13 @@
-function openWorker(id){selectedWorkerId=id||null;const w=id?workerById(id):null;workerModalTitle.textContent=w?"Detail pracovníka":"Nový pracovník";w_title.value=w?.title||"";w_email.value=w?.email||"";w_phone.value=w?.phone||"";w_capacity.value=w?.capacity||10;setSelectedMulti("w_skills",w?.skills||[]);deleteWorkerBtn.classList.toggle("hidden",!w);openModal("workerModal")}
+function openWorker(id){selectedWorkerId=id||null;
+  const w=id?workerById(id):null;
+  workerModalTitle.textContent=w?"Detail pracovníka":"Nový pracovník";
+  w_title.value=w?.title||"";
+  w_email.value=w?.email||"";
+  w_phone.value=w?.phone||"";
+  w_capacity.value=w?.capacity||10;
+  setSelectedMulti("w_skills",w?.skills||[]);
+  deleteWorkerBtn.classList.toggle("hidden",!w);
+  openModal("workerModal")}
 async function saveWorker(){
   if(!canEdit){
     alert("Nemáte oprávnění k úpravám");
@@ -57,4 +66,8 @@ async function deleteWorker(){
   await saveDb();
   closeModal("workerModal");
   render();
+}
+async function deleteWorkerDirect(id){
+  selectedWorkerId = id;
+  deleteWorker();
 }
