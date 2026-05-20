@@ -1,11 +1,17 @@
 function render(){renderHeader();renderSide();renderBoard()}
-function renderHeader(){const days=["Pracovník"];for(let i=0;i<7;i++)days.push(czDate(addDays(weekStart,i)));head.innerHTML=days.map(d=>`<div>${esc(d)}</div>`).join("")}
-function renderSide(){const assigned=new Set(db.assignments.map(a=>Number(a.jobId))),filter=jobFilter.value;jobsTitle.textContent=filter==="archive"?"Archiv zakázek":filter==="to_invoice"?"Čeká na fakturaci":filter==="overrun"?"Přetažené zakázky":"Zakázky";
+
+function renderHeader(){const days=["Pracovník"];
+  for(let i=0;i<7;i++)days.push(czDate(addDays(weekStart,i)));
+  head.innerHTML=days.map(d=>`<div>${esc(d)}</div>`).join("")}
+
+function renderSide(){const assigned=new Set(db.assignments.map(a=>Number(a.jobId))),
+  filter=jobFilter.value;jobsTitle.textContent=filter==="archive"?"Archiv zakázek":filter==="to_invoice"?"Čeká na fakturaci":filter==="overrun"?"Přetažené zakázky":"Zakázky";
   let visible=db.jobs.filter(j=>matchesFilter(j)&&matchesSearch(j));
   let side = visible;if(filter !== "archive"){
   side = visible.filter(j => j.state !== "Vyfakturováno")};unassigned.innerHTML=side.length?side.map(j=>jobCard(j,null)).join(""):`<div class="empty">Žádné zakázky v tomto pohledu.</div>`;
 peopleList.innerHTML=db.workers.length?db.workers.map(w=>`<div class="mini-card" ondblclick="openWorker(${w.id})"><div class="job-title">${esc(w.title)}</div><div class="job-meta">${esc(w.email||"")}</div><div class="badges">${(w.skills||[]).map(s=>`<span class="badge skill">${esc(s)}</span>`).join("")}</div><div class="quick-actions"><button class="secondary" onclick="openWorker(${w.id})">Upravit</button><button class="danger" onclick="deleteWorkerDirect(${w.id})">Smazat</button></div></div>`).join(""):`<div class="empty">Zatím nejsou založení pracovníci.</div>`;
 carsList.innerHTML=db.vehicles.length?db.vehicles.map(v=>`<div class="mini-card" ondblclick="openVehicle(${v.id})"><div class="job-title">${esc(v.title)}</div><div class="job-meta">${esc(v.spz||"")} ${esc(v.type||"")}</div><div class="quick-actions"><button class="secondary" onclick="openVehicle(${v.id})">Upravit</button><button class="danger" onclick="deleteVehicleDirect(${v.id})">Smazat</button></div></div>`).join(""):`<div class="empty">Zatím nejsou založená vozidla.</div>`}
+
 function renderBoard(){
   const r = rows();
   if(!r.length){
@@ -43,9 +49,7 @@ function renderBoard(){
      const used = usedCapacity(row,ass,date);
      const absences = db.absences.filter(x =>
   Number(x.workerId) === Number(row.id) &&
-  x.date === iso(date)
-);
-
+  x.date === iso(date));
 const hasAbsence = absences.length > 0;
   html += `
     <div
@@ -62,7 +66,6 @@ const hasAbsence = absences.length > 0;
         <span>${used}/${row.capacity} hod.</span>
         <span>${used > row.capacity ? "PŘETÍŽENO" : ""}</span>
       </div>
-  
       ${row.kind === "worker" ? `
         <button
           class="secondary"
@@ -71,7 +74,6 @@ const hasAbsence = absences.length > 0;
           Volno
         </button>
       ` : ""}
-  
       ${row.kind === "worker" ? `
         <button
           class="day-note-add"
@@ -91,7 +93,6 @@ notes.forEach(note => {
     onclick="editExistingNote(${note.id})"
   >
     <span>📝 ${esc(note.text)}</span>
-
     <button
       class="note-delete"
       onclick="event.stopPropagation(); deleteDayNote(${note.id})">
@@ -101,21 +102,13 @@ notes.forEach(note => {
 `;
 });
 absences.forEach(a => {
-
   let color = "#94a3b8";
-
   if(a.type.includes("Dovolená")){
-    color = "#0ea5e9";
-  }
-
+    color = "#0ea5e9";}
   if(a.type.includes("Nemoc")){
-    color = "#dc2626";
-  }
-
+    color = "#dc2626";}
   if(a.type.includes("Školení")){
-    color = "#8b5cf6";
-  }
-
+    color = "#8b5cf6";}
   html += `
     <div
       class="job"
@@ -124,9 +117,7 @@ absences.forEach(a => {
         color:white;
         border-left:none;
         position:relative;
-      "
-    >
-
+      ">
       <button
         onclick="deleteAbsence(${a.id})"
         style="
@@ -140,18 +131,13 @@ absences.forEach(a => {
           cursor:pointer;
           padding:2px 6px;
           font-size:11px;
-        "
-      >
-        ✕
+        ">✕
       </button>
-
       <div class="job-title">
         ${esc(a.type)}
       </div>
-
     </div>
-  `;
-});
+  `;});
       ass.forEach(a => {
         const j = jobById(a.jobId);
         if(j){
@@ -162,26 +148,18 @@ absences.forEach(a => {
     }
     html += `</div>`;
     return html;
-  }).join("");
-}
+  }).join("");}
+
 function skillClass(skill){
-
   if(!skill) return "";
-
   if(skill.includes("Elektro")) return "skill-elektro";
-
   if(skill.includes("Optika")) return "skill-optika";
-
   if(skill.includes("Servis")) return "skill-servis";
-
   if(skill.includes("Montáž")) return "skill-montaz";
-
   if(skill.includes("Revize")) return "skill-revize";
-
   if(skill.includes("Kancelář")) return "skill-kancelar";
+  return "";}
 
-  return "";
-}
 function jobCard(j,a){
   const worker = a ? workerById(a.workerId) : null;
   const vehicle = a ? vehicleById(a.vehicleId) : null;
@@ -192,9 +170,7 @@ function jobCard(j,a){
   ? db.assignments.filter(x =>
       x.date === a.date &&
       Number(x.jobId) === Number(a.jobId) &&
-      x.workerId
-    )
-  : [];
+      x.workerId): [];
   const crewNames = sameDayAssignments
   .map(x => workerById(x.workerId)?.title)
   .filter(Boolean);
