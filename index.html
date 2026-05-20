@@ -15,6 +15,7 @@
 <script src="js/render.js"></script>
 <script src="js/jobs.js"></script>
 <script src="js/workers.js"></script>
+<script src="js/vehicles.js"></script>
 </head>
 
 <body>
@@ -414,67 +415,7 @@ if(hasAbsence){
   render();
 }
 
-function openVehicle(id){selectedVehicleId=id||null;const v=id?vehicleById(id):null;vehicleModalTitle.textContent=v?"Detail vozidla":"Nové vozidlo";v_title.value=v?.title||"";v_spz.value=v?.spz||"";v_type.value=v?.type||"";v_capacity.value=v?.capacity||10;v_note.value=v?.note||"";deleteVehicleBtn.classList.toggle("hidden",!v);openModal("vehicleModal")}
-async function saveVehicle(){
-  if(!canEdit){
-    alert("Nemáte oprávnění k úpravám");
-    return;
-  }
-  const p = {
-    title: v_title.value.trim(),
-    spz: v_spz.value.trim(),
-    type: v_type.value.trim(),
-    capacity: Number(v_capacity.value || 10),
-    note: v_note.value.trim()
-  };
-  if(!p.title){
-    alert("Vyplň název vozidla.");
-    return;
-  }
-  if(selectedVehicleId){
-    const i = db.vehicles.findIndex(
-      v => Number(v.id) === Number(selectedVehicleId)
-    );
-    db.vehicles[i] = {
-      ...db.vehicles[i],
-      ...p
-    };
-  }else{
-    db.vehicles.push({
-      id: nextId(db.vehicles),
-      ...p
-    });
-  }
-  const ok = await saveDb();
-  if(!ok) return;
-  closeModal("vehicleModal");
-  render();
-}
-async function deleteVehicleDirect(id){selectedVehicleId=id;deleteVehicle()}
-async function deleteVehicle(){
-  if(!canEdit){
-    alert("Nemáte oprávnění k úpravám");
-    return;
-  }
-  if(!selectedVehicleId) return;
-  if(!confirm("Smazat vozidlo? Zakázky zůstanou, jen se odebere vozidlo z přiřazení.")){
-    return;
-  }
-  db.vehicles = db.vehicles.filter(
-    v => Number(v.id) !== Number(selectedVehicleId)
-  );
-  db.assignments.forEach(a => {
-    if(Number(a.vehicleId) === Number(selectedVehicleId)){
-      a.vehicleId = null;
-    }
-  });
-  db.assignments = db.assignments.filter(
-    a => a.workerId || a.vehicleId
-  );
-  await saveDb();
-  closeModal("vehicleModal");
-  render();
-}
+
 function openAssignment(id){selectedAssignmentId=id;const a=assignmentById(id);if(!a)return;const j=jobById(a.jobId);a_job_title.value=j?.title||"";a_date.value=a.date||iso(new Date());a_load.value=a.load||10;a_vehicle_load.value=a.vehicleLoad||10;a_worker.innerHTML=`<option value="">Bez pracovníka</option>`+db.workers.map(w=>`<option value="${w.id}">${esc(w.title)}</option>`).join("");a_worker.value=a.workerId||"";a_vehicle.innerHTML=`<option value="">Bez vozidla</option>`+db.vehicles.map(v=>`<option value="${v.id}">${esc(v.title)} ${v.spz?"· "+esc(v.spz):""}</option>`).join("");a_vehicle.value=a.vehicleId||"";openModal("assignModal")}
 async function saveAssignmentFromModal(){
   if(!canEdit){
