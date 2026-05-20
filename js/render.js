@@ -45,7 +45,6 @@ function renderBoard(){
   Number(x.workerId) === Number(row.id) &&
   x.date === iso(date)
 );
-}}}
 function skillClass(skill){
 
   if(!skill) return "";
