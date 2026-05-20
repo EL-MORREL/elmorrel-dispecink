@@ -4,8 +4,8 @@ function renderHeader(){const days=["Pracovník"];
   for(let i=0;i<7;i++)days.push(czDate(addDays(weekStart,i)));
   head.innerHTML=days.map(d=>`<div>${esc(d)}</div>`).join("")}
 
-function renderSide(){const assigned=new Set(db.assignments.map(a=>Number(a.jobId))),
-  filter=jobFilter.value;jobsTitle.textContent=filter==="archive"?"Archiv zakázek":filter==="to_invoice"?"Čeká na fakturaci":filter==="overrun"?"Přetažené zakázky":"Zakázky";
+function renderSide(){
+  const filter=jobFilter.value;jobsTitle.textContent=filter==="archive"?"Archiv zakázek":filter==="to_invoice"?"Čeká na fakturaci":filter==="overrun"?"Přetažené zakázky":"Zakázky";
   let visible=db.jobs.filter(j=>matchesFilter(j)&&matchesSearch(j));
   let side = visible;if(filter !== "archive"){
   side = visible.filter(j => j.state !== "Vyfakturováno")};unassigned.innerHTML=side.length?side.map(j=>jobCard(j,null)).join(""):`<div class="empty">Žádné zakázky v tomto pohledu.</div>`;
