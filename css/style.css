@@ -1,4 +1,3 @@
-<style>
 :root{--blue:#0f6cbd;--blue2:#0b5cab;--bg:#f4f7fb;--line:#dbe3ef;--text:#152033;--muted:#607086;--red:#dc2626;--orange:#d97706;--green:#16a34a;--shadow:0 8px 24px rgba(15,35,65,.10)}
 *{box-sizing:border-box}
 html,body{
@@ -356,5 +355,3 @@ aside{
     height:5px;
   }
 }  
-
-</style>
