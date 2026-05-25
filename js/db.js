@@ -43,7 +43,7 @@ async function loadDb(){
       v.capacity = 10;
     }
   });
-
+render();
 }
 async function saveDb(){
   if(!currentUser){
