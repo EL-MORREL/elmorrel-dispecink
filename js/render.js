@@ -189,6 +189,21 @@ function jobCard(j,a){
     p.over
       ?"red"
       :(p.pct>=85?"orange":"green");
+  const vehicleCrew =
+  vehicle && a
+    ? vehicleCrewCount(vehicle.id, a.date)
+    : 0;
+
+const vehicleCapacity =
+  vehicle
+    ? Number(vehicle.peopleCapacity || 5)
+    : 0;
+
+const vehicleBadge = vehicle
+  ? `<span class="badge ${vehicleCrew > vehicleCapacity ? "warn" : ""}">
+      🚐 ${esc(vehicle.title)} · 👥 ${vehicleCrew}/${vehicleCapacity}
+    </span>`
+  : "";
 return `
 <div class=" job
     ${priorityClass(j.priority)}
@@ -218,27 +233,7 @@ return `
   <span class="badge skill">
     👥 ${esc(otherCrew.join(", "))}
   </span>
-` : ""}${vehicle ? `
-  <span class="badge ${
-    a &&
-    vehicleCrewCount(vehicle.id, a.date) >
-    (vehicle.peopleCapacity || 5)
-      ? "warn"
-      : ""
-  }">
-    🚐 ${esc(vehicle.title)}
-    ${
-      a
-        ? ` · 👥 ${
-            vehicleCrewCount(
-              vehicle.id,
-              a.date
-            )
-          }/${
-            vehicle.peopleCapacity || 5
-          }`
-        : ""
-    }
+` : ""}${vehicleBadge}
   </span>
 ` : ""}${mismatch?`<span class="badge warn">⚠ odbornost</span>`:""}</div>${a ? `
   <div class="quick-actions">
