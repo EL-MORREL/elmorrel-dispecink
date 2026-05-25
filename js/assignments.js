@@ -145,20 +145,6 @@ if(hasAbsence){
     const w = workerById(rowId);
     if(w && !workerHasSkill(w, job.skill)){
       setStatus("Upozornění: pracovník nemá požadovanou specializaci");}}
-  Teď už je to čistě logika — render běží.
-
-Varování se nezobrazuje pravděpodobně proto, že kontrola běží až po přepsání vehicleId celé skupině, takže systém už nepozná konflikt.
-
-Oprav dropJob()
-
-V assignments.js
-
-Najdi:
-
-if(rowKind === "vehicle"){
-
-A nahraď CELÝ blok tímto:
-
 if(rowKind === "vehicle"){
 
   const duplicateVehicle =
