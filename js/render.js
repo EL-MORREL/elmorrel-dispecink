@@ -187,15 +187,23 @@ function jobCard(j,a){
       ?"red"
       :(p.pct>=85?"orange":"green");
 return `
-<div
-  class="
-    job
+<div class=" job
     ${priorityClass(j.priority)}
     ${skillClass(j.skill)}
     ${jobVisualState(j)}
     ${mismatch ? "skill-mismatch" : ""}
   " 
-  draggable="true" data-job-id="${j.id}" data-assignment-id="${a?a.id:""}" ondragstart="dragJob(event)" ondblclick="${a?`openAssignment(${a.id})`:`openJob(${j.id})`}"><div class="job-title">${esc(j.title)}</div><div class="job-meta">${esc(j.address||"")}</div><div class="job-meta">${esc(j.contact||"")} ${esc(j.phone||"")}</div><div class="badges"><span class="badge">${esc(j.state||"Nová")}</span><span class="badge ${badgeClass}">${p.actual.toFixed(2)}/${p.estimated||0} hod.</span>${j.skill&&j.skill!=="Bez požadavku"?`<span class="badge skill">Pož.: ${esc(j.skill)}</span>`:""}${leadWorker ? `
+  draggable="true" data-job-id="${j.id}" data-assignment-id="${a?a.id:""}" ondragstart="dragJob(event)" ondblclick="${a?`openAssignment(${a.id})`:`openJob(${j.id})`}">
+  <div class="job-title">${esc(j.title)}</div>
+  <div class="job-meta">${esc(j.address||"")}</div>
+  <div class="job-meta">${esc(j.contact||"")} ${esc(j.phone||"")}</div>
+  ${a?.note ? `
+  <div class="job-note"> 📝 ${esc(a.note)}</div>
+` : ""}
+  <div class="badges"><span class="badge">${esc(j.state||"Nová")}</span>
+  <span class="badge ${badgeClass}">${p.actual.toFixed(2)}/${p.estimated||0} hod.</span>
+  ${j.skill&&j.skill!=="Bez požadavku"?`<span class="badge skill">Pož.: ${esc(j.skill)}</span>
+  `:""}${leadWorker ? `
   <span class="badge">
     ⭐ Vedoucí: ${esc(leadWorker.title)}
   </span>
