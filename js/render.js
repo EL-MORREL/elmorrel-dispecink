@@ -63,23 +63,28 @@ const hasAbsence = absences.length > 0;
       ondrop="dropJob(event)"
     >
   
-      <div class="capacity ${used > row.capacity ? "over" : ""}">
-        <span>${used}/${row.capacity} hod.</span>
-        <span>${used > row.capacity ? "PŘETÍŽENO" : ""}</span>
-      </div>
-      ${row.kind === "worker" ? `
-        <button
-          class="secondary"
-          style="width:100%;margin-bottom:4px;padding:4px;font-size:10px"
-          onclick="addAbsence(${row.id},'${iso(date)}')">
-          Volno
-        </button>
-      ` : ""}
-      ${row.kind === "worker" ? `
-        <button class="day-note-add" onclick="editDayNote(${row.id},'${iso(date)}')">
-        📝 Přidat poznámku
-        </button>
-      ` : ""}
+     <div class="capacity ${used > row.capacity ? "over" : ""}">
+  <span>${used}/${row.capacity} hod.</span>
+  <span>${used > row.capacity ? "PŘETÍŽENO" : ""}</span>
+</div>
+
+${row.kind === "worker" ? `
+  <button
+    class="secondary"
+    style="width:100%;margin-bottom:4px;padding:4px;font-size:10px"
+    onclick="addAbsence(${row.id},'${iso(date)}')">
+    Volno
+  </button>
+` : ""}
+
+${row.kind === "worker" ? `
+  <button
+    class="day-note-add"
+    onclick="editDayNote(${row.id},'${iso(date)}')">
+    📝 Přidat poznámku
+  </button>
+` : ""}
+`;
       const notes =
   row.kind === "worker"
     ? getDayNotes(row.id, iso(date))
