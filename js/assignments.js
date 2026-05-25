@@ -178,6 +178,10 @@ async function saveAssignmentFromModal(){
   a.vehicleId = a_vehicle.value
     ? Number(a_vehicle.value)
     : null;
+      db.assignments.forEach(x => {
+  if(Number(x.jobId) === Number(a.jobId) && x.date === a.date
+  ){ x.vehicleId = a.vehicleId;
+     x.vehicleLoad = a.vehicleLoad;}});
   a.load = Number(a_load.value || 10);
   a.vehicleLoad = Number(a_vehicle_load.value || 10);
   a.note = a_note.value.trim();
@@ -185,6 +189,7 @@ async function saveAssignmentFromModal(){
     db.assignments = db.assignments.filter(
       x => Number(x.id) !== Number(a.id));
   }
+
   await saveDb();
   closeModal("assignModal");
   render();
