@@ -55,8 +55,3 @@ async function importData(e){
       alert("Import se nepodařil: " + err.message);}};
   r.readAsText(file);
   e.target.value = "";}
-
-window.addEventListener("DOMContentLoaded", async () => {
-  await loadDb();
-  render();
-});
