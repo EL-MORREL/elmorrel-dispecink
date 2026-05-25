@@ -47,6 +47,7 @@ function renderBoard(){
         );
       }
      const used = usedCapacity(row,ass,date);
+     const crewCount = row.kind === "vehicle" ? vehicleCrewCount(row.id,iso(date)): 0;
      const absences = db.absences.filter(x =>
   Number(x.workerId) === Number(row.id) &&
   x.date === iso(date));
@@ -75,12 +76,26 @@ const hasAbsence = absences.length > 0;
         </button>
       ` : ""}
       ${row.kind === "worker" ? `
-        <button
-          class="day-note-add"
-          onclick="editDayNote(${row.id},'${iso(date)}')">
-          📝 Přidat poznámku
+        <button class="day-note-add" onclick="editDayNote(${row.id},'${iso(date)}')">
+        📝 Přidat poznámku
         </button>
       ` : ""}
+      ${row.kind === "vehicle" ? `
+       <div class="capacity ${crewCount > row.peopleCapacity ? "over"
+      : ""
+  }">
+    <span>
+      👥 ${crewCount}/${row.peopleCapacity} osob
+    </span>
+    <span>
+      ${
+        crewCount > row.peopleCapacity
+          ? "PŘEPLNĚNO"
+          : ""
+      }
+    </span>
+  </div>
+` : ""}
   `;
       const notes =
   row.kind === "worker"
