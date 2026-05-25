@@ -151,7 +151,13 @@ if(hasAbsence){
     job.state = "Naplánováno";}
   await saveDb();
   render();}
-
+function vehicleCrewCount(vehicleId,date){
+  return db.assignments.filter(a =>
+    Number(a.vehicleId) === Number(vehicleId) &&
+    a.date === date &&
+    a.workerId
+  ).length;
+}
 function openAssignment(id){selectedAssignmentId=id;
   const a=assignmentById(id);if(!a)return;
   const j=jobById(a.jobId);a_job_title.value=j?.title||"";
