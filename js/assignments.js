@@ -145,7 +145,28 @@ if(hasAbsence){
     const w = workerById(rowId);
     if(w && !workerHasSkill(w, job.skill)){
       setStatus("Upozornění: pracovník nemá požadovanou specializaci");}}
-  if(rowKind === "vehicle"){
+  Teď už je to čistě logika — render běží.
+
+Varování se nezobrazuje pravděpodobně proto, že kontrola běží až po přepsání vehicleId celé skupině, takže systém už nepozná konflikt.
+
+Oprav dropJob()
+
+V assignments.js
+
+Najdi:
+
+if(rowKind === "vehicle"){
+
+A nahraď CELÝ blok tímto:
+
+if(rowKind === "vehicle"){
+
+  const duplicateVehicle =
+    db.assignments.some(x =>
+      Number(x.vehicleId) === Number(rowId) &&
+      x.date === date &&
+      Number(x.jobId) !== Number(jobId)
+    );
 
   a.vehicleId = rowId;
 
@@ -159,21 +180,13 @@ if(hasAbsence){
     }
   });
 
-  const duplicateVehicle =
-    db.assignments.some(x =>
-      Number(x.vehicleId) === Number(rowId) &&
-      x.date === date &&
-      Number(x.jobId) !== Number(jobId)
-    );
-
   if(duplicateVehicle){
     setStatus(
-      "⚠ Vozidlo je již plánováno na jiné zakázce"
+      "⚠ Vozidlo je již použito na jiné zakázce"
     );
   }
 
-  const vehicle =
-    vehicleById(rowId);
+  const vehicle = vehicleById(rowId);
 
   const crew =
     vehicleCrewCount(rowId, date);
