@@ -128,7 +128,8 @@ async function dropJob(ev){
       vehicleId: null,
       date,
       load: Number(job.load || 10),
-      vehicleLoad: Number(job.vehicleLoad || 10)
+      vehicleLoad: Number(job.vehicleLoad || 10),
+      note: ""
     };
     db.assignments.push(a);
   }
