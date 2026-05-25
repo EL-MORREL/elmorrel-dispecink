@@ -161,7 +161,9 @@ function openAssignment(id){selectedAssignmentId=id;
   a_worker.innerHTML=`<option value="">Bez pracovníka</option>`+db.workers.map(w=>`<option value="${w.id}">${esc(w.title)}</option>`).join("");
   a_worker.value=a.workerId||"";
   a_vehicle.innerHTML=`<option value="">Bez vozidla</option>`+db.vehicles.map(v=>`<option value="${v.id}">${esc(v.title)} ${v.spz?"· "+esc(v.spz):""}</option>`).join("");
-  a_vehicle.value=a.vehicleId||"";openModal("assignModal")}
+  a_vehicle.value=a.vehicleId||"";openModal("assignModal");
+  a_note.value = a.note || ""}
+
 
 async function saveAssignmentFromModal(){
   if(!canEdit){
@@ -180,8 +182,8 @@ async function saveAssignmentFromModal(){
   a.vehicleLoad = Number(a_vehicle_load.value || 10);
   if(!a.workerId && !a.vehicleId){
     db.assignments = db.assignments.filter(
-      x => Number(x.id) !== Number(a.id)
-    );
+      x => Number(x.id) !== Number(a.id));
+  a.note = a_note.value.trim();
   }
   await saveDb();
   closeModal("assignModal");
