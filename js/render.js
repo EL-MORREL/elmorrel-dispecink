@@ -234,8 +234,13 @@ return `
     👥 ${esc(otherCrew.join(", "))}
   </span>
 ` : ""}
- ${vehicleBadge}
- ${mismatch?`<span class="badge warn">⚠ odbornost</span>`:""}</div>${a ? `
+
+${vehicleBadge}
+
+${mismatch
+  ? `<span class="badge warn">⚠ odbornost</span>`
+  : ""
+}</div>${a ? `
   <div class="quick-actions">
     <button
       class="secondary"
