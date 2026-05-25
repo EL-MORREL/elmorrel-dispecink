@@ -5,6 +5,7 @@ function openVehicle(id){selectedVehicleId=id||null;
   v_type.value=v?.type||"";
   v_capacity.value=v?.capacity||10;
   v_note.value=v?.note||"";
+  v_people_capacity.value = v?.peopleCapacity || 5;
   deleteVehicleBtn.classList.toggle("hidden",!v);
   openModal("vehicleModal")}
 
@@ -17,6 +18,7 @@ async function saveVehicle(){
     spz: v_spz.value.trim(),
     type: v_type.value.trim(),
     capacity: Number(v_capacity.value || 10),
+    peopleCapacity: Number( v_people_capacity.value || 5),
     note: v_note.value.trim()};
   if(!p.title){
     alert("Vyplň název vozidla.");
