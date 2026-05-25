@@ -213,7 +213,7 @@ function openAssignment(id){selectedAssignmentId=id;
   const a=assignmentById(id);if(!a)return;
   const j=jobById(a.jobId);a_job_title.value=j?.title||"";
   a_date.value=a.date||iso(new Date());
-  a_load.value=a.load||10;
+  a_load.value=a.load||10;                          
   a_vehicle_load.value=a.vehicleLoad||10;
   a_worker.innerHTML=`<option value="">Bez pracovníka</option>`+db.workers.map(w=>`<option value="${w.id}">${esc(w.title)}</option>`).join("");
   a_worker.value=a.workerId||"";
@@ -232,6 +232,7 @@ async function saveAssignmentFromModal(){
   a.workerId = a_worker.value
     ? Number(a_worker.value)
     : null;
+  a.load = Number(a_load.value || 10);
   a.vehicleId = a_vehicle.value
     ? Number(a_vehicle.value)
     : null;
@@ -239,7 +240,6 @@ async function saveAssignmentFromModal(){
   if(Number(x.jobId) === Number(a.jobId) && x.date === a.date
   ){ x.vehicleId = a.vehicleId;
      x.vehicleLoad = a.vehicleLoad;}});
-  a.load = Number(a_load.value || 10);
   a.vehicleLoad = Number(a_vehicle_load.value || 10);
   a.note = a_note.value.trim();
   if(!a.workerId && !a.vehicleId){
