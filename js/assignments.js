@@ -192,11 +192,22 @@ if(hasAbsence){
   await saveDb();
   render();}
 function vehicleCrewCount(vehicleId,date){
-  return db.assignments.filter(a =>
-    Number(a.vehicleId) === Number(vehicleId) &&
-    a.date === date &&
-    a.workerId
-  ).length;
+
+  const workers = new Set();
+
+  db.assignments.forEach(a => {
+
+    if(
+      Number(a.vehicleId) === Number(vehicleId) &&
+      a.date === date &&
+      a.workerId
+    ){
+      workers.add(Number(a.workerId));
+    }
+
+  });
+
+  return workers.size;
 }
 function openAssignment(id){selectedAssignmentId=id;
   const a=assignmentById(id);if(!a)return;
