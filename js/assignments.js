@@ -145,47 +145,9 @@ if(hasAbsence){
     const w = workerById(rowId);
     if(w && !workerHasSkill(w, job.skill)){
       setStatus("Upozornění: pracovník nemá požadovanou specializaci");}}
-if(rowKind === "vehicle"){
-
-  const duplicateVehicle =
-    db.assignments.some(x =>
-      Number(x.vehicleId) === Number(rowId) &&
-      x.date === date &&
-      Number(x.jobId) !== Number(jobId)
-    );
-
-  a.vehicleId = rowId;
-
-  db.assignments.forEach(x => {
-    if(
-      Number(x.jobId) === Number(a.jobId) &&
-      x.date === a.date
-    ){
-      x.vehicleId = a.vehicleId;
-      x.vehicleLoad = a.vehicleLoad;
-    }
-  });
-
-  if(duplicateVehicle){
-    alert(
+alert(
   "⚠ Vozidlo je již použito na jiné zakázce"
 );
-  }
-
-  const vehicle = vehicleById(rowId);
-
-  const crew =
-    vehicleCrewCount(rowId, date);
-
-  if(
-    vehicle &&
-    crew > (vehicle.peopleCapacity || 5)
-  ){
-    setStatus(
-      "⚠ Překročena kapacita vozidla"
-    );
-  }
-}
   if(job.state === "Nová"){
     job.state = "Naplánováno";}
   await saveDb();
