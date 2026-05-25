@@ -48,65 +48,98 @@
   </div>
 </header>
 <div class="toolbar">
-<button onclick="openJob()">+ Zakázka</button><button onclick="openWorker()">+ Pracovník</button><button onclick="openVehicle()">+ Vozidlo</button>
-<button class="secondary" onclick="prevWeek()">← týden</button><button class="secondary" onclick="goToday()">dnes</button><button class="secondary" onclick="nextWeek()">týden →</button>
+<button onclick="openJob()">+ Zakázka</button>
+  <button onclick="openWorker()">+ Pracovník</button>
+  <button onclick="openVehicle()">+ Vozidlo</button>
+<button class="secondary" onclick="prevWeek()">← týden</button>
+  <button class="secondary" onclick="goToday()">dnes</button>
+  <button class="secondary" onclick="nextWeek()">týden →</button>
 <input id="search" placeholder="Hledat zakázku, adresu, kontakt..." oninput="render()">
-<select id="viewMode" onchange="render()"><option value="workers">Pohled podle pracovníků</option><option value="vehicles">Pohled podle vozidel</option></select>
-<select id="jobFilter" onchange="render()"><option value="active">Aktivní</option><option value="archive">Archiv</option><option value="all">Vše</option><option value="to_invoice">Čeká na fakturaci</option><option value="overrun">Přetažené</option></select>
-<button class="secondary" onclick="exportData()">Export</button><button class="secondary" onclick="document.getElementById('importFile').click()">Import</button><input id="importFile" type="file" accept="application/json" class="hidden" onchange="importData(event)">
+<select id="viewMode" onchange="render()"><option value="workers">Pohled podle pracovníků</option>
+  <option value="vehicles">Pohled podle vozidel</option></select>
+<select id="jobFilter" onchange="render()"><option value="active">Aktivní</option>
+  <option value="archive">Archiv</option><option value="all">Vše</option>
+  <option value="to_invoice">Čeká na fakturaci</option><option value="overrun">Přetažené</option></select>
+<button class="secondary" onclick="exportData()">Export</button>
+  <button class="secondary" onclick="document.getElementById('importFile').click()">Import</button>
+  <input id="importFile" type="file" accept="application/json" class="hidden" onchange="importData(event)">
 </div>
 <div class="layout">
+
 <aside>
-<div class="tabs"><div class="tab active" id="tabJobs" onclick="switchTab('jobs')">Zakázky</div><div class="tab" id="tabPeople" onclick="switchTab('people')">Lidé</div><div class="tab" id="tabCars" onclick="switchTab('cars')">Vozidla</div></div>
+<div class="tabs"><div class="tab active" id="tabJobs" onclick="switchTab('jobs')">Zakázky</div>
+<div class="tab" id="tabPeople" onclick="switchTab('people')">Lidé</div>
+<div class="tab" id="tabCars" onclick="switchTab('cars')">Vozidla</div></div>
 <section id="sideJobs"><h2 id="jobsTitle">Zakázky</h2><div id="unassigned" class="list"></div></section>
 <section id="sidePeople" class="hidden"><h2>Pracovníci</h2><div id="peopleList" class="list"></div></section>
 <section id="sideCars" class="hidden"><h2>Vozidla</h2><div id="carsList" class="list"></div></section>
 </aside>
-<main class="board-wrap"><div class="board"><div id="head" class="head"></div><div id="body"></div></div></main>
+
+<main class="board-wrap"><div class="board"><div id="head" class="head"></div><div id="body">
+  </div></div></main>
 </div>
 <div id="jobModal" class="modal"><div class="dialog"><h2 id="jobModalTitle">Zakázka</h2>
 <div class="grid">
-<label>Název zakázky<input id="j_title"></label>
-<label>Priorita<select id="j_priority"><option>Vysoká</option><option>Střední</option><option>Nízká</option></select></label>
-<label>Požadovaná odbornost<select id="j_skill"><option>Elektroinstalace</option><option>Optika</option><option>Kancelář</option><option>Servis</option><option>Montáž</option><option>Revize</option><option>Bez požadavku</option></select></label>
-<label>Stav<select id="j_state"><option>Nová</option><option>Naplánováno</option><option>Probíhá</option><option>Dokončeno</option><option>Vyfakturováno</option><option>Storno</option></select></label>
-<label class="full">Adresa<input id="j_address"></label><label>Kontakt<input id="j_contact"></label><label>Telefon<input id="j_phone"></label><label>
-  Hlavní technik
-  <select id="j_lead_worker"></select>
-</label>
-<label>Počet dní<input id="j_days" type="number" min="0" step="0.5" value="1" oninput="syncEstimateFromDaysPeople()"></label>
-<label>Počet pracovníků<input id="j_people" type="number" min="0" step="1" value="1" oninput="syncEstimateFromDaysPeople()"></label>
-<label>Odhad hodin<input id="j_estimated" type="number" min="0" step="0.5" value="10"></label>
-<label>Hodin Pracovníka<input id="j_load" type="number" min="0" max="24" step="0.5" value="10"></label>
-<label>Hodin vozidla hod.<input id="j_vehicle_load" type="number" min="0" max="24" step="0.5" value="10"></label>
-<label>Čas od
-  <input
-    id="j_from"
-    type="time"
-    oninput="syncHoursFromTime()">
-</label>
-
-<label>Čas do
-  <input
-    id="j_to"
-    type="time"
-    oninput="syncHoursFromTime()">
-</label>
-
-<label class="full">Poznámka<textarea id="j_note" rows="4"></textarea></label>
-</div><div id="jobStats" class="small" style="margin-top:10px"></div>
+  <label>Název zakázky<input id="j_title"></label>
+  <label>Priorita<select id="j_priority"><option>Vysoká</option><option>Střední</option><option>Nízká</option></select></label>
+  <label>Požadovaná odbornost<select id="j_skill"><option>Elektroinstalace</option><option>Optika</option><option>Kancelář</option><option>Servis</option><option>Montáž</option><option>Revize</option><option>Bez požadavku</option></select></label>
+  <label>Stav<select id="j_state"><option>Nová</option><option>Naplánováno</option><option>Probíhá</option><option>Dokončeno</option><option>Vyfakturováno</option><option>Storno</option></select></label>
+  <label class="full">Adresa<input id="j_address"></label>
+  <label>Kontakt<input id="j_contact"></label>
+  <label>Telefon<input id="j_phone"></label>
+  <label>Hlavní technik<select id="j_lead_worker"></select></label>
+  <label>Počet dní<input id="j_days" type="number" min="0" step="0.5" value="1" oninput="syncEstimateFromDaysPeople()"></label>
+  <label>Počet pracovníků<input id="j_people" type="number" min="0" step="1" value="1" oninput="syncEstimateFromDaysPeople()"></label>
+  <label>Odhad hodin<input id="j_estimated" type="number" min="0" step="0.5" value="10"></label>
+  <label>Hodin Pracovníka<input id="j_load" type="number" min="0" max="24" step="0.5" value="10"></label>
+  <label>Hodin vozidla hod.<input id="j_vehicle_load" type="number" min="0" max="24" step="0.5" value="10"></label>
+  <label>Čas od<input id="j_from" type="time" oninput="syncHoursFromTime()"></label>
+  <label>Čas do<input id="j_to" type="time" oninput="syncHoursFromTime()"></label>
+  <label class="full">Poznámka<textarea id="j_note" rows="4"></textarea></label>
+</div>
+<div id="jobStats" class="small" style="margin-top:10px"></div>
 <div class="actions"><button class="secondary" onclick="closeModal('jobModal')">Zavřít</button><button class="secondary" id="duplicateJobBtn" onclick="duplicateJob()">Duplikovat</button><button class="secondary" id="completeJobBtn" onclick="setJobState('Dokončeno')">Dokončeno</button><button class="secondary" id="invoiceJobBtn" onclick="setJobState('Vyfakturováno')">Vyfakturováno</button><button class="danger" id="deleteJobBtn" onclick="deleteJob()">Smazat</button><button onclick="saveJob()">Uložit</button></div>
 </div></div>
 <div id="workerModal" class="modal"><div class="dialog"><h2 id="workerModalTitle">Pracovník</h2><div class="grid">
-<label>Jméno<input id="w_title"></label><label>Email<input id="w_email"></label><label>Telefon<input id="w_phone"></label><label>Kapacita hodin / den<input id="w_capacity" type="number" min="0" max="24" value="10"></label>
-<label class="full">Specializace pracovníka<select id="w_skills" multiple size="6"><option>Elektroinstalace</option><option>Optika</option><option>Kancelář</option><option>Servis</option><option>Montáž</option><option>Revize</option></select><div class="small">Podrž Ctrl pro výběr více specializací.</div></label>
-</div><div class="actions"><button class="secondary" onclick="closeModal('workerModal')">Zavřít</button><button class="danger" id="deleteWorkerBtn" onclick="deleteWorker()">Smazat</button><button onclick="saveWorker()">Uložit</button></div></div></div>
+  <label>Jméno<input id="w_title"></label>
+  <label>Email<input id="w_email"></label>
+  <label>Telefon<input id="w_phone"></label>
+  <label>Kapacita hodin / den<input id="w_capacity" type="number" min="0" max="24" value="10"></label>
+  <label class="full">Specializace pracovníka<select id="w_skills" multiple size="6"><option>Elektroinstalace</option>
+    <option>Optika</option><option>Kancelář</option>
+    <option>Servis</option><option>Montáž</option>
+    <option>Revize</option></select><div class="small">Podrž Ctrl pro výběr více specializací.</div>
+  </label>
+</div>
+<div class="actions"><button class="secondary" onclick="closeModal('workerModal')">Zavřít</button>
+  <button class="danger" id="deleteWorkerBtn" onclick="deleteWorker()">Smazat</button>
+  <button onclick="saveWorker()">Uložit</button>
+</div></div></div>
 <div id="vehicleModal" class="modal"><div class="dialog"><h2 id="vehicleModalTitle">Vozidlo</h2><div class="grid">
-<label>Název / označení<input id="v_title"></label><label>SPZ<input id="v_spz"></label><label>Typ<input id="v_type"></label><label>Kapacita hod.<input id="v_capacity" type="number" min="0" max="24" value="10"></label><label class="full">Poznámka<textarea id="v_note" rows="3"></textarea></label>
-</div><div class="actions"><button class="secondary" onclick="closeModal('vehicleModal')">Zavřít</button><button class="danger" id="deleteVehicleBtn" onclick="deleteVehicle()">Smazat</button><button onclick="saveVehicle()">Uložit</button></div></div></div>
+  <label>Název / označení<input id="v_title"></label>
+  <label>SPZ<input id="v_spz"></label>
+  <label>Typ<input id="v_type"></label>
+  <label>Kapacita hod.<input id="v_capacity" type="number" min="0" max="24" value="10"></label>
+  <label class="full">Poznámka<textarea id="v_note" rows="3"></textarea></label>
+</div>
+<div class="actions"><button class="secondary" onclick="closeModal('vehicleModal')">Zavřít</button>
+  <button class="danger" id="deleteVehicleBtn" onclick="deleteVehicle()">Smazat</button>
+  <button onclick="saveVehicle()">Uložit</button>
+</div></div></div>
 <div id="assignModal" class="modal"><div class="dialog"><h2>Přiřazení zakázky</h2><p class="small">Zakázku můžeš přiřadit pracovníkovi i vozidlu. Nesoulad odbornosti se jen označí, neblokuje.</p>
-<div class="grid"><label>Zakázka<input id="a_job_title" disabled></label><label>Datum<input id="a_date" type="date"></label><label>Pracovník<select id="a_worker"></select></label><label>Vozidlo<select id="a_vehicle"></select></label><label>Vytížení pracovníka hod.<input id="a_load" type="number" min="0" max="24" step="0.5"></label><label>Vytížení vozidla hod.<input id="a_vehicle_load" type="number" min="0" max="24" step="0.5"></label></div>
-<div class="actions"><button class="secondary" onclick="closeModal('assignModal')">Zavřít</button><button class="danger" onclick="unassignCurrent()">Odebrat z plánu</button><button onclick="saveAssignmentFromModal()">Uložit přiřazení</button></div></div></div>
+<div class="grid">
+  <label>Zakázka<input id="a_job_title" disabled></label>
+  <label>Datum<input id="a_date" type="date"></label>
+  <label>Pracovník<select id="a_worker"></select></label>
+  <label>Vozidlo<select id="a_vehicle"></select></label>
+  <label>Vytížení pracovníka hod.<input id="a_load" type="number" min="0" max="24" step="0.5"></label>
+  <label>Vytížení vozidla hod.<input id="a_vehicle_load" type="number" min="0" max="24" step="0.5"></label>
+  <label class="full">Poznámka k danému dni <textarea id="a_note" rows="3"></textarea></label>
+</div>
+<div class="actions"><button class="secondary" onclick="closeModal('assignModal')">Zavřít</button>
+  <button class="danger" onclick="unassignCurrent()">Odebrat z plánu</button>
+  <button onclick="saveAssignmentFromModal()">Uložit přiřazení</button>
+</div></div></div>
 
 </body>
 </html>
