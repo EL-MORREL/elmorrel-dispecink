@@ -44,7 +44,6 @@ async function loadDb(){
     }
   });
 
-  render();
 }
 async function saveDb(){
   if(!currentUser){
