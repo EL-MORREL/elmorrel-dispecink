@@ -180,10 +180,10 @@ async function saveAssignmentFromModal(){
     : null;
   a.load = Number(a_load.value || 10);
   a.vehicleLoad = Number(a_vehicle_load.value || 10);
+  a.note = a_note.value.trim();
   if(!a.workerId && !a.vehicleId){
     db.assignments = db.assignments.filter(
       x => Number(x.id) !== Number(a.id));
-  a.note = a_note.value.trim();
   }
   await saveDb();
   closeModal("assignModal");
