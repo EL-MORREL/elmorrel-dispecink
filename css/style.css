@@ -241,6 +241,15 @@ aside{
   padding:3px;}
 .day-note-add:hover{
   background:#e5e7eb;}
+.job-note{
+  margin-top:6px;
+  padding:6px;
+  border-radius:8px;
+  background:#fff8dc;
+  font-size:12px;
+  line-height:1.4;
+  white-space:pre-wrap;
+}
 .empty{padding:12px;color:var(--muted);background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;font-size:13px}
 .modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.58);z-index:80;align-items:center;justify-content:center;padding:18px}.modal.open{display:flex}
 .dialog{background:#fff;border-radius:16px;box-shadow:0 24px 80px rgba(0,0,0,.32);width:min(900px,100%);max-height:92vh;overflow:auto;padding:18px}.dialog h2{margin:0 0 14px;font-size:20px}
