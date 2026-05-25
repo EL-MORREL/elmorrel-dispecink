@@ -80,10 +80,6 @@ const hasAbsence = absences.length > 0;
         📝 Přidat poznámku
         </button>
       ` : ""}
-      ${row.kind === "vehicle" ? `
-       <div class="capacity ${crewCount > row.peopleCapacity ? "over"
-      : ""
-  }">
     <span>
       👥 ${crewCount}/${row.peopleCapacity} osob
     </span>
@@ -230,7 +226,29 @@ return `
   <span class="badge skill">
     👥 ${esc(otherCrew.join(", "))}
   </span>
-` : ""}${vehicle?`<span class="badge">🚐 ${esc(vehicle.title)}</span>`:""}${mismatch?`<span class="badge warn">⚠ odbornost</span>`:""}</div>${a ? `
+` : ""}${vehicle ? `
+  <span class="badge ${
+    a &&
+    vehicleCrewCount(vehicle.id, a.date) >
+    (vehicle.peopleCapacity || 5)
+      ? "warn"
+      : ""
+  }">
+    🚐 ${esc(vehicle.title)}
+    ${
+      a
+        ? ` · 👥 ${
+            vehicleCrewCount(
+              vehicle.id,
+              a.date
+            )
+          }/${
+            vehicle.peopleCapacity || 5
+          }`
+        : ""
+    }
+  </span>
+` : ""}${mismatch?`<span class="badge warn">⚠ odbornost</span>`:""}</div>${a ? `
   <div class="quick-actions">
     <button
       class="secondary"
