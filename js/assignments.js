@@ -167,9 +167,9 @@ if(rowKind === "vehicle"){
   });
 
   if(duplicateVehicle){
-    setStatus(
-      "⚠ Vozidlo je již použito na jiné zakázce"
-    );
+    alert(
+  "⚠ Vozidlo je již použito na jiné zakázce"
+);
   }
 
   const vehicle = vehicleById(rowId);
