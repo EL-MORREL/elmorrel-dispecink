@@ -80,19 +80,6 @@ const hasAbsence = absences.length > 0;
         📝 Přidat poznámku
         </button>
       ` : ""}
-    <span>
-      👥 ${crewCount}/${row.peopleCapacity} osob
-    </span>
-    <span>
-      ${
-        crewCount > row.peopleCapacity
-          ? "PŘEPLNĚNO"
-          : ""
-      }
-    </span>
-  </div>
-` : ""}
-  `;
       const notes =
   row.kind === "worker"
     ? getDayNotes(row.id, iso(date))
