@@ -145,9 +145,42 @@ if(hasAbsence){
     const w = workerById(rowId);
     if(w && !workerHasSkill(w, job.skill)){
       setStatus("Upozornění: pracovník nemá požadovanou specializaci");}}
-alert(
-  "⚠ Vozidlo je již použito na jiné zakázce"
-);
+if(rowKind === "vehicle"){
+
+  const sameDayVehicleAssignments =
+    db.assignments.filter(x =>
+      Number(x.vehicleId) === Number(rowId) &&
+      x.date === date
+    );
+
+  const otherJobUsingVehicle =
+    sameDayVehicleAssignments.some(x =>
+      Number(x.jobId) !== Number(jobId)
+    );
+
+  if(otherJobUsingVehicle){
+
+    alert(
+      "⚠ Vozidlo je již přiřazené jiné zakázce"
+    );
+
+    return;
+  }
+
+  a.vehicleId = rowId;
+
+  db.assignments.forEach(x => {
+
+    if(
+      Number(x.jobId) === Number(a.jobId) &&
+      x.date === a.date
+    ){
+      x.vehicleId = a.vehicleId;
+      x.vehicleLoad = a.vehicleLoad;
+    }
+
+  });
+}
   if(job.state === "Nová"){
     job.state = "Naplánováno";}
   await saveDb();
