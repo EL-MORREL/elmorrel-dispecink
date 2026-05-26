@@ -11,12 +11,32 @@ function nextWeek(){weekStart=addDays(weekStart,7);render()}
 
 function goToday(){weekStart=monday(new Date());render()}
 
-function rows(){const mode=viewMode.value;
-   if(mode==="vehicles")return 
-      db.vehicles.map(v=>({kind:"vehicle",id:v.id,title:v.title,sub:[v.spz,v.type].filter(Boolean).join(" · "),capacity:Number(v.capacity||10),peopleCapacity:Number(
-  v.peopleCapacity || 5
-)}));
-   return db.workers.map(w=>({kind:"worker",id:w.id,title:w.title,sub:[w.email,w.phone].filter(Boolean).join(" · "),capacity:Number(w.capacity||10)}))}
+function rows(){
+  const mode=viewMode.value;
+
+  if(mode==="vehicles"){
+    return db.vehicles.map(v => ({
+      kind:"vehicle",
+      id:v.id,
+      title:v.title,
+      sub:[v.spz,v.type]
+        .filter(Boolean)
+        .join(" · "),
+      capacity:Number(v.capacity||10),
+      peopleCapacity:Number(v.peopleCapacity || 5)
+    }));
+  }
+
+  return db.workers.map(w => ({
+    kind:"worker",
+    id:w.id,
+    title:w.title,
+    sub:[w.email,w.phone]
+      .filter(Boolean)
+      .join(" · "),
+    capacity:Number(w.capacity||10)
+  }));
+}
 
 function exportData(){
   if(!canEdit){
