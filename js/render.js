@@ -113,6 +113,8 @@ ${row.kind === "worker" ? `
     📝 Přidat poznámku
   </button>
 ` : ""}
+
+</div>
 `;
       const notes =
   row.kind === "worker"
