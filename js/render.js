@@ -1,6 +1,6 @@
 function render(){renderHeader();renderSide();renderBoard()}
 
-function renderHeader(){const days=["Pracovník"];
+function renderHeader(){const days=["Pracovník/vozidlo"];
   for(let i=0;i<7;i++)days.push(czDate(addDays(weekStart,i)));
   head.innerHTML=days.map(d=>`<div>${esc(d)}</div>`).join("")}
 
