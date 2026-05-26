@@ -172,12 +172,29 @@ absences.forEach(a => {
       </div>
     </div>
   `;});
-      ass.forEach(a => {
-        const j = jobById(a.jobId);
-        if(j){
-          html += jobCard(j,a);
-        }
-      });
+const renderedJobs = new Set();
+
+ass.forEach(a => {
+
+  if(
+    row.kind === "vehicle"
+  ){
+
+    const key = `${a.date}_${a.jobId}`;
+
+    if(renderedJobs.has(key)){
+      return;
+    }
+
+    renderedJobs.add(key);
+  }
+
+  const j = jobById(a.jobId);
+
+  if(j){
+    html += jobCard(j,a);
+  }
+});
       html += `</div>`;
     }
     html += `</div>`;
