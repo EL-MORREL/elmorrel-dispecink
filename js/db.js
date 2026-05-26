@@ -46,22 +46,30 @@ async function loadDb(){
 render();
 }
 async function saveDb(){
+
   if(!currentUser){
     alert("Nejste přihlášen");
     return false;
   }
+
+  const payload = {
+    data: JSON.parse(JSON.stringify(db)),
+    updated_by: currentUser.email,
+    updated_at: new Date().toISOString()
+  };
+
   const { error } = await supabaseClient
     .from("app_state")
-    .upsert({
-      id: 1,
-      data: db,
-      updated_by: currentUser.email
-    });
+    .update(payload)
+    .eq("id", 1);
+
   if(error){
     console.error("SAVE ERROR:", error);
     alert("Chyba ukládání: " + error.message);
     return false;
   }
+
   setStatus("Uloženo do cloudu");
+
   return true;
 }
