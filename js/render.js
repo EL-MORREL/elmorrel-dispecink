@@ -52,9 +52,39 @@ function renderBoard(){
   Number(x.workerId) === Number(row.id) &&
   x.date === iso(date));
 const hasAbsence = absences.length > 0;
-  html += `
-    <div
-      class="cell ${hasAbsence ? "cell-absence" : ""}"
+
+const currentDate = iso(date);
+
+const holidays = [
+  "2026-01-01",
+  "2026-04-03",
+  "2026-04-06",
+  "2026-05-01",
+  "2026-05-08",
+  "2026-07-05",
+  "2026-07-06",
+  "2026-09-28",
+  "2026-10-28",
+  "2026-11-17",
+  "2026-12-24",
+  "2026-12-25",
+  "2026-12-26"
+];
+
+const day = new Date(currentDate).getDay();
+
+const isWeekend =
+  day === 0 || day === 6;
+
+const isHoliday =
+  holidays.includes(currentDate);
+
+html += `
+  <div
+    class="cell
+      ${hasAbsence ? "cell-absence" : ""}
+      ${isWeekend ? "weekend" : ""}
+      ${isHoliday ? "holiday" : ""}"
       data-row-kind="${row.kind}"
       data-row-id="${row.id}"
       data-date="${iso(date)}"
@@ -62,11 +92,10 @@ const hasAbsence = absences.length > 0;
       ondragleave="leaveDrop(event)"
       ondrop="dropJob(event)"
     >
-  
+
      <div class="capacity ${used > row.capacity ? "over" : ""}">
-  <span>${used}/${row.capacity} hod.</span>
-  <span>${used > row.capacity ? "PŘETÍŽENO" : ""}</span>
-</div>
+       <span>${used}/${row.capacity} hod.</span>
+       <span>${used > row.capacity ? "PŘETÍŽENO" : ""}</span>
 
 ${row.kind === "worker" ? `
   <button
