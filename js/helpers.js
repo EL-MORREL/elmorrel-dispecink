@@ -16,7 +16,7 @@ function jobProgress(j){const estimated=Math.max(Number(j.estimated||0),0),actua
 function isArchiveState(j){return["Dokončeno","Vyfakturováno","Storno"].includes(j.state)}
 function matchesSearch(j){const q=document.getElementById("search").value.trim().toLowerCase();if(!q)return true;return[j.title,j.address,j.contact,j.phone,j.note,j.state,j.skill].join(" ").toLowerCase().includes(q)}
 function matchesFilter(j){const f=document.getElementById("jobFilter").value,p=jobProgress(j);if(f==="active")return!isArchiveState(j);if(f==="archive")return isArchiveState(j);if(f==="to_invoice")return j.state==="Dokončeno";if(f==="overrun")return p.over;return true}
-export const holidays = [
+const holidays = [
   "2026-01-01",
   "2026-04-03",
   "2026-04-06",
@@ -32,12 +32,12 @@ export const holidays = [
   "2026-12-26"
 ];
 
-export function isWeekend(dateStr){
+function isWeekend(dateStr){
   const d = new Date(dateStr);
   const day = d.getDay();
   return day === 0 || day === 6;
 }
 
-export function isHoliday(dateStr){
+function isHoliday(dateStr){
   return holidays.includes(dateStr);
 }
