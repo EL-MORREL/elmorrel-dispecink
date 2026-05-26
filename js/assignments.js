@@ -1,19 +1,49 @@
 function assignmentsFor(row,date){const d=iso(date);if(row.kind==="worker")return db.assignments.filter(a=>Number(a.workerId)===Number(row.id)&&a.date===d);return db.assignments.filter(a=>Number(a.vehicleId)===Number(row.id)&&a.date===d)}
 
-function usedCapacity(row,ass,date){
-  let used = row.kind==="worker"
-    ? ass.reduce((s,a)=>s+Number(a.load||10),0)
-    : ass.reduce((s,a)=>s+Number(a.vehicleLoad||10),0);
+function usedCapacity(row, ass, date){
+
+  let used = 0;
+
   if(row.kind === "worker"){
+
+    used = ass.reduce(
+      (s, a) => s + Number(a.load || 10),
+      0
+    );
+
     const hasAbsence = db.absences.some(a =>
-  Number(a.workerId) === Number(row.id) &&
-  a.date === (
-    typeof date === "string"
-      ? date
-      : iso(date)));
+      Number(a.workerId) === Number(row.id) &&
+      a.date === (
+        typeof date === "string"
+          ? date
+          : iso(date)
+      )
+    );
+
     if(hasAbsence){
-      used += row.capacity;}}
-  return used;}
+      used += row.capacity;
+    }
+
+  } else {
+
+    const uniqueJobs = new Set();
+
+    ass.forEach(a => {
+
+      const key = `${a.date}_${a.jobId}`;
+
+      if(uniqueJobs.has(key)){
+        return;
+      }
+
+      uniqueJobs.add(key);
+
+      used += Number(a.vehicleLoad || 10);
+    });
+  }
+
+  return used;
+}
 
 function getDayNotes(workerId,date){
   if(!db.notes){
