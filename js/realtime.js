@@ -3,7 +3,7 @@ let realtimeChannel = null;
 function startRealtime(){
   if(!currentUser) return;
   if(realtimeChannel){
-    supabaseClient.removeChannel(realtimeChannel);}
+    supabaseClient.removeChannel(realtimeChannel);realtimeChannel = null;}
   realtimeChannel = supabaseClient
     .channel("app_state_changes")
     .on(
@@ -30,8 +30,16 @@ function startRealtime(){
           db.absences = [];}
           render();
           setStatus("Aktualizováno z cloudu");}})
-    .subscribe((status)=>{
-      console.log("Realtime status:", status);
-    });
+    .subscribe((status) => {
+  console.log("Realtime status:", status);
+
+  if(status === "CHANNEL_ERROR"){
+    console.error("Realtime channel error");
+  }
+
+  if(status === "TIMED_OUT"){
+    console.error("Realtime timeout");
+  }
+});
 }
 
