@@ -236,7 +236,7 @@ const vehicleBadge = vehicle
     </span>`
   : "";
 return `
-<div class=" job
+<div class="job
     ${priorityClass(j.priority)}
     ${skillClass(j.skill)}
     ${jobVisualState(j)}
