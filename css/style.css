@@ -365,11 +365,12 @@ aside{
   
 }
   .board{
-    zoom:0.60;
-    transform-origin:top left;
-    width:max-content;
-    min-width:max-content;
-  }
+  transform:scale(0.60);
+  transform-origin:top left;
+  width:max-content;
+  min-width:max-content;
+  
+}
 
   .head,
   .row{
