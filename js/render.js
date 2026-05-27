@@ -22,9 +22,12 @@ function renderHeader(){
 
   });
 
-  head.innerHTML = cols
-    .map(d => `<div>${d}</div>`)
-    .join("");
+ head.innerHTML = cols
+  .map(d => typeof d === "string"
+    ? `<div>${d}</div>`
+    : d
+  )
+  .join("");
 }
 
 function renderSide(){
@@ -116,7 +119,6 @@ function renderBoard(){
     return sum + Number(a.load || 0);
   },0);
 
-},0);
     let html = `
       <div class="row">
 
