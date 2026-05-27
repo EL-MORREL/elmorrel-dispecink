@@ -1,14 +1,29 @@
 function render(){renderHeader();renderSide();renderBoard()}
 
 function renderHeader(){
+
   const cols = ["Datum"];
 
-  rows().forEach(r=>{
-    cols.push(r.title);
+  rows().forEach(r => {
+
+    cols.push(`
+      <div>
+        <strong>${esc(r.title)}</strong>
+        <div style="
+          font-size:11px;
+          font-weight:400;
+          margin-top:4px;
+          opacity:.8;
+        ">
+          ${esc(r.sub || "")}
+        </div>
+      </div>
+    `);
+
   });
 
   head.innerHTML = cols
-    .map(d=>`<div>${esc(d)}</div>`)
+    .map(d => `<div>${d}</div>`)
     .join("");
 }
 
