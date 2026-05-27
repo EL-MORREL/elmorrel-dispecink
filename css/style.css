@@ -361,31 +361,32 @@ aside{
   overflow:auto;
   padding:8px;
   -webkit-overflow-scrolling:touch;
-  touch-action:pan-x pan-y;
-  
+  overscroll-behavior-x:contain;
+  scrollbar-gutter:stable;
 }
   .board{
-  transform:scale(0.40);
-  transform-origin:top left;
   width:max-content;
   min-width:max-content;
   
 }
-
+  
   .head,
   .row{
-    grid-auto-columns:170px;
+    grid-auto-columns:140px;
   }
 
   .name-cell{
-    min-height:120px;
-    padding:8px;
-    font-size:12px;
-  }
-
-  .cell{
-    min-height:120px;
+    position:sticky;
+    min-height:100px;
     padding:6px;
+    font-size:10px;
+  }
+  .head > div:first-child{
+  z-index:60;
+}
+  .cell{
+    min-height:100px;
+    padding:4px;
   }
 
   .job{
