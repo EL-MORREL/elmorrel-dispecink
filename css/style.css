@@ -342,22 +342,27 @@ aside{
 @media(max-width:900px){
 
   .layout{
-    display:grid;
-    grid-template-columns:220px minmax(0,1fr);
-  }
+  display:flex;
+  flex-direction:column;
+}
 
   aside{
-    padding:10px;
-  }
+  width:100%;
+  height:auto;
+  position:relative;
+  border-right:none;
+  border-bottom:1px solid var(--line);
+  padding:10px;
+}
 
-  .board-wrap{
-    overflow:auto;
-    width:100%;
-    padding:8px;
-    -webkit-overflow-scrolling:touch;
-    touch-action:pan-x pan-y;
-  }
-
+.board-wrap{
+  width:100%;
+  max-width:100%;
+  overflow:auto;
+  padding:8px;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-x pan-y;
+}
   .board{
     width:max-content;
     min-width:max-content;
