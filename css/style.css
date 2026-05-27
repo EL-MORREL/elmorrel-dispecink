@@ -365,14 +365,23 @@ aside{
   scrollbar-gutter:stable;
 }
   .board{
-  transform:scale(0.60);
-  transform-origin:top left;
-    
-  width:max-content;
   min-width:max-content;
-  
+  width:max-content;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:visible;
+  box-shadow:var(--shadow);
 }
   
+}
+  .board-scale{
+  transform:scale(0.78);
+  transform-origin:top left;
+
+  width:128%;
+  padding-bottom:24%;
+}
   .head,
   .row{
     grid-auto-columns:140px;
