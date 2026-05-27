@@ -356,12 +356,14 @@ aside{
 }
 
 .board-wrap{
+  zoom:0.78;
   width:100%;
   max-width:100%;
   overflow:auto;
   padding:8px;
   -webkit-overflow-scrolling:touch;
   touch-action:pan-x pan-y;
+  
 }
   .board{
     width:max-content;
