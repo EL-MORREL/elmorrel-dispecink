@@ -1,4 +1,20 @@
-function render(){renderHeader();renderSide();renderBoard()}
+function render(){
+
+  renderSide();
+
+  if(window.innerWidth <= 900){
+
+    head.innerHTML = "";
+
+    renderMobileBoard();
+
+  }else{
+
+    renderHeader();
+
+    renderBoard();
+  }
+}
 
 function renderHeader(){
 
@@ -380,6 +396,141 @@ function renderBoard(){
     html += `</div>`;
 
     return html;
+
+  }).join("");
+}
+function renderMobileBoard(){
+
+  const days = Array.from(
+    {length:7},
+    (_,i)=>addDays(weekStart,i)
+  );
+
+  body.innerHTML = days.map(date => {
+
+    const currentDate = iso(date);
+
+    const workers = db.workers;
+
+    const busyWorkers = workers.filter(w =>
+      db.assignments.some(a =>
+        Number(a.workerId) === Number(w.id) &&
+        a.date === currentDate
+      )
+    ).length;
+
+    const busyVehicles = db.vehicles.filter(v =>
+      db.assignments.some(a =>
+        Number(a.vehicleId) === Number(v.id) &&
+        a.date === currentDate
+      )
+    ).length;
+
+    return `
+
+      <div class="mobile-day-card">
+
+        <div class="mobile-day-header">
+
+          <div>
+            <div class="mobile-day-title">
+              ${esc(czDate(date))}
+            </div>
+
+            <div class="mobile-day-stats">
+              👷 ${busyWorkers}/${db.workers.length}
+              ·
+              🚐 ${busyVehicles}/${db.vehicles.length}
+            </div>
+          </div>
+
+        </div>
+
+        <div class="mobile-workers">
+
+          ${db.workers.map(worker => {
+
+            const ass = db.assignments.filter(a =>
+              Number(a.workerId) === Number(worker.id) &&
+              a.date === currentDate
+            );
+
+            const absences = db.absences.filter(a =>
+              Number(a.workerId) === Number(worker.id) &&
+              a.date === currentDate
+            );
+
+            return `
+
+              <div class="mobile-worker-card">
+
+                <div class="mobile-worker-head">
+
+                  <div>
+                    <strong>
+                      ${esc(worker.title)}
+                    </strong>
+                  </div>
+
+                  <button
+                    class="secondary"
+                    onclick="
+                      addAbsence(
+                        ${worker.id},
+                        '${currentDate}'
+                      )
+                    ">
+                    Volno
+                  </button>
+
+                </div>
+
+                ${absences.map(a => `
+                  <div class="mobile-absence">
+                    ${esc(a.type)}
+                  </div>
+                `).join("")}
+
+                ${ass.map(a => {
+
+                  const j = jobById(a.jobId);
+
+                  if(!j) return "";
+
+                  return `
+                    <div
+                      class="mobile-job"
+                      ondblclick="
+                        openAssignment(${a.id})
+                      "
+                    >
+
+                      <div class="mobile-job-title">
+                        ${esc(j.title)}
+                      </div>
+
+                      <div class="mobile-job-meta">
+                        ${esc(j.address || "")}
+                      </div>
+
+                      <div class="mobile-job-meta">
+                        ⏱ ${a.load || 0} h
+                      </div>
+
+                    </div>
+                  `;
+
+                }).join("")}
+
+              </div>
+            `;
+
+          }).join("")}
+
+        </div>
+
+      </div>
+    `;
 
   }).join("");
 }
