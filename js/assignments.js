@@ -391,3 +391,136 @@ async function unassignCurrent(){
   closeModal("assignModal");
   render();
 }
+function openMobileMoveMenu(assignmentId){
+
+  if(!assignmentId) return;
+
+  const a = assignmentById(assignmentId);
+
+  if(!a) return;
+
+  const menu = document.createElement("div");
+
+  menu.id = "mobileMoveMenu";
+
+  menu.style = `
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.45);
+    z-index:99999;
+    display:flex;
+    align-items:flex-end;
+  `;
+
+  menu.innerHTML = `
+
+    <div style="
+      background:white;
+      width:100%;
+      border-radius:20px 20px 0 0;
+      padding:16px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    ">
+
+      <button onclick="
+        moveAssignmentWorker(${assignmentId})
+      ">
+        👤 Přesunout pracovníka
+      </button>
+
+      <button onclick="
+        moveAssignmentDate(${assignmentId})
+      ">
+        📅 Přesunout den
+      </button>
+
+      <button onclick="
+        openAssignment(${assignmentId});
+        closeMobileMoveMenu();
+      ">
+        ✏ Upravit
+      </button>
+
+      <button
+        class="danger"
+        onclick="
+          closeMobileMoveMenu()
+        "
+      >
+        Zavřít
+      </button>
+
+    </div>
+  `;
+
+  document.body.appendChild(menu);
+}
+function closeMobileMoveMenu(){
+
+  const menu =
+    document.getElementById(
+      "mobileMoveMenu"
+    );
+
+  if(menu){
+    menu.remove();
+  }
+}
+async function moveAssignmentWorker(
+  assignmentId
+){
+
+  const a = assignmentById(
+    assignmentId
+  );
+
+  if(!a) return;
+
+  const workersText =
+    db.workers.map(w =>
+      `${w.id} - ${w.title}`
+    ).join("\n");
+
+  const pick = prompt(
+    "Vyber pracovníka:\n\n" +
+    workersText,
+    a.workerId || ""
+  );
+
+  if(!pick) return;
+
+  a.workerId = Number(pick);
+
+  await saveDb();
+
+  closeMobileMoveMenu();
+
+  render();
+}
+async function moveAssignmentDate(
+  assignmentId
+){
+
+  const a = assignmentById(
+    assignmentId
+  );
+
+  if(!a) return;
+
+  const date = prompt(
+    "Nové datum:",
+    a.date
+  );
+
+  if(!date) return;
+
+  a.date = date;
+
+  await saveDb();
+
+  closeMobileMoveMenu();
+
+  render();
+}
