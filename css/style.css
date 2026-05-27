@@ -317,131 +317,107 @@ aside{
 
 @media(max-width:900px){
 
-  .board-wrap{
-    padding:4px;
-    overflow:auto;
-    touch-action:pan-x pan-y;
+  .layout{
+    grid-template-columns:260px minmax(0,1fr);
   }
 
-  .board{
-    border-radius:10px;
+  aside{
+    padding:8px;
+  }
+
+  .board-wrap{
+    padding:6px;
+    overflow:auto;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-x pan-y pinch-zoom;
   }
 
   .head,
   .row{
-    grid-auto-columns:110px;
-  }
-
-  .name-cell{
-    width:90px;
-    min-width:90px;
-    min-height:70px;
-    padding:4px;
-    font-size:11px;
-  }
-
-  .cell{
-    min-height:70px;
-    padding:2px;
-  }
-
-  .capacity{
-    display:none;
-  }
-
-  .job{
-    padding:3px;
-    margin-bottom:2px;
-    border-radius:6px;
-    border-left-width:3px;
-  }
-
-  .job-title{
-    font-size:9px;
-    line-height:1.05;
-    font-weight:700;
-  }
-
-  .job-meta,
-  .badges,
-  .progress,
-  .quick-actions,
-  .skill-note,
-  .job-note{
-    display:none !important;
-  }
-
-  .badge{
-    font-size:7px;
-    padding:1px 3px;
-  }
-
-  .day-note{
-    display:none;
-  }
-
-  .day-note-add{
-    display:none;
-  }
-
-  .secondary{
-    padding:4px 6px;
-    font-size:9px;
+    grid-auto-columns:150px;
   }
 
   .head > div{
-    padding:6px 2px;
-    font-size:10px;
+    padding:6px 4px;
+    font-size:11px;
   }
 
-}
-@media(max-width:1200px){
-  .board-wrap{
-    min-height:1200px;}}
+  .name-cell{
+    width:150px;
+    min-width:150px;
+    min-height:110px;
+    padding:6px;
+    font-size:11px;
+  }
 
-@media(max-width:600px){
-
-  .head,.row{
-    
+  .name-cell strong{
+    font-size:13px;
+    line-height:1.2;
   }
 
   .cell{
-    min-height:85px;
-    padding:3px;
+    min-height:110px;
+    padding:4px;
   }
-  .name-cell{
-    min-height:85px;
-    padding:3px;
 
-    position:sticky;
-    left:0;
-    z-index:40;
-    background:#fff;
+  .capacity{
+    font-size:10px;
+    margin-bottom:4px;
   }
 
   .job{
-    padding:4px;
-    margin-bottom:3px;
-    border-radius:7px;
+    padding:5px;
+    margin-bottom:5px;
+    border-radius:8px;
+    border-left-width:4px;
   }
 
   .job-title{
-    font-size:8px;
-    line-height:1.1;
+    font-size:10px;
+    line-height:1.15;
+    margin-bottom:2px;
   }
 
   .job-meta{
-    font-size:7px;
-    line-height:1.1;
+    font-size:8px;
+    line-height:1.2;
+    margin-top:2px;
+  }
+
+  .badges{
+    gap:2px;
+    margin-top:3px;
   }
 
   .badge{
-    font-size:6px;
-    padding:1px 2px;
+    font-size:7px;
+    padding:1px 4px;
   }
 
   .progress{
     height:5px;
+    margin-top:5px;
   }
+
+  .quick-actions{
+    margin-top:4px;
+    gap:4px;
   }
+
+  .quick-actions button{
+    padding:3px 5px;
+    font-size:8px;
+  }
+
+  .day-note{
+    font-size:9px;
+    padding:3px 5px;
+  }
+
+  .day-note-add{
+    font-size:8px;
+    padding:2px;
+  }
+
+}
   
