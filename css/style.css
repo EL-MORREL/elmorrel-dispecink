@@ -94,7 +94,7 @@ aside{
 .row{
   display:grid;
   grid-auto-flow:column;
-  grid-auto-columns:220px;
+  grid-auto-columns:180px;
 }
  
   .head{
@@ -148,7 +148,7 @@ aside{
 }
 
 .name-cell{
-  min-height:150px;
+  min-height:120px;
   background:#fff;
   padding:12px;
   border-right:1px solid var(--line);
@@ -162,7 +162,7 @@ aside{
 .name-cell strong{
   font-weight:800;}
 .cell{
-  min-height:150px;
+  min-height:120px;
   background:#fff;
   padding:7px;
   border-right:1px solid var(--line);
@@ -190,7 +190,7 @@ aside{
   flex-wrap:wrap;
 }
 .over{color:#b91c1c;font-weight:800}
-.job,.mini-card{border-radius:11px;padding:8px 9px;margin:0 0 7px;background:#e7f1ff;border-left:5px solid var(--blue);box-shadow:0 2px 6px rgba(0,0,0,.10)}
+.job,.mini-card{border-radius:9px;padding:6px 7px;margin:0 0 7px;background:#e7f1ff;border-left:5px solid var(--blue);box-shadow:0 2px 6px rgba(0,0,0,.10)}
 .job{
   cursor:grab;
   width:100%;
@@ -235,7 +235,7 @@ aside{
 }  
 .job.done{opacity:.72}.job.invoiced{opacity:.58}
 .job.skill-mismatch{outline:2px solid var(--red)}
-.job-title{font-weight:800;font-size:13px;line-height:1.2}
+.job-title{font-weight:800;font-size:11px;line-height:1.2}
 .job-meta{font-size:12px;color:#40546c;margin-top:3px;line-height:1.25}
 .badges{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
 .badge{font-size:11px;background:rgba(255,255,255,.75);border:1px solid rgba(0,0,0,.08);border-radius:99px;padding:2px 6px}
