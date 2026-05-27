@@ -81,7 +81,31 @@ function renderBoard(){
 
     const isHoliday =
       holidays.includes(currentDate);
+    const workers = r.filter(x => x.kind === "worker");
+    const vehicles = r.filter(x => x.kind === "vehicle");
 
+    const busyWorkers = workers.filter(w => {
+    const ass = assignmentsFor(w,date);
+      return ass.length > 0;
+        }).length;
+
+    const busyVehicles = vehicles.filter(v => {
+    const ass = assignmentsFor(v,date);
+      return ass.length > 0;
+        }).length;
+
+    const absentWorkers = db.absences.filter(a =>
+      a.date === currentDate
+    ).length;
+    
+    const totalHours = r.reduce((sum,row)=>{
+      const ass = assignmentsFor(row,date);
+    
+      return sum + ass.reduce((s,a)=>{
+        return s + Number(a.load || 0);
+      },0);
+
+},0);
     let html = `
       <div class="row">
 
@@ -91,7 +115,32 @@ function renderBoard(){
           ${isHoliday ? "holiday" : ""}
         ">
           <strong>${esc(czDate(date))}</strong>
-        </div>
+
+<div style="
+  margin-top:8px;
+  font-size:11px;
+  line-height:1.5;
+  opacity:.85;
+">
+
+  👷 ${busyWorkers}/${workers.length}
+
+  <br>
+
+  🚐 ${busyVehicles}/${vehicles.length}
+
+  <br>
+
+  ⏱ ${totalHours} h
+
+  ${
+    absentWorkers
+      ? `<br>🏖 ${absentWorkers} volno`
+      : ""
+  }
+
+    </div>
+</div>
     `;
 
     r.forEach(row => {
