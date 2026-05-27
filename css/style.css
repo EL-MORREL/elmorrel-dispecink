@@ -90,9 +90,12 @@ aside{
   overflow:visible;
   box-shadow:var(--shadow);
 }
-.head,.row{
+.head,
+.row{
   display:grid;
-  grid-template-columns:280px repeat(7,220px);}
+  grid-auto-flow:column;
+  grid-auto-columns:220px;
+}
  
   .head{
   position:sticky;
@@ -322,7 +325,7 @@ aside{
     min-width:max-content;
   }
   .head,.row{
-    grid-template-columns:160px repeat(7,125px);
+    
   }
 
   .cell,
@@ -355,7 +358,7 @@ aside{
 @media(max-width:600px){
 
   .head,.row{
-    grid-template-columns:120px repeat(7,95px);
+    
   }
 
   .cell{
