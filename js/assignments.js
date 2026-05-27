@@ -84,20 +84,122 @@ async function deleteDayNote(noteId){
   render();}
 
 async function addAbsence(workerId,date){
+
   if(!canEdit){
     alert("Nemáte oprávnění k úpravám");
-    return;}
-  const type = prompt(
-    "Typ volna:\n\nDovolená\nNemoc\nŠkolení\nHome office\nVolno");
+    return;
+  }
+
+  const type = await quickAbsencePicker();
+
   if(!type) return;
+
   db.absences.push({
     id: nextId(db.absences),
     workerId,
     date,
-    type});
-  await saveDb();
-  render();}
+    type
+  });
 
+  await saveDb();
+
+  render();
+}
+function quickAbsencePicker(){
+
+  return new Promise(resolve => {
+
+    const old = document.getElementById("absencePicker");
+
+    if(old){
+      old.remove();
+    }
+
+    const box = document.createElement("div");
+
+    box.id = "absencePicker";
+
+    box.style = `
+      position:fixed;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      background:white;
+      border-radius:16px;
+      padding:16px;
+      z-index:9999;
+      box-shadow:0 20px 60px rgba(0,0,0,.25);
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      min-width:320px;
+    `;
+
+    const options = [
+      ["🏖","Dovolená"],
+      ["🤒","Nemoc"],
+      ["🎓","Školení"],
+      ["🏠","Home office"],
+      ["⛔","Volno"]
+    ];
+
+    options.forEach(([icon,label]) => {
+
+      const btn = document.createElement("button");
+
+      btn.innerHTML = `
+        <div style="font-size:22px">
+          ${icon}
+        </div>
+
+        <div>
+          ${label}
+        </div>
+      `;
+
+      btn.style = `
+        padding:16px;
+        border:none;
+        border-radius:12px;
+        cursor:pointer;
+        background:#f3f4f6;
+        font-size:14px;
+        font-weight:700;
+      `;
+
+      btn.onclick = () => {
+        box.remove();
+        resolve(label);
+      };
+
+      box.appendChild(btn);
+    });
+
+    const cancel = document.createElement("button");
+
+    cancel.textContent = "Zrušit";
+
+    cancel.style = `
+      grid-column:1/-1;
+      padding:10px;
+      border:none;
+      border-radius:10px;
+      background:#dc2626;
+      color:white;
+      cursor:pointer;
+    `;
+
+    cancel.onclick = () => {
+      box.remove();
+      resolve(null);
+    };
+
+    box.appendChild(cancel);
+
+    document.body.appendChild(box);
+
+  });
+}
 async function deleteAbsence(id){
   if(!canEdit){
     alert("Nemáte oprávnění k úpravám");
