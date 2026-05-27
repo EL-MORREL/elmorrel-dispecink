@@ -342,106 +342,71 @@ aside{
 @media(max-width:900px){
 
   .layout{
-    grid-template-columns:260px minmax(0,1fr);
+    display:grid;
+    grid-template-columns:220px minmax(0,1fr);
   }
 
   aside{
-    padding:8px;
+    padding:10px;
   }
 
   .board-wrap{
-    padding:6px;
     overflow:auto;
+    width:100%;
+    padding:8px;
     -webkit-overflow-scrolling:touch;
-    touch-action:pan-x pan-y pinch-zoom;
+    touch-action:pan-x pan-y;
+  }
+
+  .board{
+    width:max-content;
+    min-width:max-content;
   }
 
   .head,
   .row{
-    grid-auto-columns:150px;
-  }
-
-  .head > div{
-    padding:6px 4px;
-    font-size:11px;
+    grid-auto-columns:170px;
   }
 
   .name-cell{
-    width:150px;
-    min-width:150px;
-    min-height:110px;
-    padding:6px;
-    font-size:11px;
-  }
-
-  .name-cell strong{
-    font-size:13px;
-    line-height:1.2;
+    min-height:120px;
+    padding:8px;
+    font-size:12px;
   }
 
   .cell{
-    min-height:110px;
-    padding:4px;
-  }
-
-  .capacity{
-    font-size:10px;
-    margin-bottom:4px;
+    min-height:120px;
+    padding:6px;
   }
 
   .job{
-    padding:5px;
+    padding:6px;
     margin-bottom:5px;
     border-radius:8px;
-    border-left-width:4px;
   }
 
   .job-title{
     font-size:10px;
     line-height:1.15;
-    margin-bottom:2px;
   }
 
   .job-meta{
-    font-size:8px;
+    font-size:9px;
     line-height:1.2;
-    margin-top:2px;
-  }
-
-  .badges{
-    gap:2px;
-    margin-top:3px;
   }
 
   .badge{
-    font-size:7px;
-    padding:1px 4px;
+    font-size:8px;
+    padding:2px 5px;
   }
 
   .progress{
-    height:5px;
-    margin-top:5px;
-  }
-
-  .quick-actions{
-    margin-top:4px;
-    gap:4px;
+    height:6px;
   }
 
   .quick-actions button{
-    padding:3px 5px;
-    font-size:8px;
-  }
-
-  .day-note{
-    font-size:9px;
-    padding:3px 5px;
-  }
-
-  .day-note-add{
-    font-size:8px;
-    padding:2px;
+    font-size:10px;
+    padding:4px 6px;
   }
 
 }
-  
