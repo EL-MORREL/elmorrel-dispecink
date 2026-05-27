@@ -356,7 +356,6 @@ aside{
 }
 
 .board-wrap{
-  zoom:0.78;
   width:100%;
   max-width:100%;
   overflow:auto;
@@ -366,6 +365,7 @@ aside{
   
 }
   .board{
+    zoom:0.78;
     width:max-content;
     min-width:max-content;
   }
