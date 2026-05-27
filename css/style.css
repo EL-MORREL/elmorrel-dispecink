@@ -290,6 +290,30 @@ aside{
   line-height:1.4;
   white-space:pre-wrap;
 }
+.job-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:6px;
+}
+
+.job-hours{
+  font-size:9px;
+  font-weight:800;
+  color:#152033;
+  background:rgba(255,255,255,.75);
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:999px;
+  padding:1px 5px;
+  white-space:nowrap;
+}
+
+.job-address,
+.job-contact{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 .empty{padding:12px;color:var(--muted);background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;font-size:13px}
 .modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.58);z-index:80;align-items:center;justify-content:center;padding:18px}
 .modal.open{display:flex}
