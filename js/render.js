@@ -81,29 +81,40 @@ function renderBoard(){
 
     const isHoliday =
       holidays.includes(currentDate);
-    const workers = r.filter(x => x.kind === "worker");
-    const vehicles = r.filter(x => x.kind === "vehicle");
+   const workers = db.workers;
+   const vehicles = db.vehicles;
 
-    const busyWorkers = workers.filter(w => {
-    const ass = assignmentsFor(w,date);
-      return ass.length > 0;
-        }).length;
+   const busyWorkers = workers.filter(w => {
 
-    const busyVehicles = vehicles.filter(v => {
-    const ass = assignmentsFor(v,date);
-      return ass.length > 0;
-        }).length;
+   const ass = db.assignments.filter(a =>
+    Number(a.workerId) === Number(w.id) &&
+    a.date === currentDate
+  );
 
-    const absentWorkers = db.absences.filter(a =>
-      a.date === currentDate
-    ).length;
-    
-    const totalHours = r.reduce((sum,row)=>{
-      const ass = assignmentsFor(row,date);
-    
-      return sum + ass.reduce((s,a)=>{
-        return s + Number(a.load || 0);
-      },0);
+  return ass.length > 0;
+
+}).length;
+
+   const busyVehicles = vehicles.filter(v => {
+
+   const ass = db.assignments.filter(a =>
+    Number(a.vehicleId) === Number(v.id) &&
+    a.date === currentDate
+  );
+
+  return ass.length > 0;
+
+}).length;
+
+   const absentWorkers = db.absences.filter(a =>
+  a.date === currentDate
+).length;
+
+   const totalHours = db.assignments
+  .filter(a => a.date === currentDate)
+  .reduce((sum,a)=>{
+    return sum + Number(a.load || 0);
+  },0);
 
 },0);
     let html = `
