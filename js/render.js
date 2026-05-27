@@ -579,31 +579,12 @@ return `
     ${jobVisualState(j)}
     ${mismatch ? "skill-mismatch" : ""}
   " 
-  draggable="${!isMobile()}" data-job-id="${j.id}" data-assignment-id="${a?a.id:""}" ${!isMobile()
-  ? `ondragstart="dragJob(event)"`
-  : `onclick="openMobileMoveMenu(${a?.id || 0})"`
+  draggable="true" data-job-id="${j.id}" data-assignment-id="${a?a.id:""}" ondragstart="dragJob(event)"
 } ondblclick="${a?`openAssignment(${a.id})`:`openJob(${j.id})`}">
-  tak pojď
-Přemýšlení několik sekund
-
-Jdeme. Začneme bezpečně: upravíme jen vzhled karty zakázky, ne logiku, ne drag&drop, ne databázi.
-
-Cíl: zachovat informace, ale srovnat je do čitelných řádků.
-
-Krok 1 — v render.js v jobCard() nahraď část karty
-
-Najdi v jobCard() tento začátek obsahu:
 
 <div class="job-title">${esc(j.title)}</div>
 <div class="job-meta">${esc(j.address||"")}</div>
 <div class="job-meta">${esc(j.contact||"")} ${esc(j.phone||"")}</div>
-
-Nahraď tímto:
-
-<div class="job-top">
-  <div class="job-title">${esc(j.title)}</div>
-  <div class="job-hours">${a ? `${Number(a.load || 0)}h` : ""}</div>
-</div>
 
 ${j.address ? `
   <div class="job-meta job-address">
