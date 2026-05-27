@@ -1,21 +1,8 @@
 function render(){
-
+  renderHeader();
   renderSide();
-
-  if(window.innerWidth <= 900){
-
-    head.innerHTML = "";
-
-    renderMobileBoard();
-
-  }else{
-
-    renderHeader();
-
-    renderBoard();
-  }
+  renderBoard();
 }
-
 function renderHeader(){
 
   const cols = ["Datum"];
