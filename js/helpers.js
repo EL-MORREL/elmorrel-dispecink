@@ -41,3 +41,6 @@ function isWeekend(dateStr){
 function isHoliday(dateStr){
   return holidays.includes(dateStr);
 }
+function isMobile(){
+  return window.innerWidth <= 900;
+}
