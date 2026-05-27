@@ -365,7 +365,7 @@ aside{
   
 }
   .board{
-  transform:scale(0.40);
+  transform:scale(0.30);
   transform-origin:top left;
   width:max-content;
   min-width:max-content;
