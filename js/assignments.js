@@ -163,6 +163,7 @@ function quickAbsencePicker(){
         border-radius:12px;
         cursor:pointer;
         background:#f3f4f6;
+        color:#111827;
         font-size:14px;
         font-weight:700;
       `;
