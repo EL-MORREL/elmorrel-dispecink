@@ -450,16 +450,13 @@ return `
 ` : ""}
   <div class="badges"><span class="badge">${esc(j.state||"Nová")}</span>
   <span class="badge ${badgeClass}">${p.actual.toFixed(2)}/${p.estimated||0} hod.</span>
-  ${j.skill&&j.skill!=="Bez požadavku"?`<span class="badge skill">Pož.: ${esc(j.skill)}</span>
-  `:""}${leadWorker ? `
+  
+  ${leadWorker ? `
   <span class="badge">
     ⭐ Vedoucí: ${esc(leadWorker.title)}
   </span>
-` : ""}${worker ? `
-  <span class="badge">
-    👤 ${esc(worker.title)}
-  </span>
-` : ""}${otherCrew.length ? `
+` : ""}
+${otherCrew.length ? `
   <span class="badge skill">
     👥 ${esc(otherCrew.join(", "))}
   </span>
