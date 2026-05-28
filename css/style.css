@@ -16,12 +16,17 @@ header{
   justify-content:space-between;
   padding:12px 18px;
   gap:12px;
-  flex-wrap:wrap;}
+  flex-wrap:wrap;
+  min-height:72px;
+  padding:0 16px;
+}
   #authBar{
   display:flex;
   gap:10px;
   align-items:center;
-  flex-wrap:wrap;}
+  flex-wrap:wrap;
+  align-items:center;
+  }
 #loginBox{
   display:flex;
   gap:10px;
@@ -97,8 +102,8 @@ aside{
 }
 
 .header-logo{
-  width:42px;
-  height:42px;
+  width:auto;
+  height:72px;
   object-fit:contain;
 }
 .head,
