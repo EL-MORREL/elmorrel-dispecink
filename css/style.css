@@ -90,6 +90,17 @@ aside{
   overflow:visible;
   box-shadow:var(--shadow);
 }
+.header-brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.header-logo{
+  width:42px;
+  height:42px;
+  object-fit:contain;
+}
 .head,
 .row{
   display:grid;
