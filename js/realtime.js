@@ -24,7 +24,16 @@ async function startRealtime() {
 
   if (!payload.new?.data) return;
 
-  db = payload.new.data;
+  const incoming = payload.new.data;
+
+if(
+  JSON.stringify(incoming) ===
+  JSON.stringify(db)
+){
+  return;
+}
+
+db = incoming;
 
   if (!db.notes) {
     db.notes = [];
