@@ -162,7 +162,36 @@ aside{
   background:#f8fbff;
   z-index:10;
 }
+.invoice-row{
+  display:flex;
+  justify-content:flex-start;
+  margin-top:14px;
+  margin-bottom:10px;
+}
 
+.checkbox-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+
+  font-weight:700;
+  font-size:15px;
+
+  color:#16a34a;
+
+  cursor:pointer;
+}
+
+.checkbox-row input{
+  width:20px;
+  height:20px;
+
+  cursor:pointer;
+
+  accent-color:#16a34a;
+
+  margin:0;
+}
 .name-cell{
   min-height:100px;
   background:#fff;
