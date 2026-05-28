@@ -627,6 +627,11 @@ return `
 } ondblclick="${a?`openAssignment(${a.id})`:`openJob(${j.id})`}">
 
 <div class="job-title">${esc(j.title)}</div>
+${a.invoiced ? `
+ <div class="badge green">
+  💰 Vyfakturováno
+</div>
+` : ""}
 <div class="job-meta">${esc(j.address||"")}</div>
 <div class="job-meta">${esc(j.contact||"")} ${esc(j.phone||"")}</div>
 
