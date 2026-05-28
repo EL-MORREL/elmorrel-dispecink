@@ -391,3 +391,31 @@ async function unassignCurrent(){
   closeModal("assignModal");
   render();
 }
+async function addVehicleAbsence(
+  vehicleId,
+  date
+){
+
+  if(!canEdit){
+    alert("Nemáte oprávnění");
+    return;
+  }
+
+  const type = prompt(
+    "Typ blokace vozidla:",
+    "Servis"
+  );
+
+  if(!type) return;
+
+  db.vehicleAbsences.push({
+    id: nextId(db.vehicleAbsences),
+    vehicleId,
+    date,
+    type
+  });
+
+  await saveDb();
+
+  render();
+}
