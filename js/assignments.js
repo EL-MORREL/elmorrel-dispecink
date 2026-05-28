@@ -279,7 +279,20 @@ if(hasAbsence){
     if(w && !workerHasSkill(w, job.skill)){
       setStatus("Upozornění: pracovník nemá požadovanou specializaci");}}
 if(rowKind === "vehicle"){
+  const vehicleBlocked =
+  db.vehicleAbsences.some(x =>
+    Number(x.vehicleId) === Number(rowId) &&
+    x.date === date
+  );
 
+if(vehicleBlocked){
+
+  alert(
+    "Vozidlo je blokované"
+  );
+
+  return;
+}
   const sameDayVehicleAssignments =
     db.assignments.filter(x =>
       Number(x.vehicleId) === Number(rowId) &&
