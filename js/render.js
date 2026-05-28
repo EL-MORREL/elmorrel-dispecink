@@ -622,6 +622,7 @@ return `
     ${skillClass(j.skill)}
     ${jobVisualState(j)}
     ${mismatch ? "skill-mismatch" : ""}
+    ${a?.invoiced ? "invoiced-job" : ""}
   "
   draggable="true"
   data-job-id="${j.id}"
@@ -634,9 +635,9 @@ return `
 
 <div class="job-title">${esc(j.title)}</div>
 ${a?.invoiced ? `
- <div class="badge green">
-  💰 Vyfakturováno
-</div>
+  <div class="invoice-overlay">
+    💰 VYFAKTUROVÁNO
+  </div>
 ` : ""}
 <div class="job-meta">${esc(j.address||"")}</div>
 <div class="job-meta">${esc(j.contact||"")} ${esc(j.phone||"")}</div>
