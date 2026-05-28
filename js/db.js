@@ -94,7 +94,13 @@ async function saveDb(){
 
     setStatus("Uloženo do cloudu");
 
-    return true;
+    setTimeout(async () => {
+
+  await loadDb();
+
+}, 150);
+
+return true;
 
   }finally{
 
