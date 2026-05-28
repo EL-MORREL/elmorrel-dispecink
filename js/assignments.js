@@ -397,10 +397,15 @@ function openAssignment(id){selectedAssignmentId=id;
   a_worker.innerHTML=`<option value="">Bez pracovníka</option>`+db.workers.map(w=>`<option value="${w.id}">${esc(w.title)}</option>`).join("");
   a_worker.value=a.workerId||"";
   a_vehicle.innerHTML=`<option value="">Bez vozidla</option>`+db.vehicles.map(v=>`<option value="${v.id}">${esc(v.title)} ${v.spz?"· "+esc(v.spz):""}</option>`).join("");
-  a_vehicle.value=a.vehicleId||"";openModal("assignModal");
-  a_note.value = a.note || ""}
-  a_invoiced.checked =
-  !!a.invoiced;
+ a_vehicle.value = a.vehicleId || "";
+
+openModal("assignModal");
+
+a_note.value = a.note || "";
+
+document.getElementById(
+  "a_invoiced"
+).checked = !!a.invoiced;
 
 async function saveAssignmentFromModal(){
   if(!canEdit){
@@ -423,7 +428,9 @@ async function saveAssignmentFromModal(){
     x.vehicleLoad = a.vehicleLoad;}});
   a.note = a_note.value.trim();
   a.invoiced =
-  a_invoiced.checked;
+  document.getElementById(
+    "a_invoiced"
+  ).checked;
   if(!a.workerId && !a.vehicleId){
     db.assignments = db.assignments.filter(
       x => Number(x.id) !== Number(a.id));
