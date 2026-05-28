@@ -14,7 +14,7 @@ async function startRealtime() {
     .on(
       "postgres_changes",
       {
-        event: "UPDATE",
+        event: "*",
         schema: "public",
         table: "app_state"
       },
@@ -47,9 +47,9 @@ db = incoming;
     db.vehicleAbsences = [];
   }
 
-  requestAnimationFrame(() => {
-    render();
-  });
+  setTimeout(() => {
+  render();
+}, 50);
 
   setStatus("Aktualizováno z cloudu");
 }
