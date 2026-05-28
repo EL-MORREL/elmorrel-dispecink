@@ -235,28 +235,47 @@ function renderBoard(){
 
           </div>
 
-          ${row.kind === "worker" ? `
-            <button
-              class="secondary"
-              style="
-                width:100%;
-                margin-bottom:4px;
-                padding:4px;
-                font-size:10px
-              "
-              onclick="
-                addAbsence(
-                  ${row.id},
-                  '${iso(date)}'
-                )
-              ">
-              Volno
-            </button>
-          ` : ""}
+         ${row.kind === "worker" ? `
+  <button
+    class="secondary"
+    style="
+      width:100%;
+      margin-bottom:4px;
+      padding:4px;
+      font-size:10px
+    "
+    onclick="
+      addAbsence(
+        ${row.id},
+        '${iso(date)}'
+      )
+    ">
+    Volno
+  </button>
+` : ""}
 
-          ${row.kind === "worker" ? `
-            <button
-              class="day-note-add"
+${row.kind === "vehicle" ? `
+  <button
+    class="secondary"
+    style="
+      width:100%;
+      margin-bottom:4px;
+      padding:4px;
+      font-size:10px
+    "
+    onclick="
+      addVehicleAbsence(
+        ${row.id},
+        '${iso(date)}'
+      )
+    ">
+    🚐 Servis
+  </button>
+` : ""}
+
+${row.kind === "worker" ? `
+  <button
+    class="day-note-add"
               onclick="
                 editDayNote(
                   ${row.id},
