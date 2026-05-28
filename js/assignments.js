@@ -284,7 +284,7 @@ async function dropJob(ev){
       date,
       load: Number(job.load || 10),
       vehicleLoad: Number(job.vehicleLoad || 10),
-      note: ""
+      note: "",
       invoiced:false
     };
     db.assignments.push(a);
