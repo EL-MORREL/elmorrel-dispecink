@@ -622,9 +622,15 @@ return `
     ${skillClass(j.skill)}
     ${jobVisualState(j)}
     ${mismatch ? "skill-mismatch" : ""}
-  " 
-  draggable="true" data-job-id="${j.id}" data-assignment-id="${a?a.id:""}" ondragstart="dragJob(event)"
-} ondblclick="${a?`openAssignment(${a.id})`:`openJob(${j.id})`}">
+  "
+  draggable="true"
+  data-job-id="${j.id}"
+  data-assignment-id="${a?a.id:""}"
+  ondragstart="dragJob(event)"
+  ondblclick="${a
+    ? `openAssignment(${a.id})`
+    : `openJob(${j.id})`
+  }">
 
 <div class="job-title">${esc(j.title)}</div>
 ${a.invoiced ? `
