@@ -186,10 +186,12 @@ function renderBoard(){
           : 0;
 
       const absences =
-        db.absences.filter(x =>
-          Number(x.workerId) === Number(row.id) &&
-          x.date === iso(date)
-        );
+  row.kind === "worker"
+    ? db.absences.filter(x =>
+        Number(x.workerId) === Number(row.id) &&
+        x.date === iso(date)
+      )
+    : [];
 
       const hasAbsence =
         absences.length > 0;
