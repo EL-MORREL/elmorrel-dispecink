@@ -388,24 +388,15 @@ function vehicleCrewCount(vehicleId,date){
 
   return workers.size;
 }
-function openAssignment(id){selectedAssignmentId=id;
-  const a=assignmentById(id);if(!a)return;
-  const j=jobById(a.jobId);a_job_title.value=j?.title||"";
-  a_date.value=a.date||iso(new Date());
-  a_load.value=a.load||10;                          
-  a_vehicle_load.value=a.vehicleLoad||10;
-  a_worker.innerHTML=`<option value="">Bez pracovníka</option>`+db.workers.map(w=>`<option value="${w.id}">${esc(w.title)}</option>`).join("");
-  a_worker.value=a.workerId||"";
-  a_vehicle.innerHTML=`<option value="">Bez vozidla</option>`+db.vehicles.map(v=>`<option value="${v.id}">${esc(v.title)} ${v.spz?"· "+esc(v.spz):""}</option>`).join("");
- a_vehicle.value = a.vehicleId || "";
-
-openModal("assignModal");
-
-a_note.value = a.note || "";
-
-document.getElementById(
-  "a_invoiced"
-).checked = !!a.invoiced;
+function openAssignment(id){ selectedAssignmentId = id; 
+                            const a = assignmentById(id); if(!a) return; 
+                            const j = jobById(a.jobId); a_job_title.value = j?.title || ""; 
+                            a_date.value = a.date || iso(new Date()); a_load.value = a.load || 10; 
+                            a_vehicle_load.value = a.vehicleLoad || 10; 
+                            a_worker.innerHTML = `<option value="">Bez pracovníka</option>` + db.workers.map(w => ` <option value="${w.id}"> ${esc(w.title)} </option> `).join(""); 
+                            a_worker.value = a.workerId || ""; 
+                            a_vehicle.innerHTML = `<option value="">Bez vozidla</option>` + db.vehicles.map(v => ` <option value="${v.id}"> ${esc(v.title)} ${v.spz ? "· " + esc(v.spz) : ""} </option> `).join(""); 
+                            a_vehicle.value = a.vehicleId || ""; a_note.value = a.note || ""; document.getElementById( "a_invoiced" ).checked = !!a.invoiced; openModal("assignModal"); }
 
 async function saveAssignmentFromModal(){
   if(!canEdit){
@@ -427,10 +418,7 @@ async function saveAssignmentFromModal(){
     x.vehicleId = a.vehicleId;
     x.vehicleLoad = a.vehicleLoad;}});
   a.note = a_note.value.trim();
-  a.invoiced =
-  document.getElementById(
-    "a_invoiced"
-  ).checked;
+ a.invoiced = document.getElementById( "a_invoiced" ).checked;
   if(!a.workerId && !a.vehicleId){
     db.assignments = db.assignments.filter(
       x => Number(x.id) !== Number(a.id));
