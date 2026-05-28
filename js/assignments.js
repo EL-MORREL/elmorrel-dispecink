@@ -228,7 +228,24 @@ async function editExistingNote(noteId){
   await saveDb();
   render();}  
 
-function dragJob(ev){const card=ev.target.closest(".job");ev.dataTransfer.setData("jobId",card.dataset.jobId);ev.dataTransfer.setData("assignmentId",card.dataset.assignmentId||"");ev.dataTransfer.effectAllowed="move"}
+function dragJob(ev){
+
+  draggingNow = true;
+
+  const card = ev.target.closest(".job");
+
+  ev.dataTransfer.setData(
+    "jobId",
+    card.dataset.jobId
+  );
+
+  ev.dataTransfer.setData(
+    "assignmentId",
+    card.dataset.assignmentId || ""
+  );
+
+  ev.dataTransfer.effectAllowed = "move";
+}
 
 function allowDrop(ev){
   ev.preventDefault();
@@ -330,6 +347,7 @@ if(vehicleBlocked){
   if(job.state === "Nová"){
     job.state = "Naplánováno";}
   await saveDb();
+  draggingNow = false;
   render();}
 function vehicleCrewCount(vehicleId,date){
 
