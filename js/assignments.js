@@ -266,7 +266,12 @@ async function dropJob(ev){
   const rowId = Number(ev.currentTarget.dataset.rowId);
   const date = ev.currentTarget.dataset.date;
   const job = jobById(jobId);
-  if(!job) return;
+  if(!job){
+
+  draggingNow = false;
+
+  return;
+}
   let a = assignmentId
     ? assignmentById(assignmentId)
     : null;
@@ -289,8 +294,13 @@ async function dropJob(ev){
   Number(x.workerId) === Number(rowId) &&
   x.date === date);
 if(hasAbsence){
+
+  draggingNow = false;
+
   alert("Pracovník má v tento den volno.");
-  return;}
+
+  return;
+}
     a.workerId = rowId;
     const w = workerById(rowId);
     if(w && !workerHasSkill(w, job.skill)){
@@ -304,9 +314,9 @@ if(rowKind === "vehicle"){
 
 if(vehicleBlocked){
 
-  alert(
-    "Vozidlo je blokované"
-  );
+  draggingNow = false;
+
+  alert("Vozidlo je blokované");
 
   return;
 }
@@ -320,15 +330,16 @@ if(vehicleBlocked){
     sameDayVehicleAssignments.some(x =>
       Number(x.jobId) !== Number(jobId)
     );
+if(otherJobUsingVehicle){
 
-  if(otherJobUsingVehicle){
+  draggingNow = false;
 
-    alert(
-      "⚠ Vozidlo je již přiřazené jiné zakázce"
-    );
+  alert(
+    "⚠ Vozidlo je již přiřazené jiné zakázce"
+  );
 
-    return;
-  }
+  return;
+}
 
   a.vehicleId = rowId;
 
