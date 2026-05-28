@@ -330,6 +330,36 @@ aside{
   overflow:hidden;
   text-overflow:ellipsis;
 }
+.invoiced-job{
+  position:relative;
+  overflow:hidden;
+}
+
+.invoice-overlay{
+  position:absolute;
+  top:42%;
+  left:-30%;
+  width:160%;
+  transform:rotate(-18deg);
+
+  background:rgba(22,163,74,.88);
+
+  color:white;
+
+  text-align:center;
+
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:1px;
+
+  padding:4px 0;
+
+  z-index:20;
+
+  pointer-events:none;
+
+  box-shadow:0 2px 10px rgba(0,0,0,.25);
+}
 .empty{padding:12px;color:var(--muted);background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;font-size:13px}
 .modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.58);z-index:80;align-items:center;justify-content:center;padding:18px}
 .modal.open{display:flex}
