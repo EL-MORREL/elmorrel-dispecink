@@ -193,7 +193,13 @@ function renderBoard(){
 
       const hasAbsence =
         absences.length > 0;
-
+      const vehicleAbsences =
+  row.kind === "vehicle"
+    ? db.vehicleAbsences.filter(x =>
+        Number(x.vehicleId) === Number(row.id) &&
+        x.date === iso(date)
+      )
+    : [];
       html += `
         <div
           class="cell
@@ -321,13 +327,7 @@ ${row.kind === "worker" ? `
       });
 
       absences.forEach(a => {
-        const vehicleAbsences =
-  row.kind === "vehicle"
-    ? db.vehicleAbsences.filter(x =>
-        Number(x.vehicleId) === Number(row.id) &&
-        x.date === iso(date)
-      )
-    : [];
+        
         let color = "#94a3b8";
 
         if(a.type.includes("Dovolená")){
