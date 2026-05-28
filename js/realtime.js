@@ -33,7 +33,9 @@ if(
 ){
   return;
 }
-
+if(draggingNow){
+  return;
+}
 db = incoming;
 
   if (!db.notes) {
