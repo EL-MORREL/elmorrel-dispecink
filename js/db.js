@@ -1,4 +1,14 @@
-function createEmptyDb(){return{jobs:[],workers:[],vehicles:[],assignments:[],notes:[],absences:[]}}
+function createEmptyDb(){
+  return{
+    jobs:[],
+    workers:[],
+    vehicles:[],
+    assignments:[],
+    notes:[],
+    absences:[],
+    vehicleAbsences:[]
+  }
+}
 async function loadDb(){
   if(!currentUser) return;
 
@@ -30,7 +40,9 @@ async function loadDb(){
   if(!db.absences){
     db.absences = [];
   }
-
+  if(!db.vehicleAbsences){
+  db.vehicleAbsences = [];
+}
   // migrace starých procent na hodiny
   db.workers.forEach(w => {
     if(w.capacity === 100){
@@ -73,3 +85,4 @@ async function saveDb(){
 
   return true;
 }
+
