@@ -1,3 +1,4 @@
+let draggingNow = false;
 let realtimeChannel = null;
 
 async function startRealtime() {
