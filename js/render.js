@@ -321,7 +321,13 @@ ${row.kind === "worker" ? `
       });
 
       absences.forEach(a => {
-
+        const vehicleAbsences =
+  row.kind === "vehicle"
+    ? db.vehicleAbsences.filter(x =>
+        Number(x.vehicleId) === Number(row.id) &&
+        x.date === iso(date)
+      )
+    : [];
         let color = "#94a3b8";
 
         if(a.type.includes("Dovolená")){
@@ -372,7 +378,24 @@ ${row.kind === "worker" ? `
           </div>
         `;
       });
+      vehicleAbsences.forEach(a => {
 
+  html += `
+    <div
+      class="job"
+      style="
+        background:#fee2e2;
+        color:#991b1b;
+        border-left:4px solid #dc2626;
+      "
+    >
+      <div class="job-title">
+        🚐 ${esc(a.type)}
+      </div>
+    </div>
+  `;
+
+});
       const renderedJobs = new Set();
 
       ass.forEach(a => {
