@@ -357,9 +357,18 @@ if(otherJobUsingVehicle){
 }
   if(job.state === "Nová"){
     job.state = "Naplánováno";}
+  
+  try{
+
   await saveDb();
+
+  render();
+
+}finally{
+
   draggingNow = false;
-  render();}
+
+}}
 function vehicleCrewCount(vehicleId,date){
 
   const workers = new Set();
