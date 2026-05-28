@@ -633,7 +633,7 @@ return `
   }">
 
 <div class="job-title">${esc(j.title)}</div>
-${a.invoiced ? `
+${a?.invoiced ? `
  <div class="badge green">
   💰 Vyfakturováno
 </div>
