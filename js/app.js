@@ -27,7 +27,17 @@ function rows(){
     }));
   }
 
-  return db.workers.map(w => ({
+  return db.workers
+  .filter(w => {
+
+    if(!w.hiddenFrom){
+      return true;
+    }
+
+    return iso(weekStart) < w.hiddenFrom;
+
+  })
+  .map(w => ({
     kind:"worker",
     id:w.id,
     title:w.title,
