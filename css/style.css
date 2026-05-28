@@ -375,21 +375,14 @@ aside{
 }
   
 }
-  .board-scale{
-  transform:scale(0.78);
-  transform-origin:top left;
-
-  width:128%;
-  padding-bottom:24%;
-}
   .head,
   .row{
-    grid-auto-columns:140px;
+    grid-auto-columns:115px;
   }
 
   .name-cell{
     position:sticky;
-    min-height:100px;
+    min-height:92px;
     padding:6px;
     font-size:10px;
   }
@@ -397,19 +390,19 @@ aside{
   z-index:60;
 }
   .cell{
-    min-height:100px;
-    padding:4px;
+    min-height:92px;
+    padding:3px;
   }
 
   .job{
-    padding:6px;
-    margin-bottom:5px;
-    border-radius:8px;
+    padding:3px;
+    margin-bottom:3px;
+    border-radius:6px;
   }
 
   .job-title{
-    font-size:10px;
-    line-height:1.15;
+    font-size:8px;
+    line-height:1.05;
   }
 
   .job-meta{
@@ -418,17 +411,17 @@ aside{
   }
 
   .badge{
-    font-size:8px;
-    padding:2px 5px;
+    font-size:5px;
+    padding:1px 2px;
   }
 
   .progress{
-    height:6px;
+    height:4px;
   }
 
   .quick-actions button{
-    font-size:10px;
-    padding:4px 6px;
+    font-size:7px;
+    padding:2px 4px;
   }
 
 }
