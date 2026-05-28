@@ -18,26 +18,32 @@ async function startRealtime() {
         schema: "public",
         table: "app_state"
       },
-      (payload) => {
+     (payload) => {
 
-        console.log("Realtime payload:", payload);
+  console.log("Realtime payload:", payload);
 
-        if (!payload.new?.data) return;
+  if (!payload.new?.data) return;
 
-        db = payload.new.data;
+  db = payload.new.data;
 
-        if (!db.notes) {
-          db.notes = [];
-        }
+  if (!db.notes) {
+    db.notes = [];
+  }
 
-        if (!db.absences) {
-          db.absences = [];
-        }
+  if (!db.absences) {
+    db.absences = [];
+  }
 
-        render();
+  if (!db.vehicleAbsences) {
+    db.vehicleAbsences = [];
+  }
 
-        setStatus("Aktualizováno z cloudu");
-      }
+  requestAnimationFrame(() => {
+    render();
+  });
+
+  setStatus("Aktualizováno z cloudu");
+}
     )
     .subscribe((status) => {
       console.log("Realtime status:", status);
