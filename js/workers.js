@@ -3,6 +3,8 @@ function openWorker(id){selectedWorkerId=id||null;
   workerModalTitle.textContent=w?"Detail pracovníka":"Nový pracovník";
   w_title.value=w?.title||"";
   w_email.value=w?.email||"";
+  w_hidden_from.value =
+  w?.hiddenFrom || "";                      
   w_phone.value=w?.phone||"";
   w_capacity.value=w?.capacity||10;
   setSelectedMulti("w_skills",w?.skills||[]);
@@ -16,6 +18,8 @@ async function saveWorker(){
   const p = {
     title: w_title.value.trim(),
     email: w_email.value.trim(),
+    hiddenFrom:
+  w_hidden_from.value || null,
     phone: w_phone.value.trim(),
     capacity: Number(w_capacity.value || 0),
     skills: getSelectedMulti("w_skills")};
