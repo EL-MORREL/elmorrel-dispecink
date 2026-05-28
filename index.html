@@ -160,9 +160,18 @@
   <label>Vytížení vozidla hod.<input id="a_vehicle_load" type="number" min="0" max="24" step="0.5"></label>
   <label class="full">Poznámka k danému dni <textarea id="a_note" rows="3"></textarea></label>
   <label class="full">
-  <input type="checkbox" id="a_invoiced">
-  Vyfakturováno
-</label>
+  <div class="invoice-row">
+  <label class="checkbox-row">
+    <input
+      type="checkbox"
+      id="a_invoiced"
+    >
+    <span>
+      💰 Vyfakturováno
+    </span>
+  </label>
+
+</div>
 </div>
 <div class="actions"><button class="secondary" onclick="closeModal('assignModal')">Zavřít</button>
   <button class="danger" onclick="unassignCurrent()">Odebrat z plánu</button>
