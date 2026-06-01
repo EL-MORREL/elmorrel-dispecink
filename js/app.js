@@ -76,10 +76,44 @@ async function importData(e){
         alert("Soubor nemá správnou strukturu.");
         return;}
       db = imported;
-      const ok = await saveDb();
-      if(!ok) return;
-      render();
-      alert("Import hotový.");
+if(!confirm(
+  "Import přepíše aktuální data v databázi. Pokračovat?"
+)){
+  return;
+}
+for(const job of imported.jobs || []){
+  await upsertJobTable(job);
+}
+
+for(const worker of imported.workers || []){
+  await upsertWorkerTable(worker);
+}
+
+for(const vehicle of imported.vehicles || []){
+  await upsertVehicleTable(vehicle);
+}
+
+for(const assignment of imported.assignments || []){
+  await upsertAssignmentTable(assignment);
+}
+
+for(const note of imported.notes || []){
+  await upsertNoteTable(note);
+}
+
+for(const absence of imported.absences || []){
+  await upsertAbsenceTable(absence);
+}
+
+for(const vehicleAbsence of imported.vehicleAbsences || []){
+  await upsertVehicleAbsenceTable(vehicleAbsence);
+}
+
+await loadDb();
+
+render();
+
+alert("Import hotový.");
     }catch(err){
       console.error("IMPORT ERROR:", err);
       alert("Import se nepodařil: " + err.message);}};
