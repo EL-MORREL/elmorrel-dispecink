@@ -42,10 +42,11 @@ async function saveWorker(){
     )
   : db.workers[db.workers.length - 1];
 
-await upsertWorkerTable(worker);
+
 
 const ok = await saveDb();
 if(!ok) return;
+  await upsertWorkerTable(worker);
   closeModal("workerModal");
   render();}
 
