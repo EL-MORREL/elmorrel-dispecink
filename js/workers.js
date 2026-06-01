@@ -36,8 +36,16 @@ async function saveWorker(){
     db.workers.push({
       id: nextId(db.workers),
       ...p});}
-  const ok = await saveDb();
-  if(!ok) return;
+ const worker = selectedWorkerId
+  ? db.workers.find(
+      w => Number(w.id) === Number(selectedWorkerId)
+    )
+  : db.workers[db.workers.length - 1];
+
+await upsertWorkerTable(worker);
+
+const ok = await saveDb();
+if(!ok) return;
   closeModal("workerModal");
   render();}
 
@@ -55,7 +63,9 @@ async function deleteWorker(){
       a.workerId = null;}});
   db.assignments = db.assignments.filter(
     a => a.workerId || a.vehicleId);
-  await saveDb();
+ await deleteWorkerTable(selectedWorkerId);
+
+await saveDb();
   closeModal("workerModal");
   render();}
 
