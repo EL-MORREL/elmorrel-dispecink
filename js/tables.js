@@ -76,3 +76,61 @@ async function deleteJobTable(id){
 
   return true;
 }
+async function upsertWorkerTable(worker){
+
+  const { error } = await supabaseClient
+    .from("workers")
+    .upsert({
+      id: worker.id,
+      title: worker.title,
+      email: worker.email,
+      phone: worker.phone,
+      capacity: worker.capacity,
+      skills: worker.skills || [],
+      hidden_from: worker.hiddenFrom || null
+    });
+
+  if(error){
+    console.error("UPSERT WORKER ERROR", error);
+    throw error;
+  }
+
+  return true;
+}
+
+async function deleteWorkerTable(id){
+
+  const { error } = await supabaseClient
+    .from("workers")
+    .delete()
+    .eq("id", id);
+
+  if(error){
+    console.error("DELETE WORKER ERROR", error);
+    throw error;
+  }
+
+  return true;
+}
+
+async function loadWorkersTable(){
+
+  const { data, error } = await supabaseClient
+    .from("workers")
+    .select("*");
+
+  if(error){
+    console.error(error);
+    return [];
+  }
+
+  return (data || []).map(w => ({
+    id: w.id,
+    title: w.title,
+    email: w.email,
+    phone: w.phone,
+    capacity: w.capacity,
+    skills: w.skills || [],
+    hiddenFrom: w.hidden_from
+  }));
+}
