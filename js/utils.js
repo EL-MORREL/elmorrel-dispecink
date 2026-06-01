@@ -1,4 +1,6 @@
-function nextId(c){return c.reduce((m,i)=>Math.max(m,Number(i.id)||0),0)+1}
+function nextId(){
+  return Date.now() + Math.floor(Math.random()*1000);
+}
 function setStatus(t){document.getElementById("status").textContent=t}
 function esc(v){return String(v??"").replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]))}
 function monday(d){const x=new Date(d),day=x.getDay()||7;x.setDate(x.getDate()-day+1);x.setHours(0,0,0,0);return x}
