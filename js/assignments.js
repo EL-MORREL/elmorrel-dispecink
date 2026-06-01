@@ -438,6 +438,7 @@ async function saveAssignmentFromModal(){
 
 closeModal("assignModal");
 render();
+
 async function unassignCurrent(){
   if(!canEdit){
     alert("Nemáte oprávnění k úpravám");
@@ -454,6 +455,7 @@ await deleteAssignmentTable(
 
 closeModal("assignModal");
 render();
+
 async function addVehicleAbsence(
   vehicleId,
   date
