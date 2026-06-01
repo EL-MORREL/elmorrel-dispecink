@@ -34,8 +34,19 @@ if(
   return;
 }
 if(draggingNow){
+
+  setTimeout(() => {
+    db = incoming;
+    render();
+  }, 1000);
+
   return;
 }
+console.log(
+  "Realtime update",
+  incoming.jobs?.length,
+  "zakázek"
+);       
 db = incoming;
 
   if (!db.notes) {
@@ -73,4 +84,3 @@ db = incoming;
       }
     });
 }
-
