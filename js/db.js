@@ -107,8 +107,19 @@ if(
   return false;
 }
 
+const dbForSave =
+  JSON.parse(JSON.stringify(db));
+
+delete dbForSave.jobs;
+delete dbForSave.workers;
+delete dbForSave.vehicles;
+delete dbForSave.assignments;
+delete dbForSave.notes;
+delete dbForSave.absences;
+delete dbForSave.vehicleAbsences;
+
 const payload = {
-  data: JSON.parse(JSON.stringify(db)),
+  data: dbForSave,
   updated_by: currentUser.email,
   updated_at: new Date().toISOString()
 };
