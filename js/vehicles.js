@@ -33,8 +33,16 @@ async function saveVehicle(){
     db.vehicles.push({
       id: nextId(db.vehicles),
       ...p});}
-  const ok = await saveDb();
-  if(!ok) return;
+  const vehicle = selectedVehicleId
+  ? db.vehicles.find(
+      v => Number(v.id) === Number(selectedVehicleId)
+    )
+  : db.vehicles[db.vehicles.length - 1];
+
+await upsertVehicleTable(vehicle);
+
+const ok = await saveDb();
+if(!ok) return;
   closeModal("vehicleModal");
   render();}
 
@@ -52,7 +60,9 @@ async function deleteVehicle(){
       a.vehicleId = null;}});
   db.assignments = db.assignments.filter(
     a => a.workerId || a.vehicleId);
-  await saveDb();
+  await deleteVehicleTable(selectedVehicleId);
+
+await saveDb();
   closeModal("vehicleModal");
   render();}
 
