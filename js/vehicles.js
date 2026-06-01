@@ -41,8 +41,7 @@ async function saveVehicle(){
 
 
 
-const ok = await saveDb();
-if(!ok) return;
+
   await upsertVehicleTable(vehicle);
   closeModal("vehicleModal");
   render();}
