@@ -29,13 +29,15 @@ async function loadDb(){
     return;
   }
 
-  if(data?.data){
-    db = data.data;
-     dbVersion = data.updated_at;
-  }else{
-    db = createEmptyDb();
-    await saveDb();
-  }
+ if(data?.data){
+  db = data.data;
+  dbVersion = data.updated_at;
+}else{
+  db = createEmptyDb();
+  await saveDb();
+}
+
+db.jobs = await loadJobsTable();
 
   // DOPLNIT ↓↓↓
 
