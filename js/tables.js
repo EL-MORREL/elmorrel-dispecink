@@ -192,3 +192,61 @@ async function loadVehiclesTable(){
     note: v.note
   }));
 }
+async function loadAssignmentsTable(){
+
+  const { data, error } = await supabaseClient
+    .from("assignments")
+    .select("*");
+
+  if(error){
+    console.error(error);
+    return [];
+  }
+
+  return (data || []).map(a => ({
+    id: a.id,
+    jobId: a.job_id,
+    workerId: a.worker_id,
+    vehicleId: a.vehicle_id,
+    date: a.date,
+    load: a.load,
+    vehicleLoad: a.vehicle_load,
+    note: a.note || "",
+    invoiced: !!a.invoiced
+  }));
+}
+
+async function upsertAssignmentTable(a){
+
+  const { error } = await supabaseClient
+    .from("assignments")
+    .upsert({
+      id: a.id,
+      job_id: a.jobId,
+      worker_id: a.workerId,
+      vehicle_id: a.vehicleId,
+      date: a.date,
+      load: a.load,
+      vehicle_load: a.vehicleLoad,
+      note: a.note || "",
+      invoiced: !!a.invoiced
+    });
+
+  if(error){
+    console.error("UPSERT ASSIGNMENT ERROR", error);
+    throw error;
+  }
+}
+
+async function deleteAssignmentTable(id){
+
+  const { error } = await supabaseClient
+    .from("assignments")
+    .delete()
+    .eq("id", id);
+
+  if(error){
+    console.error("DELETE ASSIGNMENT ERROR", error);
+    throw error;
+  }
+}
