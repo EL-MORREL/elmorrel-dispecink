@@ -146,7 +146,9 @@ async function deleteJob(){
   db.assignments = db.assignments.filter(
     a => Number(a.jobId) !== Number(selectedJobId)
   );
-  await saveDb();
+ await deleteJobTable(selectedJobId);
+
+await saveDb();
   closeModal("jobModal");
   render();
 }
