@@ -38,7 +38,7 @@ async function loadDb(){
 }
 
 db.jobs = await loadJobsTable();
-
+db.workers = await loadWorkersTable();
   // DOPLNIT ↓↓↓
 
   if(!db.notes){
