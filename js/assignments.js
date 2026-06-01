@@ -63,13 +63,16 @@ async function editDayNote(workerId,date){
   const text = prompt("Nová poznámka:");
   if(!text){
     return;}
-  db.notes.push({
-    id: Date.now(),
-    workerId,
-    date,
-    text
-  });
-  await saveDb();
+  const note = {
+  id: Date.now(),
+  workerId,
+  date,
+  text
+};
+
+db.notes.push(note);
+
+await upsertNoteTable(note);
   render();}
 
 async function deleteDayNote(noteId){
@@ -80,7 +83,7 @@ async function deleteDayNote(noteId){
     return;}
   db.notes = db.notes.filter(
     n => Number(n.id) !== Number(noteId));
-  await saveDb();
+  await deleteNoteTable(noteId);
   render();}
 
 async function addAbsence(workerId,date){
@@ -94,14 +97,16 @@ async function addAbsence(workerId,date){
 
   if(!type) return;
 
-  db.absences.push({
-    id: nextId(db.absences),
-    workerId,
-    date,
-    type
-  });
+  const absence = {
+  id: nextId(db.absences),
+  workerId,
+  date,
+  type
+};
 
-  await saveDb();
+db.absences.push(absence);
+
+await upsertAbsenceTable(absence);
 
   render();
 }
@@ -209,7 +214,7 @@ async function deleteAbsence(id){
     return;}
   db.absences = db.absences.filter(
     a => Number(a.id) !== Number(id));
-  await saveDb();
+  await deleteAbsenceTable(id);
   render();}
 
 async function editExistingNote(noteId){
@@ -225,7 +230,7 @@ async function editExistingNote(noteId){
   if(text === null){
     return;}
   note.text = text;
-  await saveDb();
+  await upsertNoteTable(note);
   render();}  
 
 function dragJob(ev){
@@ -473,14 +478,16 @@ async function addVehicleAbsence(
 
   if(!type) return;
 
-  db.vehicleAbsences.push({
+  const absence = {
     id: nextId(db.vehicleAbsences),
     vehicleId,
     date,
     type
-  });
+  };
 
-  await saveDb();
+  db.vehicleAbsences.push(absence);
+
+  await upsertVehicleAbsenceTable(absence);
 
   render();
 }
