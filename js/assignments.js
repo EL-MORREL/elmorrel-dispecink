@@ -275,20 +275,23 @@ async function dropJob(ev){
   let a = assignmentId
     ? assignmentById(assignmentId)
     : null;
-  if(!a){
-    a = {
-      id: nextId(db.assignments),
-      jobId,
-      workerId: null,
-      vehicleId: null,
-      date,
-      load: Number(job.load || 10),
-      vehicleLoad: Number(job.vehicleLoad || 10),
-      note: "",
-      invoiced:false
-    };
-    db.assignments.push(a);
-  }
+ if(!a){
+  a = {
+    id: nextId(db.assignments),
+    jobId,
+    workerId: null,
+    vehicleId: null,
+    date,
+    load: Number(job.load || 10),
+    vehicleLoad: Number(job.vehicleLoad || 10),
+    note: "",
+    invoiced:false
+  };
+
+  db.assignments.push(a);
+
+  await upsertAssignmentTable(a);
+}
   a.date = date;
   if(rowKind === "worker"){
     const hasAbsence = db.absences.some(x =>
@@ -361,7 +364,7 @@ if(otherJobUsingVehicle){
   
   try{
 
-  await saveDb();
+  await upsertAssignmentTable(a);
 
   render();
 
