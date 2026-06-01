@@ -136,4 +136,3 @@ async function deleteJob(){
 }
 async function duplicateJob(){if(!selectedJobId)return;const j=jobById(selectedJobId);if(!j)return;db.jobs.push({...j,id:nextId(db.jobs),title:j.title+" - kopie",state:"Nová",invoiced:false});await saveDb();closeModal("jobModal");render()}
 async function setJobState(state){if(!selectedJobId)return;const j=jobById(selectedJobId);if(!j)return;j.state=state;if(state==="Vyfakturováno")j.invoiced=true;await saveDb();closeModal("jobModal");render()}
-
