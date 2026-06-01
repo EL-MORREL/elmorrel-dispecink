@@ -110,25 +110,14 @@ async function saveJob(){
       j.invoiced = true;
     }
   }
- try{
-
-  const job = selectedJobId
-    ? jobById(selectedJobId)
-    : db.jobs[db.jobs.length - 1];
-
-  
-
-}catch(err){
-
-  alert("Chyba zápisu do tabulky jobs");
-  console.error(err);
-  return;
-
-}
+const job = selectedJobId
+  ? jobById(selectedJobId)
+  : db.jobs[db.jobs.length - 1];
 
 const ok = await saveDb();
 if(!ok) return;
-  await upsertJobTable(job);
+
+await upsertJobTable(job);
   closeModal("jobModal");
   render();
 }
