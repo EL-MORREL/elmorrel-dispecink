@@ -25,7 +25,13 @@ async function startRealtime() {
 
   if (!payload.new?.data) return;
 
-  const incoming = payload.new.data;
+ const incoming = payload.new.data;
+
+if (
+  payload.new.updated_by === currentUser.email
+){
+  return;
+}
 
 if(
   JSON.stringify(incoming) ===
