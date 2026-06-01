@@ -25,3 +25,6 @@ async function saveJobTable(job){
 
   return true;
 }
+loadJobsTable().then(data => {
+  console.log("JOBS TABLE:", data);
+});
