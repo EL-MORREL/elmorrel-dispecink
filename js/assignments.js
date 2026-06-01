@@ -423,14 +423,21 @@ async function saveAssignmentFromModal(){
   a.note = a_note.value.trim();
  a.invoiced = document.getElementById( "a_invoiced" ).checked;
   if(!a.workerId && !a.vehicleId){
-    db.assignments = db.assignments.filter(
-      x => Number(x.id) !== Number(a.id));
-  }
 
-  await saveDb();
-  closeModal("assignModal");
-  render();
+  db.assignments = db.assignments.filter(
+    x => Number(x.id) !== Number(a.id)
+  );
+
+  await deleteAssignmentTable(a.id);
+
+}else{
+
+  await upsertAssignmentTable(a);
+
 }
+
+closeModal("assignModal");
+render();
 async function unassignCurrent(){
   if(!canEdit){
     alert("Nemáte oprávnění k úpravám");
@@ -438,12 +445,15 @@ async function unassignCurrent(){
   }
   if(!selectedAssignmentId) return;
   db.assignments = db.assignments.filter(
-    a => Number(a.id) !== Number(selectedAssignmentId)
-  );
-  await saveDb();
-  closeModal("assignModal");
-  render();
-}
+  a => Number(a.id) !== Number(selectedAssignmentId)
+);
+
+await deleteAssignmentTable(
+  selectedAssignmentId
+);
+
+closeModal("assignModal");
+render();
 async function addVehicleAbsence(
   vehicleId,
   date
