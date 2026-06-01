@@ -250,3 +250,148 @@ async function deleteAssignmentTable(id){
     throw error;
   }
 }
+async function loadNotesTable(){
+
+  const { data, error } = await supabaseClient
+    .from("notes")
+    .select("*");
+
+  if(error){
+    console.error(error);
+    return [];
+  }
+
+  return (data || []).map(n => ({
+    id: n.id,
+    workerId: n.row_id,
+    date: n.date,
+    text: n.note
+  }));
+}
+
+async function upsertNoteTable(note){
+
+  const { error } = await supabaseClient
+    .from("notes")
+    .upsert({
+      id: note.id,
+      row_kind: "worker",
+      row_id: note.workerId,
+      date: note.date,
+      note: note.text
+    });
+
+  if(error){
+    console.error("UPSERT NOTE ERROR", error);
+    throw error;
+  }
+}
+
+async function deleteNoteTable(id){
+
+  const { error } = await supabaseClient
+    .from("notes")
+    .delete()
+    .eq("id", id);
+
+  if(error){
+    console.error("DELETE NOTE ERROR", error);
+    throw error;
+  }
+}
+async function loadAbsencesTable(){
+
+  const { data, error } = await supabaseClient
+    .from("absences")
+    .select("*");
+
+  if(error){
+    console.error(error);
+    return [];
+  }
+
+  return (data || []).map(a => ({
+    id: a.id,
+    workerId: a.worker_id,
+    date: a.date,
+    type: a.reason
+  }));
+}
+
+async function upsertAbsenceTable(a){
+
+  const { error } = await supabaseClient
+    .from("absences")
+    .upsert({
+      id: a.id,
+      worker_id: a.workerId,
+      date: a.date,
+      reason: a.type
+    });
+
+  if(error){
+    console.error("UPSERT ABSENCE ERROR", error);
+    throw error;
+  }
+}
+
+async function deleteAbsenceTable(id){
+
+  const { error } = await supabaseClient
+    .from("absences")
+    .delete()
+    .eq("id", id);
+
+  if(error){
+    console.error("DELETE ABSENCE ERROR", error);
+    throw error;
+  }
+}
+async function loadVehicleAbsencesTable(){
+
+  const { data, error } = await supabaseClient
+    .from("vehicle_absences")
+    .select("*");
+
+  if(error){
+    console.error(error);
+    return [];
+  }
+
+  return (data || []).map(v => ({
+    id: v.id,
+    vehicleId: v.vehicle_id,
+    date: v.date,
+    type: v.reason
+  }));
+}
+
+async function upsertVehicleAbsenceTable(v){
+
+  const { error } = await supabaseClient
+    .from("vehicle_absences")
+    .upsert({
+      id: v.id,
+      vehicle_id: v.vehicleId,
+      date: v.date,
+      reason: v.type
+    });
+
+  if(error){
+    console.error("UPSERT VEHICLE ABSENCE ERROR", error);
+    throw error;
+  }
+}
+
+async function deleteVehicleAbsenceTable(id){
+
+  const { error } = await supabaseClient
+    .from("vehicle_absences")
+    .delete()
+    .eq("id", id);
+
+  if(error){
+    console.error("DELETE VEHICLE ABSENCE ERROR", error);
+    throw error;
+  }
+}
