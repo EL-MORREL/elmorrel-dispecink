@@ -41,6 +41,9 @@ db.jobs = await loadJobsTable();
 db.workers = await loadWorkersTable();
 db.vehicles = await loadVehiclesTable();
 db.assignments = await loadAssignmentsTable();
+db.notes = await loadNotesTable();
+db.absences = await loadAbsencesTable();
+db.vehicleAbsences = await loadVehicleAbsencesTable();
   // DOPLNIT ↓↓↓
 
   if(!db.notes){
