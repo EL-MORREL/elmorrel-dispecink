@@ -134,3 +134,61 @@ async function loadWorkersTable(){
     hiddenFrom: w.hidden_from
   }));
 }
+async function upsertVehicleTable(vehicle){
+
+  const { error } = await supabaseClient
+    .from("vehicles")
+    .upsert({
+      id: vehicle.id,
+      title: vehicle.title,
+      spz: vehicle.spz,
+      type: vehicle.type,
+      capacity: vehicle.capacity,
+      people_capacity: vehicle.peopleCapacity,
+      note: vehicle.note
+    });
+
+  if(error){
+    console.error("UPSERT VEHICLE ERROR", error);
+    throw error;
+  }
+
+  return true;
+}
+
+async function deleteVehicleTable(id){
+
+  const { error } = await supabaseClient
+    .from("vehicles")
+    .delete()
+    .eq("id", id);
+
+  if(error){
+    console.error("DELETE VEHICLE ERROR", error);
+    throw error;
+  }
+
+  return true;
+}
+
+async function loadVehiclesTable(){
+
+  const { data, error } = await supabaseClient
+    .from("vehicles")
+    .select("*");
+
+  if(error){
+    console.error(error);
+    return [];
+  }
+
+  return (data || []).map(v => ({
+    id: v.id,
+    title: v.title,
+    spz: v.spz,
+    type: v.type,
+    capacity: v.capacity,
+    peopleCapacity: v.people_capacity,
+    note: v.note
+  }));
+}
