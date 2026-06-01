@@ -116,7 +116,7 @@ async function saveJob(){
     ? jobById(selectedJobId)
     : db.jobs[db.jobs.length - 1];
 
-  await upsertJobTable(job);
+  
 
 }catch(err){
 
@@ -128,6 +128,7 @@ async function saveJob(){
 
 const ok = await saveDb();
 if(!ok) return;
+  await upsertJobTable(job);
   closeModal("jobModal");
   render();
 }
