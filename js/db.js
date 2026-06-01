@@ -1,4 +1,6 @@
+let dbVersion = null;
 let savingDb = false;
+
 function createEmptyDb(){
   return{
     jobs:[],
@@ -12,13 +14,14 @@ function createEmptyDb(){
 }
 
 async function loadDb(){
+  
   if(!currentUser) return;
 
   const { data, error } = await supabaseClient
-    .from("app_state")
-    .select("data")
-    .eq("id", 1)
-    .maybeSingle();
+  .from("app_state")
+  .select("data, updated_at")
+  .eq("id", 1)
+  .maybeSingle();
 
   if(error){
     console.error("LOAD ERROR:", error);
@@ -28,6 +31,7 @@ async function loadDb(){
 
   if(data?.data){
     db = data.data;
+     dbVersion = data.updated_at;
   }else{
     db = createEmptyDb();
     await saveDb();
@@ -71,15 +75,36 @@ async function saveDb(){
   try{
 
     if(!currentUser){
-      alert("Nejste přihlášen");
-      return false;
-    }
+  alert("Nejste přihlášen");
+  return false;
+}
 
-    const payload = {
-      data: JSON.parse(JSON.stringify(db)),
-      updated_by: currentUser.email,
-      updated_at: new Date().toISOString()
-    };
+const { data: current } = await supabaseClient
+  .from("app_state")
+  .select("updated_at")
+  .eq("id", 1)
+  .single();
+
+if(
+  current?.updated_at &&
+  dbVersion &&
+  current.updated_at !== dbVersion
+){
+
+  alert(
+    "Data změnil jiný uživatel. Načítám aktuální verzi."
+  );
+
+  await loadDb();
+
+  return false;
+}
+
+const payload = {
+  data: JSON.parse(JSON.stringify(db)),
+  updated_by: currentUser.email,
+  updated_at: new Date().toISOString()
+};
 
     const { error } = await supabaseClient
       .from("app_state")
@@ -92,13 +117,9 @@ async function saveDb(){
       return false;
     }
 
-    setStatus("Uloženo do cloudu");
+    dbVersion = payload.updated_at;
 
-    setTimeout(async () => {
-
-  await loadDb();
-
-}, 150);
+setStatus("Uloženo do cloudu");
 
 return true;
 
@@ -108,4 +129,3 @@ return true;
 
   }
 }
-
