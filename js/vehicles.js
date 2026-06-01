@@ -39,10 +39,11 @@ async function saveVehicle(){
     )
   : db.vehicles[db.vehicles.length - 1];
 
-await upsertVehicleTable(vehicle);
+
 
 const ok = await saveDb();
 if(!ok) return;
+  await upsertVehicleTable(vehicle);
   closeModal("vehicleModal");
   render();}
 
