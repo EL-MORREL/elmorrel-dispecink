@@ -426,7 +426,20 @@ async function saveAssignmentFromModal(){
     x.vehicleId = a.vehicleId;
     x.vehicleLoad = a.vehicleLoad;}});
   a.note = a_note.value.trim();
- a.invoiced = document.getElementById( "a_invoiced" ).checked;
+
+const invoicedValue =
+  document.getElementById("a_invoiced").checked;
+
+db.assignments.forEach(x => {
+
+  if(
+    Number(x.jobId) === Number(a.jobId) &&
+    x.date === a.date
+  ){
+    x.invoiced = invoicedValue;
+  }
+
+});
   if(!a.workerId && !a.vehicleId){
 
   db.assignments = db.assignments.filter(
@@ -437,7 +450,17 @@ async function saveAssignmentFromModal(){
 
 }else{
 
-  await upsertAssignmentTable(a);
+  const sameJobSameDay =
+    db.assignments.filter(x =>
+      Number(x.jobId) === Number(a.jobId) &&
+      x.date === a.date
+    );
+
+  for(const item of sameJobSameDay){
+    await upsertAssignmentTable(item);
+  }
+
+}
 
 }
 
