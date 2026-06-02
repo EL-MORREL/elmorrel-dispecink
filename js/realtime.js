@@ -19,59 +19,42 @@ async function startRealtime() {
         schema: "public",
         table: "app_state"
       },
-     (payload) => {
+     async (payload) => {
 
   console.log("Realtime payload:", payload);
 
-  if (!payload.new?.data) return;
-
- const incoming = payload.new.data;
-
-if (
-  payload.new.updated_by === currentUser.email
-){
-  return;
-}
-
-if(
-  JSON.stringify(incoming) ===
-  JSON.stringify(db)
-){
-  return;
-}
-if(draggingNow){
-
-  setTimeout(() => {
-    db = incoming;
-    render();
-  }, 1000);
-
-  return;
-}
-console.log(
-  "Realtime update",
-  incoming.jobs?.length,
-  "zakázek"
-);       
-db = incoming;
-
-  if (!db.notes) {
-    db.notes = [];
+  if(draggingNow){
+    return;
   }
 
-  if (!db.absences) {
-    db.absences = [];
-  }
-
-  if (!db.vehicleAbsences) {
-    db.vehicleAbsences = [];
-  }
-
-  setTimeout(() => {
-  render();
-}, 50);
-
+  await loadDb();
+    .on(
+    "postgres_changes",
+    {
+      event: "*",
+      schema: "public",
+      table: "jobs"
+    },
+    async () => {
+      if(draggingNow) return;
+      await loadDb();
+    }
+  )
+  
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "assignments"
+      },
+      async () => {
+        if(draggingNow) return;
+        await loadDb();
+      }
+    )
   setStatus("Aktualizováno z cloudu");
+
 }
     )
     .subscribe((status) => {
