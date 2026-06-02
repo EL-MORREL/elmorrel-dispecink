@@ -280,7 +280,7 @@ aside{
 }  
 .job.done{opacity:.72}.job.invoiced{opacity:.58}
 .job.skill-mismatch{outline:2px solid var(--red)}
-.job-title{font-weight:800;font-size:9px;line-height:1.2}
+.job-title{font-weight:800;font-size:11px;line-height:1.2}
 .job-meta{font-size:8px;color:#40546c;margin-top:3px;line-height:1.25}
 .badges{display:flex;flex-wrap:wrap;gap:2px;margin-top:4px}
 .badge{font-size:7px;background:rgba(255,255,255,.75);border:1px solid rgba(0,0,0,.08);border-radius:99px;padding:2px 6px}
