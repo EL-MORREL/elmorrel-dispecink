@@ -62,7 +62,7 @@ async function deleteVehicle(){
     a => a.workerId || a.vehicleId);
   await deleteVehicleTable(selectedVehicleId);
 
-await saveDb();
+
   closeModal("vehicleModal");
   render();}
 
