@@ -327,11 +327,11 @@ aside{
 .day-note-add:hover{
   background:#e5e7eb;}
 .job-note{
-  margin-top:6px;
-  padding:6px;
-  border-radius:8px;
+  margin-top:4px;
+  padding:4px;
+  border-radius:6px;
   background:#fff8dc;
-  font-size:12px;
+  font-size:10px;
   line-height:1.4;
   white-space:pre-wrap;
 }
