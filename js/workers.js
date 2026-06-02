@@ -63,7 +63,6 @@ async function deleteWorker(){
     a => a.workerId || a.vehicleId);
  await deleteWorkerTable(selectedWorkerId);
 
-await saveDb();
   closeModal("workerModal");
   render();}
 
