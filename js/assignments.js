@@ -462,11 +462,8 @@ db.assignments.forEach(x => {
 
 }
 
-}
-
 closeModal("assignModal");
 render();
-}
 async function unassignCurrent(){
   if(!canEdit){
     alert("Nemáte oprávnění k úpravám");
