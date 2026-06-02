@@ -108,7 +108,29 @@ for(const absence of imported.absences || []){
 for(const vehicleAbsence of imported.vehicleAbsences || []){
   await upsertVehicleAbsenceTable(vehicleAbsence);
 }
+for(const note of imported.notes || []){
+  try{
+    await upsertNoteTable(note);
+  }catch(err){
+    console.error("NOTE IMPORT", note, err);
+  }
+}
 
+for(const absence of imported.absences || []){
+  try{
+    await upsertAbsenceTable(absence);
+  }catch(err){
+    console.error("ABSENCE IMPORT", absence, err);
+  }
+}
+
+for(const vehicleAbsence of imported.vehicleAbsences || []){
+  try{
+    await upsertVehicleAbsenceTable(vehicleAbsence);
+  }catch(err){
+    console.error("VEHICLE ABSENCE IMPORT", vehicleAbsence, err);
+  }
+}
 await loadDb();
 
 render();
