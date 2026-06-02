@@ -339,7 +339,7 @@ aside{
   display:flex;
   justify-content:space-between;
   align-items:flex-start;
-  gap:6px;
+  gap:8px;
 }
 
 .job-hours{
