@@ -58,7 +58,7 @@ header{
   #currentUserBox{
     text-align:center;
     margin-left:0!important;  }}
-header h1{font-size:20px;margin:0}.right{font-size:13px;opacity:.95}
+header h1{font-size:16px;margin:0}.right{font-size:11px;opacity:.95}
 .toolbar{min-height:50px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:9px 12px;flex-wrap:wrap}
 button{border:0;border-radius:8px;background:var(--blue);color:#fff;padding:9px 12px;font-weight:650;cursor:pointer}
 button:hover{background:var(--blue2)}button.secondary{background:#e8eef7;color:#152033}button.secondary:hover{background:#dce6f3}button.danger{background:var(--red)}
