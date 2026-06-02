@@ -10,25 +10,10 @@ async function startRealtime() {
     realtimeChannel = null;
   }
 
-  realtimeChannel = supabaseClient
-    .channel("app_state_changes")
-    .on(
-      "postgres_changes",
-      {
-        event: "*",
-        schema: "public",
-        table: "app_state"
-      },
-     async (payload) => {
+ realtimeChannel = supabaseClient
+  .channel("planner_realtime")
 
-  console.log("Realtime payload:", payload);
-
-  if(draggingNow){
-    return;
-  }
-
-  await loadDb();
-    .on(
+  .on(
     "postgres_changes",
     {
       event: "*",
@@ -38,38 +23,38 @@ async function startRealtime() {
     async () => {
       if(draggingNow) return;
       await loadDb();
+      setStatus("Aktualizováno z cloudu");
     }
   )
-  
-    .on(
-      "postgres_changes",
-      {
-        event: "*",
-        schema: "public",
-        table: "assignments"
-      },
-      async () => {
-        if(draggingNow) return;
-        await loadDb();
-      }
-    )
-  setStatus("Aktualizováno z cloudu");
 
-}
-    )
-    .subscribe((status) => {
-      console.log("Realtime status:", status);
+  .on(
+    "postgres_changes",
+    {
+      event: "*",
+      schema: "public",
+      table: "assignments"
+    },
+    async () => {
+      if(draggingNow) return;
+      await loadDb();
+      setStatus("Aktualizováno z cloudu");
+    }
+  )
 
-      if (status === "SUBSCRIBED") {
-        console.log("Realtime připojen");
-      }
+  .subscribe((status) => {
 
-      if (status === "CHANNEL_ERROR") {
-        console.error("Realtime channel error");
-      }
+    console.log("Realtime status:", status);
 
-      if (status === "TIMED_OUT") {
-        console.error("Realtime timeout");
-      }
-    });
-}
+    if (status === "SUBSCRIBED") {
+      console.log("Realtime připojen");
+    }
+
+    if (status === "CHANNEL_ERROR") {
+      console.error("Realtime channel error");
+    }
+
+    if (status === "TIMED_OUT") {
+      console.error("Realtime timeout");
+    }
+
+  });
