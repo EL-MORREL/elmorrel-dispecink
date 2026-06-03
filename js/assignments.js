@@ -315,54 +315,60 @@ if(hasAbsence){
     if(w && !workerHasSkill(w, job.skill)){
       setStatus("Upozornění: pracovník nemá požadovanou specializaci");}}
 if(rowKind === "vehicle"){
+
   const vehicleBlocked =
-  db.vehicleAbsences.some(x =>
-    Number(x.vehicleId) === Number(rowId) &&
-    x.date === date
-  );
-
-if(vehicleBlocked){
-
-  draggingNow = false;
-
-  alert("Vozidlo je blokované");
-
-  return;
-}
-  const sameDayVehicleAssignments =
-    db.assignments.filter(x =>
+    db.vehicleAbsences.some(x =>
       Number(x.vehicleId) === Number(rowId) &&
       x.date === date
     );
 
+  if(vehicleBlocked){
+
+    draggingNow = false;
+
+    alert("Vozidlo je blokované");
+
+    return;
+  }
+
   const otherJobUsingVehicle =
-    sameDayVehicleAssignments.some(x =>
-      Number(x.jobId) !== Number(jobId)
+    db.assignmentVehicles.some(x =>
+      Number(x.vehicle_id) === Number(rowId) &&
+      x.date === date &&
+      Number(x.job_id) !== Number(jobId)
     );
-if(otherJobUsingVehicle){
 
-  draggingNow = false;
+  if(otherJobUsingVehicle){
 
-  alert(
-    "⚠ Vozidlo je již přiřazené jiné zakázce"
+    draggingNow = false;
+
+    alert(
+      "⚠ Vozidlo je již přiřazené jiné zakázce"
+    );
+
+    return;
+  }
+
+  await setAssignmentVehiclesTable(
+    a.jobId,
+    date,
+    [rowId]
   );
 
-  return;
-}
-
-  a.vehicleId = rowId;
+  db.assignmentVehicles =
+    await loadAssignmentVehiclesTable();
 
   db.assignments.forEach(x => {
 
     if(
       Number(x.jobId) === Number(a.jobId) &&
-      x.date === a.date
+      x.date === date
     ){
-      x.vehicleId = a.vehicleId;
       x.vehicleLoad = a.vehicleLoad;
     }
 
   });
+
 }
   if(job.state === "Nová"){
     job.state = "Naplánováno";}
