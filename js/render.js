@@ -605,7 +605,23 @@ function jobCard(j,a){
   a
     ? vehiclesForJobDate(a.jobId, a.date)
     : [];
+let assignedVehicles =
+  assignedVehicleRows
+    .map(x => vehicleById(x.vehicle_id))
+    .filter(Boolean);
 
+// kompatibilita se starými daty
+if(
+  assignedVehicles.length === 0 &&
+  a?.vehicleId
+){
+  const oldVehicle =
+    vehicleById(a.vehicleId);
+
+  if(oldVehicle){
+    assignedVehicles = [oldVehicle];
+  }
+}
 const vehicleBadge = assignedVehicles.length
   ? assignedVehicles.map(v => {
 
