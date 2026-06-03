@@ -40,7 +40,18 @@ async function startRealtime() {
         setStatus("Aktualizováno z cloudu");
       }
     )
-
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "assignment_vehicles"
+      },
+      async () => {
+        if(draggingNow) return;
+        await loadDb();
+      }
+    )      
     .subscribe((status) => {
 
       console.log("Realtime status:", status);
