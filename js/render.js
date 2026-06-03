@@ -601,20 +601,32 @@ function jobCard(j,a){
     p.over
       ?"red"
       :(p.pct>=85?"orange":"green");
-  const vehicleCrew =
-  vehicle && a
-    ? vehicleCrewCount(vehicle.id, a.date)
-    : 0;
+  const assignedVehicleRows =
+  a
+    ? vehiclesForJobDate(a.jobId, a.date)
+    : [];
 
-const vehicleCapacity =
-  vehicle
-    ? Number(vehicle.peopleCapacity || 5)
-    : 0;
+const assignedVehicles =
+  assignedVehicleRows
+    .map(x => vehicleById(x.vehicle_id))
+    .filter(Boolean);
 
-const vehicleBadge = vehicle
-  ? `<span class="badge ${vehicleCrew > vehicleCapacity ? "warn" : ""}">
-      🚐 ${esc(vehicle.title)} · 👥 ${vehicleCrew}/${vehicleCapacity}
-    </span>`
+const vehicleBadge = assignedVehicles.length
+  ? assignedVehicles.map(v => {
+
+      const vehicleCrew =
+        vehicleCrewCount(v.id, a.date);
+
+      const vehicleCapacity =
+        Number(v.peopleCapacity || 5);
+
+      return `
+        <span class="badge ${vehicleCrew > vehicleCapacity ? "warn" : ""}">
+          🚐 ${esc(v.title)}${v.spz ? " · " + esc(v.spz) : ""} · 👥 ${vehicleCrew}/${vehicleCapacity}
+        </span>
+      `;
+
+    }).join("")
   : "";
 return `
 <div class="job
