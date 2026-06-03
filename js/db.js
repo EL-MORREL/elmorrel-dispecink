@@ -47,6 +47,8 @@ db.assignmentVehicles = await loadAssignmentVehiclesTable();
 db.notes = await loadNotesTable();
 db.absences = await loadAbsencesTable();
 db.vehicleAbsences = await loadVehicleAbsencesTable();
+
+
   // DOPLNIT ↓↓↓
 
   if(!db.notes){
@@ -59,6 +61,15 @@ db.vehicleAbsences = await loadVehicleAbsencesTable();
   if(!db.vehicleAbsences){
   db.vehicleAbsences = [];
 }
+console.log("jobs", db.jobs);
+console.log("workers", db.workers);
+console.log("vehicles", db.vehicles);
+console.log("assignments", db.assignments);
+console.log("assignmentVehicles", db.assignmentVehicles);
+console.log("notes", db.notes);
+console.log("absences", db.absences);
+console.log("vehicleAbsences", db.vehicleAbsences);
+  
   // migrace starých procent na hodiny
   db.workers.forEach(w => {
     if(w.capacity === 100){
