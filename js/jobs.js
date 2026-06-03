@@ -134,7 +134,10 @@ async function deleteJob(){
     a => Number(a.jobId) !== Number(selectedJobId)
   );
  await deleteJobTable(selectedJobId);
-
+ await supabaseClient
+  .from("assignment_vehicles")
+  .delete()
+  .eq("job_id", selectedJobId);
   closeModal("jobModal");
   render();
 }
