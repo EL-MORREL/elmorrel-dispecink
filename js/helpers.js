@@ -48,7 +48,7 @@ function vehiclesForJobDate(jobId,date){
 
   return db.assignmentVehicles.filter(x =>
 
-    Number(x.jobId) === Number(jobId) &&
+    Number(x.job_id) === Number(jobId) &&
     x.date === date
 
   );
