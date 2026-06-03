@@ -68,6 +68,9 @@ async function importData(e){
       let imported = JSON.parse(r.result);
       if(imported.data){
         imported = imported.data;}
+      if(!imported.assignmentVehicles){
+        imported.assignmentVehicles = [];
+}
       if(
         !Array.isArray(imported.jobs) ||
         !Array.isArray(imported.workers) ||
@@ -96,7 +99,11 @@ for(const vehicle of imported.vehicles || []){
 for(const assignment of imported.assignments || []){
   await upsertAssignmentTable(assignment);
 }
-
+for(const assignmentVehicle of imported.assignmentVehicles || []){
+  await supabaseClient
+    .from("assignment_vehicles")
+    .upsert(assignmentVehicle);
+}
 for(const note of imported.notes || []){
   await upsertNoteTable(note);
 }
