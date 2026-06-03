@@ -409,3 +409,30 @@ async function deleteVehicleAbsenceTable(id){
 
   return data || [];
 }
+async function setAssignmentVehiclesTable(jobId, date, vehicleIds){
+
+  await supabaseClient
+    .from("assignment_vehicles")
+    .delete()
+    .eq("job_id", jobId)
+    .eq("date", date);
+
+  if(!vehicleIds.length){
+    return;
+  }
+
+  const rows = vehicleIds.map(vehicleId => ({
+    job_id: jobId,
+    date,
+    vehicle_id: vehicleId
+  }));
+
+  const { error } = await supabaseClient
+    .from("assignment_vehicles")
+    .insert(rows);
+
+  if(error){
+    console.error("SET ASSIGNMENT VEHICLES ERROR", error);
+    throw error;
+  }
+}
