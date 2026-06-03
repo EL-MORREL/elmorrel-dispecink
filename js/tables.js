@@ -395,3 +395,17 @@ async function deleteVehicleAbsenceTable(id){
     throw error;
   }
 }
+  async function loadAssignmentVehiclesTable(){
+
+  const { data, error } =
+    await supabaseClient
+      .from("assignment_vehicles")
+      .select("*");
+
+  if(error){
+    console.error(error);
+    return [];
+  }
+
+  return data || [];
+}
