@@ -403,8 +403,32 @@ function openAssignment(id){ selectedAssignmentId = id;
                             a_vehicle_load.value = a.vehicleLoad || 10; 
                             a_worker.innerHTML = `<option value="">Bez pracovníka</option>` + db.workers.map(w => ` <option value="${w.id}"> ${esc(w.title)} </option> `).join(""); 
                             a_worker.value = a.workerId || ""; 
-                            a_vehicle.innerHTML = `<option value="">Bez vozidla</option>` + db.vehicles.map(v => ` <option value="${v.id}"> ${esc(v.title)} ${v.spz ? "· " + esc(v.spz) : ""} </option> `).join(""); 
-                            a_vehicle.value = a.vehicleId || ""; a_note.value = a.note || ""; document.getElementById( "a_invoiced" ).checked = !!a.invoiced; openModal("assignModal"); }
+                           a_vehicle.innerHTML =
+                                db.vehicles.map(v => `
+                                  <option value="${v.id}">
+                                    ${esc(v.title)}
+                                    ${v.spz ? "· " + esc(v.spz) : ""}
+                                  </option>
+                                `).join("");
+                              
+                              const assignedVehicles =
+                                vehiclesForJobDate(
+                                  a.jobId,
+                                  a.date
+                                );
+                              
+                              const selectedVehicleIds =
+                                assignedVehicles.map(x =>
+                                  Number(x.vehicle_id)
+                                );
+                              
+                              Array.from(a_vehicle.options).forEach(opt => {
+                                opt.selected =
+                                  selectedVehicleIds.includes(
+                                    Number(opt.value)
+                                  );
+                              }); 
+                            a_note.value = a.note || ""; document.getElementById( "a_invoiced" ).checked = !!a.invoiced; openModal("assignModal"); }
 
 async function saveAssignmentFromModal(){
   if(!canEdit){
@@ -417,14 +441,24 @@ async function saveAssignmentFromModal(){
     ? Number(a_worker.value)
     : null;
   a.load = Number(a_load.value || 10);
-  a.vehicleId = a_vehicle.value
-    ? Number(a_vehicle.value)
-    : null;
-      db.assignments.forEach(x => {
-  if(Number(x.jobId) === Number(a.jobId) && x.date === a.date
-  ){a.vehicleLoad = Number(a_vehicle_load.value || 10); 
-    x.vehicleId = a.vehicleId;
-    x.vehicleLoad = a.vehicleLoad;}});
+  const selectedVehicleIds =
+  Array.from(
+    a_vehicle.selectedOptions
+  ).map(x => Number(x.value));
+
+a.vehicleLoad =
+  Number(a_vehicle_load.value || 10);
+
+db.assignments.forEach(x => {
+
+  if(
+    Number(x.jobId) === Number(a.jobId) &&
+    x.date === a.date
+  ){
+    x.vehicleLoad = a.vehicleLoad;
+  }
+
+});
   a.note = a_note.value.trim();
 
 const invoicedValue =
@@ -440,7 +474,7 @@ db.assignments.forEach(x => {
   }
 
 });
-  if(!a.workerId && !a.vehicleId){
+  if(!a.workerId){
 
   db.assignments = db.assignments.filter(
     x => Number(x.id) !== Number(a.id)
@@ -461,7 +495,14 @@ db.assignments.forEach(x => {
   }
 
 }
+await setAssignmentVehiclesTable(
+  a.jobId,
+  a.date,
+  selectedVehicleIds
+);
 
+db.assignmentVehicles =
+  await loadAssignmentVehiclesTable();
 closeModal("assignModal");
 render();
 }  
