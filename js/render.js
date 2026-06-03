@@ -606,11 +606,6 @@ function jobCard(j,a){
     ? vehiclesForJobDate(a.jobId, a.date)
     : [];
 
-const assignedVehicles =
-  assignedVehicleRows
-    .map(x => vehicleById(x.vehicle_id))
-    .filter(Boolean);
-
 const vehicleBadge = assignedVehicles.length
   ? assignedVehicles.map(v => {
 
