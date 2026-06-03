@@ -103,9 +103,9 @@ function renderBoard(){
 
    const busyVehicles = vehicles.filter(v => {
 
-   const ass = db.assignments.filter(a =>
-    Number(a.vehicleId) === Number(v.id) &&
-    a.date === currentDate
+  const ass = db.assignmentVehicles.filter(av =>
+    Number(av.vehicle_id) === Number(v.id) &&
+    av.date === currentDate
   );
 
   return ass.length > 0;
@@ -451,11 +451,11 @@ function renderMobileBoard(){
     ).length;
 
     const busyVehicles = db.vehicles.filter(v =>
-      db.assignments.some(a =>
-        Number(a.vehicleId) === Number(v.id) &&
-        a.date === currentDate
-      )
-    ).length;
+  db.assignmentVehicles.some(av =>
+    Number(av.vehicle_id) === Number(v.id) &&
+    av.date === currentDate
+  )
+).length;
 
     return `
 
