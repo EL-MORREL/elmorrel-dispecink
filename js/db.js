@@ -7,9 +7,11 @@ function createEmptyDb(){
     workers:[],
     vehicles:[],
     assignments:[],
+    assignmentVehicles:[],
     notes:[],
     absences:[],
     vehicleAbsences:[]
+    
   }
 }
 
@@ -41,6 +43,7 @@ db.jobs = await loadJobsTable();
 db.workers = await loadWorkersTable();
 db.vehicles = await loadVehiclesTable();
 db.assignments = await loadAssignmentsTable();
+db.assignmentVehicles = await loadAssignmentVehiclesTable();
 db.notes = await loadNotesTable();
 db.absences = await loadAbsencesTable();
 db.vehicleAbsences = await loadVehicleAbsencesTable();
