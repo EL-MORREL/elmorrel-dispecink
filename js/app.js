@@ -1,150 +1,131 @@
-function switchTab(t){sideJobs.classList.toggle("hidden",t!=="jobs");
-   sidePeople.classList.toggle("hidden",t!=="people");
-   sideCars.classList.toggle("hidden",t!=="cars");
-   tabJobs.classList.toggle("active",t==="jobs");
-   tabPeople.classList.toggle("active",t==="people");
-   tabCars.classList.toggle("active",t==="cars")}
+import './passwords.js?v=invite-1';
+import {invitationsEnabled} from './features.js?v=invite-1';
+import {upgrade,bookings,jobTotals,saveAssignment,moveBooking,seed,DEMO_DAY,COLORS,uid,esc,dateKey,localDate,fmtHours,time,hours,safeColor,safeUrl,actual,mismatch,arrive,depart,reportRows} from './data.js?v=invite-1';
+import {client,createConnection} from './connection.js?v=invite-1';
+const remote=createConnection();let saving=false,sessionUser=null;
+import {icon} from './icons.js?v=invite-1';
+import {workbook,download} from './xlsx.js?v=invite-1';
+const $=id=>document.getElementById(id),KEY='planner-design-v3';
+let state=upgrade(seed());
+for(const key of ['workers','jobs','vehicles','assignments','attendance','fuel','vehicleBookings','skills'])state[key]=[];
+let dragging=null;
+let role='dispatcher',page='plan',weekOffset=0,view='workers',showWeekend=false,dialogMode=null,dialogId=null,returnFocus=null,reportMode='workers',reportMonth=DEMO_DAY.slice(0,7),reportJob='',reportWorker='',query='';
+let me=null;const isManager=()=>['dispatcher','admin'].includes(role),now=()=>new Date().toISOString(),find=(t,id)=>state[t].find(x=>x.id===id),label=(t,id)=>find(t,id)?.name??'—';
+const dateLabel=date=>new Date(date+'T12:00:00').toLocaleDateString('cs-CZ'),initials=n=>n.split(' ').map(x=>x[0]).slice(0,2).join(''),field=(name,text,value='',type='text',extra='')=>`<label>${text}<input name="${name}" type="${type}" value="${esc(value)}" ${extra}></label>`,select=(name,text,rows,value='',extra='')=>`<label>${text}<select name="${name}" ${extra}>${rows.map(([id,n])=>`<option value="${esc(id)}" ${String(id)===String(value)?'selected':''}>${esc(n)}</option>`).join('')}</select></label>`;
+const btn=(action,text,cls='secondary',id='')=>`<button type="button" class="${cls}" data-action="${action}" data-id="${esc(id)}">${text}</button>`,opts=table=>state[table].map(x=>[x.id,x.name]),message=s=>{$('status').textContent=s},openWork=()=>state.attendance.find(t=>t.worker===me&&!t.end);
+function adopt(next){state=next;const m=remote.snapshot.membership;me=m.worker_id;role=['owner','admin'].includes(m.role)?'admin':['dispatcher','editor'].includes(m.role)?'dispatcher':'worker';$('role').value=role;}
+async function persist(note){if(saving)return;saving=true;message('Ukládám…');try{adopt(await remote.save(state));render();message(note||'Uloženo.')}catch(error){try{adopt(await remote.refresh());render()}catch{hideSession()}message(error.message)}finally{saving=false}}
+function hideSession(){remote.clear();sessionUser=null;me=null;document.querySelector('.shell').hidden=true;$('mobile-nav').hidden=true;$('login-panel').hidden=false;if($('dialog').open)$('dialog').close();$('content').replaceChildren();state={};}
 
-function prevWeek(){weekStart=addDays(weekStart,-7);render()}
-
-function nextWeek(){weekStart=addDays(weekStart,7);render()}
-
-function goToday(){weekStart=monday(new Date());render()}
-
-function rows(){
-  const mode=viewMode.value;
-
-  if(mode==="vehicles"){
-    return db.vehicles.map(v => ({
-      kind:"vehicle",
-      id:v.id,
-      title:v.title,
-      sub:[v.spz,v.type]
-        .filter(Boolean)
-        .join(" · "),
-      capacity:Number(v.capacity||10),
-      peopleCapacity:Number(v.peopleCapacity || 5)
-    }));
-  }
-
-  return db.workers
-  .filter(w => {
-
-    if(!w.hiddenFrom){
-      return true;
-    }
-
-    return iso(weekStart) < w.hiddenFrom;
-
-  })
-  .map(w => ({
-    kind:"worker",
-    id:w.id,
-    title:w.title,
-    sub:[w.email,w.phone]
-      .filter(Boolean)
-      .join(" · "),
-    capacity:Number(w.capacity||10)
-  }));
+const menu=[['plan','calendar','Plánovač'],['attendance','clock','Docházka'],['jobs','file','Zakázky'],['workers','users','Pracovníci'],['vehicles','car','Vozidla'],['fuel','fuel','Tankování'],['reports','file','Výkazy'],['settings','settings','Nastavení firmy']];
+function render(){
+ const allowed=role==='worker'?['plan','attendance','fuel','profile']:role==='admin'?menu.map(m=>m[0]):menu.filter(m=>m[0]!=='settings').map(m=>m[0]);
+ if(!allowed.includes(page))page='plan';
+ const entries=role==='worker'?[['plan','home','Můj den'],['attendance','clock','Moje docházka'],['fuel','fuel','Moje tankování'],['profile','users','Profil']]:menu.filter(m=>allowed.includes(m[0]));
+ $('navigation').innerHTML=entries.map(([p,i,n])=>btn('nav',icon(i)+n,`nav-item ${page===p?'active':''}`,p)).join('');
+ $('mobile-nav').innerHTML=entries.filter(m=>['plan','attendance','fuel','profile','reports'].includes(m[0])).map(([p,i,n])=>btn('nav',icon(i)+n,page===p?'active':'',p)).join('');
+ $('brand-name').textContent=state.company.name;$('brand-logo').innerHTML=state.company.logo?`<img alt="Logo firmy" src="${esc(state.company.logo)}">`:'';
+ const active=openWork();document.querySelector('[data-action=arrive]').disabled=!me||!!active;document.querySelector('[data-action=depart]').disabled=!me||!active;document.querySelector('.workbar [data-action=fuel]').disabled=!me;
+ $('switch-job').hidden=!active;$('work-state').innerHTML=active?`<span class="online-dot"></span>V práci od <strong>${time(active.start)}</strong> · ${esc(label('jobs',active.job))}`:'Příchod není zaznamenaný';
+ if(page==='plan')role==='worker'?renderMyDay():renderPlan();
+ if(page==='jobs')renderJobs();if(page==='workers')renderWorkers();if(page==='vehicles')renderVehicles();if(page==='attendance')renderAttendance();if(page==='fuel')renderFuel();if(page==='reports')renderReports();if(page==='settings')renderSettings();if(page==='profile')renderProfile();
 }
+function heading(title,sub,actions=''){return `<div class="page-heading"><div><h1>${title}</h1><p class="subtle">${sub}</p></div><div class="toolbar">${actions}</div></div>`}
+function getDays(){const d=new Date(DEMO_DAY+'T12:00:00');d.setDate(d.getDate()-(d.getDay()||7)+1+weekOffset*7);return Array.from({length:showWeekend?7:5},(_,i)=>{const x=new Date(d);x.setDate(x.getDate()+i);return dateKey(x)})}
+function matching(x){return JSON.stringify(x).toLocaleLowerCase('cs').includes(query)}
+function warningFor(a){const info=actual(state,a.worker,a.job,a.date),late=a.date===DEMO_DAY&&new Date(now())>new Date(`${a.date}T${a.start||state.company.dayStart}:00`).getTime()+state.company.tolerance*60000;
+ if(late&&!info.rows.length)return '<div class="warning danger">'+icon('warning')+' Příchod nezaznamenán</div>';
+ if(mismatch(state,a.job,a.date)&&!state.reviewed.includes(a.job+a.date))return `<div class="warning">${icon('warning')} Rozdílné hodiny pracovníků<br>${btn('review','Zkontrolováno','link-button',a.job+'|'+a.date)}</div>`;return '';
+}
+function jobCard(a,booking=null){const j=find('jobs',a.job);if(!j)return '';const info=actual(state,a.worker,a.job,a.date);return `<article class="job-card" tabindex="0" role="button" aria-label="${esc(j.name)} — detail přiřazení" draggable="${isManager()}" data-booking="${booking?.id??''}" data-action="assignment" data-id="${a.id}" style="--job-color:${safeColor(j.color)}"><div class="job-title"><span class="color-dot"></span>${esc(j.name)}</div><div class="job-body"><strong>${booking?'Vozidlo · '+fmtHours(booking.hours)+' h':info.rows.length?'Příchod '+time(info.rows[0].start):'Plán od '+esc(a.start)}</strong><p>${booking?'Hodiny vozidla vedené samostatně':'Plán '+fmtHours(a.planned)+' h · '+(info.open?'Probíhá':info.rows.length?'Skutečnost '+fmtHours(info.total)+' h':'Čeká na příchod')}</p><p>${a.vehicles.map(v=>esc(label('vehicles',v).replace('Ford ','').replace('VW ',''))).join(' · ')||'Bez vozidla'}</p>${a.fromAttendance?'<span class="value-pill">Z docházky</span>':''}${booking?'':warningFor(a)}${estimateMarkup(j)}</div></article>`}
+function renderPlan(){const days=getDays(),resources=state[view].filter(matching);const controls=`${btn('prev','‹','secondary') }<span class="period">${new Date(days[0]+'T12:00:00').getDate()}.–${dateLabel(days.at(-1))}</span>${btn('next','›','secondary')}<div class="segmented">${btn('view-workers','Pracovníci',view==='workers'?'active':'')}${btn('view-vehicles','Vozidla',view==='vehicles'?'active':'')}</div>${btn('weekend',showWeekend?'5 dní':'7 dní','secondary')}${btn('new-assignment',icon('plus')+' Naplánovat','primary')}`;
+ $('content').innerHTML=heading('Plán zakázek','Přehled lidí, vozidel a skutečně odpracovaných hodin',controls)+`<div class="board-wrap"><table class="schedule"><thead><tr><th>${view==='workers'?'Pracovník':'Vozidlo'}</th>${days.map(d=>`<th>${new Date(d+'T12:00:00').toLocaleDateString('cs-CZ',{weekday:'short',day:'numeric',month:'numeric'})}</th>`).join('')}</tr></thead><tbody>${resources.map(w=>`<tr><td class="person-cell"><div class="person"><span class="avatar">${esc(initials(w.name))}</span><div><strong>${esc(w.name)}</strong><small>${view==='workers'?'Realizace':esc(w.plate)}</small></div></div></td>${days.map(date=>{let rows=state.assignments.filter(a=>a.date===date&&a.worker===w.id);const cards=view==='workers'?rows.map(a=>jobCard(a)).join(''):state.vehicleBookings.filter(b=>b.date===date&&b.vehicle===w.id).map(b=>{const a=state.assignments.find(a=>a.job===b.job&&a.date===date)??{id:'',job:b.job,date,worker:null,planned:0,start:'',vehicles:bookings(state,b.job,date).map(x=>x.vehicle)};return jobCard(a,b)}).join('');return `<td data-drop-kind="${view}" data-resource="${w.id}" data-date="${date}">${cards||'<div class="empty-cell">—</div>'}</td>`}).join('')}</tr>`).join('')}</tbody></table></div><div class="legend">${state.jobs.map(j=>`<span style="--job-color:${safeColor(j.color)}"><i class="color-dot"></i>${esc(j.name)}</span>`).join('')}<span class="count">Zobrazeno ${resources.length} ${view==='workers'?'pracovníků':'vozidel'}</span></div><div class="summary-grid"><section class="panel"><div class="panel-heading">${icon('clock')}<h2>Docházka dnes</h2></div><div class="panel-content"><p class="metric">${state.attendance.filter(t=>!t.end).length} <small>v práci</small></p><p class="subtle">Příchody a rozdíly v hodinách na jednom místě.</p>${btn('nav','Otevřít docházku','secondary','attendance')}</div></section><section class="panel"><div class="panel-heading">${icon('fuel')}<h2>Tankování</h2></div><div class="panel-content"><p class="metric">${state.fuel.length} <small>záznamů</small></p><p class="subtle">Pracovník a karta se doplní automaticky.</p>${btn('fuel',icon('plus')+' Zapsat tankování','secondary')}</div></section><section class="panel"><div class="panel-heading">${icon('file')}<h2>Výkazy a exporty</h2></div><div class="panel-content"><p class="metric">${fmtHours(state.attendance.reduce((s,t)=>s+(hours(t)||0),0))} <small>odpracovaných hodin</small></p><p class="subtle">Přehled za pracovníka i jednotlivé zakázky.</p>${btn('nav',icon('download')+' Otevřít výkazy','secondary','reports')}</div></section></div>`;
+}
+function documents(j){return (j.documents||[]).map(d=>{const url=safeUrl(d.url);return url?`<a class="document-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${icon('file')}${esc(d.name)} ${icon('link')}</a>`:''}).join('')||'<p class="subtle">Zatím nejsou přidané dokumenty.</p>'}
+function renderMyDay(){const active=openWork(),today=state.assignments.filter(a=>a.worker===me&&a.date===DEMO_DAY);$('content').innerHTML=`<div class="worker-day">${heading('Můj den',`${esc(label('workers',me))} · ${dateLabel(DEMO_DAY)}`)}${active?`<p class="value-pill"><span class="online-dot"></span>V práci od ${time(active.start)}</p>`:''}${today.map(a=>{const j=find('jobs',a.job);return `<section>${jobCard(a)}${documents(j)}</section>`}).join('')||'<div class="empty-state">Na dnešek není naplánovaná zakázka.</div>'}<section class="panel"><div class="panel-heading">${icon('fuel')}<h2>Moje tankovací karta</h2></div><div class="panel-content"><strong>•••• ${esc(find('workers',me).card.slice(-4))}</strong><p class="subtle">PIN se v této ukázce neukládá ani nezobrazuje. Zpřístupní se až přes zabezpečený server.</p></div></section></div>`;}
+function renderJobs(){$('content').innerHTML=heading('Zakázky','Vlastní barvy, odbornosti a dokumenty pro realizaci',btn('job','Nová zakázka','primary'))+`<div class="list-grid">${state.jobs.filter(matching).map(j=>`<section class="list-card" style="border-top:4px solid ${safeColor(j.color)}"><h2>${esc(j.name)}</h2><p>${esc(j.address)}</p>${estimateMarkup(j)}<span class="tag">${esc(find('skills',j.skill)?.name??'Bez požadavku')}</span>${documents(j)}<div class="card-actions">${btn('job','Upravit','secondary',j.id)}${btn('job-report','Výkaz hodin','secondary',j.id)}</div></section>`).join('')}</div>`}
+function renderWorkers(){$('content').innerHTML=heading('Pracovníci','Role, odbornosti a přiřazené tankovací karty',btn('worker','Přidat pracovníka','primary'))+`<div class="list-grid">${state.workers.filter(matching).map(w=>`<section class="list-card"><div class="person"><span class="avatar">${esc(initials(w.name))}</span><div><h2>${esc(w.name)}</h2><span class="subtle">${esc(w.email)}</span></div></div><p>${({worker:'Realizace',dispatcher:'Dispečer',admin:'Administrátor'})[w.role]}</p><div class="tags">${w.skills.map(s=>`<span class="tag">${esc(find('skills',s)?.name??s)}</span>`).join('')}</div><p>Karta: ${esc(w.card||'Nepřiřazena')}</p>${btn('worker','Detail pracovníka','secondary',w.id)}${role==='admin'?btn('invite','Pozvat do aplikace','secondary',w.id):''}</section>`).join('')}</div>`}
+function renderVehicles(){$('content').innerHTML=heading('Vozidla','Firemní vozidla pro plánování a tankování',btn('vehicle','Přidat vozidlo','primary'))+`<div class="list-grid">${state.vehicles.filter(matching).map(v=>`<section class="list-card">${icon('car')}<h2>${esc(v.name)}</h2><p>${esc(v.plate)}</p>${btn('vehicle','Upravit','secondary',v.id)}</section>`).join('')}</div>`}
+function renderAttendance(){const rows=state.attendance.filter(t=>isManager()||t.worker===me).sort((a,b)=>b.start.localeCompare(a.start));$('content').innerHTML=heading(isManager()?'Docházka':'Moje docházka','Plánované hodiny zůstávají zachované. Skutečnost se počítá z příchodu a odchodu.')+`<div class="panel table-wrap"><table class="simple-table"><thead><tr>${['Datum','Pracovník','Zakázka','Příchod','Odchod','Přestávka','Hodiny',''].map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows.map(t=>`<tr><td>${dateLabel(localDate(t.start))}</td><td>${esc(label('workers',t.worker))}</td><td>${esc(label('jobs',t.job))}</td><td>${time(t.start)}</td><td>${t.end?time(t.end):'<span class="value-pill">V práci</span>'}</td><td>${t.breakMinutes||0} min</td><td class="number">${t.end?fmtHours(hours(t)):'—'}</td><td>${isManager()?btn('correct','Opravit','link-button',t.id):''}</td></tr>`).join('')}</tbody></table></div>`}
+function renderFuel(){const rows=state.fuel.filter(t=>isManager()||t.worker===me);$('content').innerHTML=heading(isManager()?'Tankování':'Moje tankování','Záznam propojuje vozidlo, pracovníka a jeho kartu.',btn('fuel','Zapsat tankování','primary')+(isManager()?btn('export-fuel',icon('download')+' Export Excel','secondary'):''))+`<div class="panel table-wrap">${rows.length?`<table class="simple-table"><thead><tr><th>Datum a čas</th><th>Pracovník</th><th>Vozidlo</th><th>Karta při tankování</th><th>Poznámka</th></tr></thead><tbody>${rows.map(t=>`<tr><td>${dateLabel(localDate(t.at))} · ${time(t.at)}</td><td>${esc(label('workers',t.worker))}</td><td>${esc(label('vehicles',t.vehicle))}</td><td>${esc(t.card)}</td><td>${esc(t.note)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty-state">Zatím žádné tankování. Vyzkoušejte zapsat první záznam.</div>'}</div>`}
+function renderReports(){const rows=reportRows(state,{month:reportMonth,job:reportMode==='jobs'?reportJob:'',worker:reportMode==='workers'?reportWorker:''});const grouped=new Map();for(const r of rows){const key=reportMode==='workers'?r.worker:r.job+' · '+r.worker;grouped.set(key,(grouped.get(key)||0)+r.hours)}
+ $('content').innerHTML=heading('Výkazy a exporty','Skutečné hodiny po odečtení přestávek · Dispečer a administrátor',btn('export',icon('download')+' Export Excel (.xlsx)','primary'))+`<div class="toolbar" style="margin-bottom:20px"><div class="segmented">${btn('report-workers','Pracovníci',reportMode==='workers'?'active':'')}${btn('report-jobs','Zakázky',reportMode==='jobs'?'active':'')}</div><input type="month" id="report-month" aria-label="Období" value="${reportMonth}">${reportMode==='jobs'?`<select id="report-job" aria-label="Zakázka"><option value="">Všechny zakázky</option>${state.jobs.map(j=>`<option value="${j.id}" ${reportJob===j.id?'selected':''}>${esc(j.name)}</option>`).join('')}</select>`:`<select id="report-worker" aria-label="Pracovník"><option value="">Všichni pracovníci</option>${state.workers.map(w=>`<option value="${w.id}" ${reportWorker===w.id?'selected':''}>${esc(w.name)}</option>`).join('')}</select>`}</div><div class="panel table-wrap"><table class="simple-table"><thead><tr><th>Datum</th><th>Pracovník</th><th>Zakázka</th><th>Příchod</th><th>Odchod</th><th>Přestávka</th><th class="number">Hodiny</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${dateLabel(r.date)}</td><td>${esc(r.worker)}</td><td>${esc(r.job)}</td><td>${r.arrival}</td><td>${r.departure}</td><td>${r.breakMinutes} min</td><td class="number">${fmtHours(r.hours)}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="6">Celkem</td><td class="number">${fmtHours(rows.reduce((s,r)=>s+r.hours,0))}</td></tr></tfoot></table></div><div class="list-grid" style="margin-top:20px">${[...grouped].map(([n,h])=>`<div class="list-card"><p>${esc(n)}</p><strong>${fmtHours(h)} h</strong></div>`).join('')}</div>`;
+}
+function renderSettings(){$('content').innerHTML=heading('Nastavení firmy','Název, logo, odbornosti a pravidla plánování',btn('settings','Upravit nastavení','primary'))+`<div class="settings-layout"><div><section class="panel"><div class="panel-heading">${icon('settings')}<h2>Profil firmy</h2></div><div class="panel-content"><div class="form-grid"><div><label>Logo firmy</label><div class="upload">${state.company.logo?`<img src="${esc(state.company.logo)}" alt="Logo firmy">`:icon('file')}<label>Nahrát logo<input id="logo-upload" type="file" accept="image/png,image/jpeg,image/webp"></label></div>${state.company.logo?btn('remove-logo','Odebrat logo','link-button'):''}</div><div><label>Název firmy</label><h2>${esc(state.company.name)}</h2><label>Specializace (obory)</label><div class="tags">${state.skills.filter(s=>s.active).map(s=>`<span class="tag">${esc(s.name)}</span>`).join('')}</div><p class="subtle" style="margin-top:15px">Barvu si volíte v detailu každé zakázky.</p><div class="swatches">${COLORS.map(c=>`<span class="swatch" style="--swatch:${c}"></span>`).join('')}</div></div></div></div></section><section class="panel" style="margin-top:20px"><div class="panel-heading">${icon('clock')}<h2>Docházka a plánování</h2></div><div class="panel-content"><p>Začátek dne <strong>${esc(state.company.dayStart)}</strong> · Tolerance <strong>${state.company.tolerance} minut</strong></p><p>Pracovní den <strong>${state.company.hours} hodin</strong></p><p class="subtle">${state.company.allowOtherJobs?'Pracovník může vybrat i jinou aktivní zakázku.':'Pracovník vybírá jen ze svého dnešního plánu.'}</p></div></section></div><section class="panel"><div class="panel-heading">${icon('users')}<h2>Role v systému</h2></div><div class="panel-content"><div class="role-row"><strong>Realizace</strong><p>Vlastní plán, docházka, karta a tankování.</p></div><div class="role-row"><strong>Dispečer</strong><p>Plán firmy, opravy docházky a exporty.</p></div><div class="role-row"><strong>Administrátor</strong><p>Navíc účty, role, nastavení a předplatné.</p></div><p class="notice" style="margin-top:18px">Přepínač rolí nahoře slouží pouze k ukázce vzhledu. Skutečná oprávnění musí vynucovat server.</p></div></section></div>`}
+function renderProfile(){$('content').innerHTML=`<div class="worker-day">${heading('Můj profil',esc(label('workers',me)))}<div class="panel"><div class="panel-content"><p>${esc(find('workers',me).email)}</p><label>Tankovací karta</label><p>${esc(find('workers',me).card)}</p><div class="notice">Do pracovní ukázky nezadávejte skutečné PINy ani osobní údaje.</div></div></div></div>`}
+function show(title,html,mode,id=null,submit='Uložit'){returnFocus=document.activeElement;dialogMode=mode;dialogId=id;$('dialog-title').textContent=title;$('fields').innerHTML=html;$('form-error').textContent='';$('submit').textContent=submit;$('submit').hidden=!mode;$('dialog').showModal();}
+function jobChoices(){const ids=new Set(state.assignments.filter(a=>a.worker===me&&a.date===DEMO_DAY).map(a=>a.job));return opts('jobs').filter(([id])=>state.company.allowOtherJobs||ids.has(id))}
+function openArrival(switching=false){const choices=jobChoices(),today=state.assignments.find(a=>a.worker===me&&a.date===DEMO_DAY);if(!choices.length){message('Nemáte přidělenou zakázku. Kontaktujte dispečera.');return}show(switching?'Změnit zakázku':'Zaznamenat příchod',`<div class="form-grid">${select('job','Na jaké zakázce budete pracovat?',choices,today?.job,'required')}<p class="subtle">Čas příchodu zaznamená server při potvrzení.</p><p class="subtle full">Dnešní datum: ${dateLabel(DEMO_DAY)}. ${switching?'Dosavadní práce se ukončí a začne nový úsek.':'Při výběru jiné zakázky se přiřazení objeví i v plánu.'}</p></div>`,switching?'switch':'arrive',null,switching?'Změnit zakázku':'Potvrdit příchod');}
+function openJob(id){const j=find('jobs',id)||{name:'',address:'',color:COLORS[0],documents:[]};show(id?'Upravit zakázku':'Nová zakázka',`<div class="form-grid">${field('name','Název zakázky',j.name,'text','required maxlength="120"')}${field('address','Adresa',j.address)}${select('skill','Odbornost',[['','Bez požadavku'],...state.skills.filter(s=>s.active||s.id===j.skill).map(s=>[s.id,s.name])],j.skill)}${field('color','Barva zakázky',safeColor(j.color),'color')}${field('estimated','Celkový odhad zakázky (člověkohodiny)',j.estimated??'','number','min="0" step="0.25"')}<p class="subtle full">Prázdné pole = odhad není stanovený. Součet zahrnuje všechny pracovníky a dny.</p><div class="full swatches">${COLORS.map(c=>btn('swatch','',`swatch ${j.color===c?'selected':''}`,c).replace('class="swatch',`style="--swatch:${c}" aria-label="Barva ${c}" class="swatch`)).join('')}</div><div class="full"><label>Dokumenty k zakázce</label><div id="document-lines">${(j.documents.length?j.documents:[{name:'',url:''}]).map(docLine).join('')}</div>${btn('add-document',icon('plus')+' Přidat odkaz','link-button')}</div></div>`,'job',id);}
+function docLine(d){return `<div class="document-line"><input name="doc-name" aria-label="Název odkazu" placeholder="Výkresy" value="${esc(d.name)}"><input name="doc-url" type="url" aria-label="Adresa dokumentů" placeholder="https://…" value="${esc(d.url)}">${btn('remove-document','×','icon-button')}</div>`}
+function openAssignment(id){const a=find('assignments',id)||{date:DEMO_DAY,start:state.company.dayStart,planned:state.company.hours,vehicles:[]};if(!isManager()){const j=find('jobs',a.job);show(j?.name||'Zakázka',documents(j||{}),null);return}show(id?'Detail přiřazení':'Naplánovat zakázku',`<div class="form-grid">${select('job','Zakázka',opts('jobs'),a.job,'required')}${select('worker','Pracovník',opts('workers'),a.worker,'required')}${field('date','Datum',a.date,'date','required')}${field('start','Začátek práce',a.start,'time','required')}${field('planned','Plánované hodiny',a.planned,'number','min="0" max="24" step="0.25" required')}<div><label>Vozidla</label>${state.vehicles.map(v=>{const b=bookings(state,a.job,a.date).find(b=>b.vehicle===v.id);return `<div class="vehicle-hours"><label class="checkbox-row"><input type="checkbox" name="vehicles" value="${v.id}" ${b?'checked':''}>${esc(v.name)}</label>${field('vehicle-hours-'+v.id,'Hodiny auta',b?.hours??8,'number','min="0" max="24" step="0.25" required')}</div>`}).join('')}</div><p class="subtle full">Skutečné hodiny se počítají z docházky jednotlivých pracovníků. Tento formulář upravuje plán.</p></div>`,'assignment',id);}
+function openSettings(){show('Nastavení firmy',`<div class="form-grid">${field('name','Název firmy',state.company.name,'text','required maxlength="120"')}${field('hours','Délka pracovního dne',state.company.hours,'number','min="0.25" max="24" step="0.25" required')}${field('dayStart','Začátek dne',state.company.dayStart,'time','required')}${field('tolerance','Tolerance příchodu (minuty)',state.company.tolerance,'number','min="0" max="180" required')}<label class="checkbox-row full"><input name="allowOtherJobs" type="checkbox" ${state.company.allowOtherJobs?'checked':''}>Povolit pracovníkům výběr jiné aktivní zakázky</label><div class="full"><label>Odbornosti — vyřazení zachová historii</label><div id="skill-lines">${state.skills.map(s=>`<div class="skill-line" data-skill="${s.id}"><input name="skill-name" aria-label="Název odbornosti" value="${esc(s.name)}" required maxlength="80"><label><input name="skill-active" type="checkbox" ${s.active?'checked':''}>Aktivní</label></div>`).join('')}</div>${btn('add-skill',icon('plus')+' Přidat odbornost','link-button')}</div></div>`,'settings');}
+function openWorker(id){const w=find('workers',id)||{name:'',email:'',role:'worker',card:'',skills:[]};show(id?'Pracovník':'Nový pracovník',`<div class="form-grid">${field('name','Jméno',w.name,'text','required maxlength="120"')}${field('email','E-mail účtu',w.email,'email','required')}${select('role','Role',[['worker','Realizace'],['dispatcher','Dispečer'],['admin','Administrátor']],w.role,'disabled')}${field('card','Číslo tankovací karty',w.card,'text','maxlength="80"')}<div class="full"><label>Odbornosti</label>${state.skills.filter(s=>s.active||w.skills.includes(s.id)).map(s=>`<label class="checkbox-row"><input type="checkbox" name="skills" value="${s.id}" ${w.skills.includes(s.id)?'checked':''}>${esc(s.name)}</label>`).join('')}</div><p class="notice full">Tady upravujete profil pracovníka. Pozvánka se odesílá samostatným tlačítkem v seznamu pracovníků. PIN zatím není zapojený.</p></div>`,'worker',id);}
+async function action(a,id,target){
+ if(saving){message('Počkejte na dokončení ukládání.');return}
+ if(a==='logout'){const {error}=await client.auth.signOut();if(error)throw error;hideSession();return}
+ if(a==='correct'||a==='review'){message('Schvalování a opravy docházky se ještě připravují.');return}
+ if(a==='export'||a==='export-fuel'){await remote.report(reportMonth);adopt(await remote.refresh());if(!isManager())throw Error('Nemáte oprávnění k exportu.');}
+ if(a==='nav'){page=id;render();return}if(a==='close'){$('dialog').close();return}
+ if(a==='arrive'){openArrival();return}if(a==='switch'){openArrival(true);return}
+ if(a==='depart'){const t=openWork();if(!t)return;show('Zaznamenat odchod',`<p>${esc(label('jobs',t.job))} · Příchod ${time(t.start)}</p><div class="form-grid"><p class="subtle">Čas odchodu zaznamená server při potvrzení.</p>${field('breakMinutes','Přestávka (minuty)',0,'number','min="0" step="1" required')}</div>`,'depart',null,'Potvrdit odchod');return}
+ if(a==='fuel'){const active=openWork(),assignment=state.assignments.find(x=>x.worker===me&&x.date===DEMO_DAY&&(!active||x.job===active.job));show('Tankování',`<div class="form-grid">${select('vehicle','Vozidlo',opts('vehicles'),assignment?.vehicles[0],'required')}${field('worker','Pracovník',label('workers',me),'text','disabled')}${field('card','Tankovací karta',find('workers',me).card,'text','disabled')}${field('at','Datum a čas',now().slice(0,16),'datetime-local','required')}<label class="full">Poznámka<textarea name="note" maxlength="500"></textarea></label><p class="subtle full">Pracovník a karta se doplní automaticky. Litry, cena a účtenka budou volitelné podle nastavení firmy.</p></div>`,'fuel');return}
+ if(a==='notifications'){const missing=state.assignments.filter(x=>x.date===DEMO_DAY&&!actual(state,x.worker,x.job,x.date).rows.length&&new Date(now()).getTime()>new Date(`${x.date}T${x.start||state.company.dayStart}:00`).getTime()+state.company.tolerance*60000);show('Upozornění',`<p class="notice">E-mailové notifikace zatím nejsou připojené. Z této ukázky se žádné zprávy neodesílají.</p>${missing.filter(x=>isManager()||x.worker===me).map(x=>`<p><strong>${esc(label('workers',x.worker))}</strong><br>Příchod nezaznamenán · ${esc(label('jobs',x.job))}</p>`).join('')||'<p>Žádná upozornění.</p>'}`,null);return}
+ if(a==='invite'){if(role!=='admin')throw Error('Pozvánky smí posílat jen administrátor.');if(!invitationsEnabled){message('Odesílání pozvánek je připravené, ale ještě není nasazené v Supabase.');return}const w=find('workers',id);show('Pozvat do aplikace', '<p>Pozvánka bude odeslána na <strong>'+esc(w.email)+'</strong>.</p>'+select('invite-role','Oprávnění',[['worker','Realizace'],['dispatcher','Dispečer'],['admin','Administrátor']],'worker')+'<p class="subtle">Pracovník si nastaví vlastní heslo z e-mailového odkazu.</p>','invite',id,'Odeslat pozvánku');return}
+ if(a==='assignment'){if(target?.dataset.booking&&isManager()){const b=find('vehicleBookings',target.dataset.booking);show('Přiřazení vozidla',`<p>${esc(label('jobs',b.job))}</p><div class="form-grid">${select('vehicle','Vozidlo',opts('vehicles'),b.vehicle,'required')}${field('date','Datum',b.date,'date','required')}${field('hours','Hodiny vozidla',b.hours,'number','min="0" max="24" step="0.25" required')}</div>`,'vehicle-booking',b.id)}else openAssignment(id);return}
+ if(!isManager())throw Error('Tato část je určena dispečerovi.');
+ if(a==='prev'){weekOffset--;render()}if(a==='next'){weekOffset++;render()}if(a==='weekend'){showWeekend=!showWeekend;render()}if(a.startsWith('view-')){view=a==='view-workers'?'workers':'vehicles';render()}
+ if(a==='job')openJob(id||null);if(a==='worker')openWorker(id||null);if(a==='new-assignment')openAssignment(null);
+ if(a==='vehicle'){const v=find('vehicles',id)||{name:'',plate:''};show(id?'Vozidlo':'Nové vozidlo',`<div class="form-grid">${field('name','Název vozidla',v.name,'text','required maxlength="120"')}${field('plate','SPZ',v.plate,'text','required maxlength="30"')}</div>`,'vehicle',id||null)}
+ if(a==='swatch'){document.querySelector('[name=color]').value=id;document.querySelectorAll('.swatch').forEach(el=>el.classList.toggle('selected',el.dataset.id===id))}
+ if(a==='add-document')$('document-lines').insertAdjacentHTML('beforeend',docLine({name:'',url:''}));if(a==='remove-document')target.closest('.document-line').remove();
+ if(a==='review'){state.reviewed.push(id.replace('|',''));persist('Rozdíl hodin byl označen jako zkontrolovaný.');}
+ if(a==='correct'){const t=find('attendance',id);show('Oprava docházky',`<p>${esc(label('workers',t.worker))} · ${esc(label('jobs',t.job))}</p><div class="form-grid">${field('start','Příchod',t.start.slice(0,16),'datetime-local','required')}${field('end','Odchod',t.end?new Date(new Date(t.end).getTime()-new Date(t.end).getTimezoneOffset()*60000).toISOString().slice(0,16):'','datetime-local')}${field('breakMinutes','Přestávka (minuty)',t.breakMinutes||0,'number','min="0" required')}${field('reason','Důvod opravy','','text','required maxlength="500"')}</div>`,'correct',id)}
+ if(a==='report-workers'||a==='report-jobs'){reportMode=a==='report-workers'?'workers':'jobs';render()}if(a==='job-report'){reportMode='jobs';reportJob=id;page='reports';render()}
+ if(a==='export'){const rows=reportRows(state,{month:reportMonth,job:reportMode==='jobs'?reportJob:'',worker:reportMode==='workers'?reportWorker:''});const cells=rows.map(r=>[r.date,r.worker,r.job,r.arrival,r.departure,r.breakMinutes,r.hours]);cells.push(['CELKEM','','','','','',rows.reduce((s,r)=>s+r.hours,0)]);download(workbook(['Datum','Pracovník','Zakázka','Příchod','Odchod','Přestávka (min)','Hodiny'],cells,{name:'Odpracované hodiny',numberColumns:[5,6],dateColumns:[0]}),`TEST-hodiny-${reportMonth}.xlsx`);message('Excelový výkaz testovacích dat byl vytvořen.');}
+ if(a==='export-fuel'){download(workbook(['Datum','Čas','Pracovník','Vozidlo','SPZ','Karta','Poznámka'],state.fuel.map(t=>[localDate(t.at),time(t.at),label('workers',t.worker),label('vehicles',t.vehicle),find('vehicles',t.vehicle)?.plate,t.card,t.note]),{name:'Tankování',dateColumns:[0]}),'TEST-tankovani.xlsx')}
+ if(a==='settings'){if(role!=='admin')throw Error('Nastavení smí měnit jen administrátor.');openSettings()}
+ if(a==='add-skill')$('skill-lines').insertAdjacentHTML('beforeend',`<div class="skill-line" data-skill="${uid()}"><input name="skill-name" aria-label="Název odbornosti" required maxlength="80"><label><input name="skill-active" type="checkbox" checked>Aktivní</label></div>`);
+ if(a==='remove-logo'){if(role!=='admin')throw Error('Nemáte oprávnění.');state.company.logo=null;persist('Logo odstraněno z ukázky.');}
+}
+async function saveForm(){const f=new FormData($('form')),s=k=>String(f.get(k)||'').trim(),n=k=>Number(f.get(k));let note='Uloženo do testovací databáze.';
+ if(dialogMode==='invite'){if(role!=='admin')throw Error('Nemáte oprávnění.');const {data,error}=await client.functions.invoke('invite-worker',{body:{company:remote.snapshot.company.id,worker:dialogId,role:s('invite-role')}});if(error||data?.error)throw Error(data?.error||'Pozvánku se nepodařilo odeslat.');$('dialog').close();message('Pozvánka byla předána k odeslání e-mailem.');return;}
 
-function exportData(){
-  if(!canEdit){
-    alert("Nemáte oprávnění k exportu");
-    return;}
-  const blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
-  a.href=url;a.download="elmorrel-dispecink-data.json";
-  a.click();URL.revokeObjectURL(url)}
+ if(['arrive','depart','switch','fuel'].includes(dialogMode)){saving=true;try{const next=dialogMode==='fuel'?await remote.fuel(s('vehicle'),s('note')):await remote.clock(dialogMode,s('job'),n('breakMinutes'));adopt(next);render();$('dialog').close();message('Uloženo do testovací databáze. Čas byl zaznamenán serverem.');}finally{saving=false}return;}
 
-async function importData(e){
-  if(!canEdit){
-    alert("Nemáte oprávnění k úpravám");
-    return;}
-  const file = e.target.files[0];
-  if(!file) return;
-  const r = new FileReader();
-  r.onload = async () => {
-    try{
-      let imported = JSON.parse(r.result);
-      if(imported.data){
-        imported = imported.data;}
-      if(!imported.assignmentVehicles){
-        imported.assignmentVehicles = [];
+ if(dialogMode==='arrive'){arrive(state,me,s('job'),`${DEMO_DAY}T${s('start')}:00`);note='Příchod zaznamenán a zakázka doplněna do plánu.'}
+ else if(dialogMode==='depart'){depart(state,me,`${DEMO_DAY}T${s('end')}:00`,n('breakMinutes'));note='Odchod zaznamenán. Skutečné hodiny se promítly do zakázky.'}
+ else if(dialogMode==='switch'){const copy=structuredClone(state),at=`${DEMO_DAY}T${s('start')}:00`;depart(copy,me,at,0);arrive(copy,me,s('job'),at);state=copy;note='Práce převedena na vybranou zakázku.'}
+ else if(dialogMode==='fuel'){if(!find('vehicles',s('vehicle')))throw Error('Vyberte vozidlo.');state.fuel.push({id:uid(),worker:me,vehicle:s('vehicle'),card:find('workers',me).card,at:s('at'),note:s('note')});note='Tankování uloženo. Karta je zachována podle okamžiku tankování.'}
+ else {if(!isManager())throw Error('Nemáte oprávnění.');
+  if(dialogMode==='job'){const docs=[...document.querySelectorAll('.document-line')].map(el=>({name:el.querySelector('[name=doc-name]').value.trim(),url:el.querySelector('[name=doc-url]').value.trim()})).filter(d=>d.name||d.url);if(docs.some(d=>!d.name||!safeUrl(d.url)))throw Error('U každého odkazu vyplňte název a platnou adresu http nebo https.');const row={id:dialogId||uid(),name:s('name'),address:s('address'),color:safeColor(s('color')),skill:s('skill'),estimated:s('estimated')===''?null:n('estimated'),documents:docs};if(dialogId)Object.assign(find('jobs',dialogId),row);else state.jobs.push(row)}
+  if(dialogMode==='assignment'){const row={id:dialogId||uid(),job:s('job'),worker:s('worker'),date:s('date'),start:s('start'),planned:n('planned'),vehicles:f.getAll('vehicles')};state=saveAssignment(state,row,f.getAll('vehicles').map(vehicle=>({vehicle,hours:n('vehicle-hours-'+vehicle)})));note='Plán uložen. E-mailové notifikace zatím nejsou zapojené.'}
+  if(dialogMode==='vehicle'){const row={id:dialogId||uid(),name:s('name'),plate:s('plate')};if(dialogId)Object.assign(find('vehicles',dialogId),row);else state.vehicles.push(row)}
+  if(dialogMode==='vehicle-booking'){const next=moveBooking(state,{booking:dialogId},{kind:'vehicles',resource:s('vehicle'),date:s('date')});next.vehicleBookings.find(b=>b.id===dialogId).hours=n('hours');state=next;}
+  if(dialogMode==='worker'){const old=find('workers',dialogId),row={id:dialogId||uid(),name:s('name'),email:s('email'),card:s('card'),skills:f.getAll('skills'),role:role==='admin'?s('role'):old?.role||'worker'};if(dialogId)Object.assign(old,row);else state.workers.push(row)}
+  if(dialogMode==='correct'){const old=find('attendance',dialogId),start=s('start'),end=s('end')||null,breakMinutes=n('breakMinutes');if(end&&new Date(end)<new Date(start))throw Error('Odchod nesmí být před příchodem.');if(breakMinutes<0||(end&&breakMinutes>(new Date(end)-new Date(start))/60000))throw Error('Neplatná délka přestávky.');if(!end&&state.attendance.some(t=>t.id!==old.id&&t.worker===old.worker&&!t.end))throw Error('Pracovník už má otevřený příchod.');state.history.push({id:uid(),type:'attendance',before:structuredClone(old),reason:s('reason'),at:new Date().toISOString()});Object.assign(old,{start,end,breakMinutes});note='Docházka opravena, původní záznam a důvod zůstaly v historii.'}
+  if(dialogMode==='settings'){if(role!=='admin')throw Error('Nemáte oprávnění.');const skills=[...document.querySelectorAll('.skill-line')].map(el=>({id:el.dataset.skill,name:el.querySelector('[name=skill-name]').value.trim(),active:el.querySelector('[name=skill-active]').checked}));if(new Set(skills.map(x=>x.name.toLocaleLowerCase('cs'))).size!==skills.length)throw Error('Názvy odborností se nesmí opakovat.');state.skills=skills;Object.assign(state.company,{name:s('name'),hours:n('hours'),dayStart:s('dayStart'),tolerance:n('tolerance'),allowOtherJobs:f.has('allowOtherJobs')})}
+ }
+ await persist(note);$('dialog').close();
 }
-      if(
-        !Array.isArray(imported.jobs) ||
-        !Array.isArray(imported.workers) ||
-        !Array.isArray(imported.vehicles) ||
-        !Array.isArray(imported.assignments)){
-        alert("Soubor nemá správnou strukturu.");
-        return;}
-      db = imported;
-if(!confirm(
-  "Import přepíše aktuální data v databázi. Pokračovat?"
-)){
-  return;
-}
-for(const job of imported.jobs || []){
-  await upsertJobTable(job);
-}
+async function logo(file){if(role!=='admin')throw Error('Nemáte oprávnění.');if(!file||!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>5000000)throw Error('Vyberte PNG, JPEG nebo WebP do 5 MB.');const bitmap=await createImageBitmap(file);try{const canvas=document.createElement('canvas'),ratio=Math.min(1,320/bitmap.width,160/bitmap.height);canvas.width=Math.max(1,Math.round(bitmap.width*ratio));canvas.height=Math.max(1,Math.round(bitmap.height*ratio));canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);state.company.logo=canvas.toDataURL('image/png');persist('Logo upraveno v pracovní ukázce.')}finally{bitmap.close()}}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-action]');if(!el)return;e.preventDefault();Promise.resolve(action(el.dataset.action,el.dataset.id,el)).catch(error=>{$('dialog').open?$('form-error').textContent=error.message:message(error.message)})});
+document.addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)&&e.target.matches('.job-card')){e.preventDefault();action('assignment',e.target.dataset.id,e.target)}});
+$('form').addEventListener('submit',async e=>{e.preventDefault();$('submit').disabled=true;try{await saveForm()}catch(error){$('form-error').textContent=error.message}finally{$('submit').disabled=false}});
+$('dialog').addEventListener('close',()=>{dialogMode=null;dialogId=null;$('fields').replaceChildren();returnFocus?.focus()});
+$('search').addEventListener('input',e=>{query=e.target.value.toLocaleLowerCase('cs');render()});
+document.addEventListener('change',e=>{if(e.target.id==='report-month'){reportMonth=e.target.value;renderReports()}if(e.target.id==='report-job'){reportJob=e.target.value;renderReports()}if(e.target.id==='report-worker'){reportWorker=e.target.value;renderReports()}if(e.target.id==='logo-upload')logo(e.target.files[0]).catch(error=>message(error.message))});
+document.querySelector('[data-action=arrive]').innerHTML=icon('play')+'Příchod';document.querySelector('[data-action=depart]').innerHTML=icon('stop')+'Odchod';document.querySelector('[data-action=fuel]').innerHTML=icon('fuel')+'Tankování';$('search-icon').innerHTML=icon('search');$('bell').innerHTML=icon('bell');
 
-for(const worker of imported.workers || []){
-  await upsertWorkerTable(worker);
-}
+function estimateMarkup(j){if(!isManager())return '';const t=jobTotals(state,j.id);return '<p class="estimate">Zakázka celkem: plán '+fmtHours(t.planned)+' h · skutečnost '+fmtHours(t.actual)+' h'+(j.estimated==null?' · bez odhadu':' / odhad '+fmtHours(j.estimated)+' h')+'</p>'+(j.estimated!=null&&t.actual>j.estimated?'<div class="warning danger">Odhad překročen o '+fmtHours(t.actual-j.estimated)+' h</div>':j.estimated!=null&&t.planned>j.estimated?'<div class="warning">Plán překračuje odhad o '+fmtHours(t.planned-j.estimated)+' h</div>':'');}
+document.addEventListener('dragstart',e=>{const card=e.target.closest('.job-card');if(!card||!isManager()){e.preventDefault();return}dragging={assignment:card.dataset.id,booking:card.dataset.booking};e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',JSON.stringify(dragging));});
+document.addEventListener('dragover',e=>{const cell=e.target.closest('[data-drop-kind]');if(cell&&dragging&&isManager()){e.preventDefault();cell.classList.add('drop-target')}});
+document.addEventListener('dragleave',e=>e.target.closest('[data-drop-kind]')?.classList.remove('drop-target'));
+document.addEventListener('dragend',()=>{dragging=null;document.querySelectorAll('.drop-target').forEach(x=>x.classList.remove('drop-target'))});
+document.addEventListener('drop',e=>{const cell=e.target.closest('[data-drop-kind]');if(!cell||!dragging||!isManager())return;e.preventDefault();try{state=moveBooking(state,dragging,{kind:cell.dataset.dropKind,resource:cell.dataset.resource,date:cell.dataset.date});persist('Přesun uložen. Docházka ani ostatní přiřazení se nepřepisují.')}catch(error){message(error.message)}finally{dragging=null;document.querySelectorAll('.drop-target').forEach(x=>x.classList.remove('drop-target'))}});
 
-for(const vehicle of imported.vehicles || []){
-  await upsertVehicleTable(vehicle);
-}
+document.addEventListener('change',e=>{if(dialogMode!=='assignment'||!['job','date'].includes(e.target.name))return;const job=document.querySelector('#fields [name=job]').value,date=document.querySelector('#fields [name=date]').value;for(const v of state.vehicles){const b=bookings(state,job,date).find(b=>b.vehicle===v.id);const checkbox=[...document.querySelectorAll('#fields [name=vehicles]')].find(x=>x.value===v.id);checkbox.checked=!!b;document.querySelector('[name="vehicle-hours-'+v.id+'"]').value=b?.hours??8;}});
 
-for(const assignment of imported.assignments || []){
-  await upsertAssignmentTable(assignment);
-}
-for(const assignmentVehicle of imported.assignmentVehicles || []){
-  await supabaseClient
-    .from("assignment_vehicles")
-    .upsert(assignmentVehicle);
-}
-for(const note of imported.notes || []){
-  await upsertNoteTable(note);
-}
-
-for(const absence of imported.absences || []){
-  await upsertAbsenceTable(absence);
-}
-
-for(const vehicleAbsence of imported.vehicleAbsences || []){
-  await upsertVehicleAbsenceTable(vehicleAbsence);
-}
-for(const note of imported.notes || []){
-  try{
-    await upsertNoteTable(note);
-  }catch(err){
-    console.error("NOTE IMPORT", note, err);
-  }
-}
-
-for(const absence of imported.absences || []){
-  try{
-    await upsertAbsenceTable(absence);
-  }catch(err){
-    console.error("ABSENCE IMPORT", absence, err);
-  }
-}
-
-for(const vehicleAbsence of imported.vehicleAbsences || []){
-  try{
-    await upsertVehicleAbsenceTable(vehicleAbsence);
-  }catch(err){
-    console.error("VEHICLE ABSENCE IMPORT", vehicleAbsence, err);
-  }
-}
-await loadDb();
-
-render();
-
-alert("Import hotový.");
-    }catch(err){
-      console.error("IMPORT ERROR:", err);
-      alert("Import se nepodařil: " + err.message);}};
-  r.readAsText(file);
-  e.target.value = "";}
+$('login-form').addEventListener('submit',async e=>{e.preventDefault();$('login-submit').disabled=true;$('login-error').textContent='Přihlašuji…';try{const {error}=await client.auth.signInWithPassword({email:$('login-email').value.trim(),password:$('login-password').value});if(error)throw error;}catch(error){$('login-error').textContent=error.message}finally{$('login-submit').disabled=false;$('login-password').value=''}});
+client.auth.onAuthStateChange((event,session)=>{setTimeout(async()=>{if(!session){hideSession();return}if(sessionUser===session.user.id)return;sessionUser=session.user.id;try{const {data,error}=await client.from('saas_members').select('company_id').eq('user_id',session.user.id);if(error)throw error;if(!data.length)throw Error('Účet zatím není přiřazen k firmě.');if(data.length>1)throw Error('Výběr mezi více členstvími ještě není dostupný.');adopt(await remote.connect(data[0].company_id));document.querySelector('.shell').hidden=false;$('mobile-nav').hidden=false;$('login-panel').hidden=true;$('login-error').textContent='';render();}catch(error){hideSession();$('login-error').textContent=error.message}},0)});
+setInterval(async()=>{if(!sessionUser||saving||$('dialog').open||document.hidden)return;try{adopt(await remote.refresh());render()}catch(error){hideSession();$('login-error').textContent=error.message}},30000);
