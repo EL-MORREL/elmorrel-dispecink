@@ -1,7 +1,8 @@
 import {TABLES,empty,copy,esc,id,iso,dateOf,addDays,monday,holidays,validateRow,parseBackup,vehicleRows,planChange,removal} from './model.js';
 import {createStore} from './api.js';
 const $=id=>document.getElementById(id);
-const client=window.supabase.createClient(window.PLANNER_CONFIG.url,window.PLANNER_CONFIG.key);
+import {testConnection} from './test-connection.js';
+const client=window.supabase.createClient(testConnection.url,testConnection.key);
 let db=empty(),role=null,week=monday(new Date()),edit=null,returnFocus=null,user=null,dragging=false,pendingRender=false;
 const status=(message,error=false)=>{$('status').textContent=message;$('status').classList.toggle('error',error);};
 const store=createStore(client,snapshot=>{
