@@ -1,10 +1,10 @@
-import './passwords.js?v=invite-1';
-import {invitationsEnabled} from './features.js?v=invite-1';
-import {upgrade,bookings,jobTotals,saveAssignment,moveBooking,seed,DEMO_DAY,COLORS,uid,esc,dateKey,localDate,fmtHours,time,hours,safeColor,safeUrl,actual,mismatch,arrive,depart,reportRows} from './data.js?v=invite-1';
-import {client,createConnection} from './connection.js?v=invite-1';
+import './passwords.js?v=invite-2';
+import {invitationsEnabled} from './features.js?v=invite-2';
+import {upgrade,bookings,jobTotals,saveAssignment,moveBooking,seed,DEMO_DAY,COLORS,uid,esc,dateKey,localDate,fmtHours,time,hours,safeColor,safeUrl,actual,mismatch,arrive,depart,reportRows} from './data.js?v=invite-2';
+import {client,createConnection} from './connection.js?v=invite-2';
 const remote=createConnection();let saving=false,sessionUser=null;
-import {icon} from './icons.js?v=invite-1';
-import {workbook,download} from './xlsx.js?v=invite-1';
+import {icon} from './icons.js?v=invite-2';
+import {workbook,download} from './xlsx.js?v=invite-2';
 const $=id=>document.getElementById(id),KEY='planner-design-v3';
 let state=upgrade(seed());
 for(const key of ['workers','jobs','vehicles','assignments','attendance','fuel','vehicleBookings','skills'])state[key]=[];
@@ -89,7 +89,7 @@ async function action(a,id,target){
  if(a==='remove-logo'){if(role!=='admin')throw Error('Nemáte oprávnění.');state.company.logo=null;persist('Logo odstraněno z ukázky.');}
 }
 async function saveForm(){const f=new FormData($('form')),s=k=>String(f.get(k)||'').trim(),n=k=>Number(f.get(k));let note='Uloženo do testovací databáze.';
- if(dialogMode==='invite'){if(role!=='admin')throw Error('Nemáte oprávnění.');const {data,error}=await client.functions.invoke('invite-worker',{body:{company:remote.snapshot.company.id,worker:dialogId,role:s('invite-role')}});if(error||data?.error)throw Error(data?.error||'Pozvánku se nepodařilo odeslat.');$('dialog').close();message('Pozvánka byla předána k odeslání e-mailem.');return;}
+ if(dialogMode==='invite'){if(role!=='admin')throw Error('Nemáte oprávnění.');const {data,error}=await client.functions.invoke('dynamic-handler',{body:{company:remote.snapshot.company.id,worker:dialogId,role:s('invite-role')}});if(error||data?.error)throw Error(data?.error||'Pozvánku se nepodařilo odeslat.');$('dialog').close();message('Pozvánka byla předána k odeslání e-mailem.');return;}
 
  if(['arrive','depart','switch','fuel'].includes(dialogMode)){saving=true;try{const next=dialogMode==='fuel'?await remote.fuel(s('vehicle'),s('note')):await remote.clock(dialogMode,s('job'),n('breakMinutes'));adopt(next);render();$('dialog').close();message('Uloženo do testovací databáze. Čas byl zaznamenán serverem.');}finally{saving=false}return;}
 
