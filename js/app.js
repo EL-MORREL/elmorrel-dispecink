@@ -1,11 +1,13 @@
-import {installOperations} from './operations.js?v=operations-1';
-import './passwords.js?v=operations-1';
-import {invitationsEnabled} from './features.js?v=operations-1';
-import {upgrade,bookings,jobTotals,saveAssignment,moveBooking,seed,DEMO_DAY,COLORS,uid,esc,dateKey,localDate,fmtHours,time,hours,safeColor,safeUrl,actual,mismatch,arrive,depart,reportRows} from './data.js?v=operations-1';
-import {client,createConnection} from './connection.js?v=operations-1';
+import {installRegistration} from './registration.js?v=mail-2';
+import {installCompanyMail} from './company-mail.js?v=mail-2';
+import {installOperations} from './operations.js?v=mail-2';
+import './passwords.js?v=mail-2';
+import {invitationsEnabled} from './features.js?v=mail-2';
+import {upgrade,bookings,jobTotals,saveAssignment,moveBooking,seed,DEMO_DAY,COLORS,uid,esc,dateKey,localDate,fmtHours,time,hours,safeColor,safeUrl,actual,mismatch,arrive,depart,reportRows} from './data.js?v=mail-2';
+import {client,createConnection} from './connection.js?v=mail-2';
 const remote=createConnection();let saving=false,sessionUser=null;
-import {icon} from './icons.js?v=operations-1';
-import {workbook,download} from './xlsx.js?v=operations-1';
+import {icon} from './icons.js?v=mail-2';
+import {workbook,download} from './xlsx.js?v=mail-2';
 const $=id=>document.getElementById(id),KEY='planner-design-v3';
 let state=upgrade(seed());
 for(const key of ['workers','jobs','vehicles','assignments','attendance','fuel','vehicleBookings','skills'])state[key]=[];
@@ -16,7 +18,7 @@ const dateLabel=date=>new Date(date+'T12:00:00').toLocaleDateString('cs-CZ'),ini
 const btn=(action,text,cls='secondary',id='')=>`<button type="button" class="${cls}" data-action="${action}" data-id="${esc(id)}">${text}</button>`,opts=table=>state[table].map(x=>[x.id,x.name]),message=s=>{$('status').textContent=s},openWork=()=>state.attendance.find(t=>t.worker===me&&!t.end);
 function adopt(next){state=next;foreman=remote.snapshot.membership.role==='foreman';const m=remote.snapshot.membership;me=m.worker_id;role=['owner','admin'].includes(m.role)?'admin':['dispatcher','editor'].includes(m.role)?'dispatcher':'worker';$('role').value=foreman?'foreman':role;}
 async function persist(note){if(saving)return;saving=true;message('Ukládám…');try{adopt(await remote.save(state));render();message(note||'Uloženo.')}catch(error){try{adopt(await remote.refresh());render()}catch{hideSession()}message(error.message)}finally{saving=false}}
-function hideSession(){remote.clear();sessionUser=null;me=null;document.querySelector('.shell').hidden=true;$('mobile-nav').hidden=true;$('login-panel').hidden=false;if($('dialog').open)$('dialog').close();document.querySelector('.operations-dialog')?.close();document.getElementById('operations-bar')?.remove();$('content').replaceChildren();state={};}
+function hideSession(){registration.reset();companyMail.reset();remote.clear();sessionUser=null;me=null;document.querySelector('.shell').hidden=true;$('mobile-nav').hidden=true;$('login-panel').hidden=false;if($('dialog').open)$('dialog').close();document.querySelector('.operations-dialog')?.close();document.getElementById('operations-bar')?.remove();$('content').replaceChildren();state={};}
 
 const menu=[['plan','calendar','Plánovač'],['attendance','clock','Docházka'],['jobs','file','Zakázky'],['workers','users','Pracovníci'],['vehicles','car','Vozidla'],['fuel','fuel','Tankování'],['reports','file','Výkazy'],['settings','settings','Nastavení firmy']];
 function render(){
@@ -128,9 +130,14 @@ document.addEventListener('drop',e=>{const cell=e.target.closest('[data-drop-kin
 document.addEventListener('change',e=>{if(dialogMode!=='assignment'||!['job','date'].includes(e.target.name))return;const job=document.querySelector('#fields [name=job]').value,date=document.querySelector('#fields [name=date]').value;for(const v of state.vehicles){const b=bookings(state,job,date).find(b=>b.vehicle===v.id);const checkbox=[...document.querySelectorAll('#fields [name=vehicles]')].find(x=>x.value===v.id);checkbox.checked=!!b;document.querySelector('[name="vehicle-hours-'+v.id+'"]').value=b?.hours??8;}});
 
 $('login-form').addEventListener('submit',async e=>{e.preventDefault();$('login-submit').disabled=true;$('login-error').textContent='Přihlašuji…';try{const {error}=await client.auth.signInWithPassword({email:$('login-email').value.trim(),password:$('login-password').value});if(error)throw error;}catch(error){$('login-error').textContent=error.message}finally{$('login-submit').disabled=false;$('login-password').value=''}});
-client.auth.onAuthStateChange((event,session)=>{setTimeout(async()=>{if(!session){hideSession();return}if(sessionUser===session.user.id)return;sessionUser=session.user.id;try{const {data,error}=await client.from('saas_members').select('company_id').eq('user_id',session.user.id);if(error)throw error;if(!data.length)throw Error('Účet zatím není přiřazen k firmě.');if(data.length>1)throw Error('Výběr mezi více členstvími ještě není dostupný.');adopt(await remote.connect(data[0].company_id));document.querySelector('.shell').hidden=false;$('mobile-nav').hidden=false;$('login-panel').hidden=true;$('login-error').textContent='';render();}catch(error){hideSession();$('login-error').textContent=error.message}},0)});
+client.auth.onAuthStateChange((event,session)=>{setTimeout(async()=>{if(!session){hideSession();return}if(sessionUser===session.user.id)return;sessionUser=session.user.id;try{const {data,error}=await client.from('saas_members').select('company_id').eq('user_id',session.user.id);if(error)throw error;const chosen=await registration.pickCompany(data,session);if(!chosen||sessionUser!==session.user.id)return;adopt(await remote.connect(chosen));if(registration.takeWelcome())page='settings';document.querySelector('.shell').hidden=false;$('mobile-nav').hidden=false;$('login-panel').hidden=true;$('login-error').textContent='';render();}catch(error){hideSession();$('login-error').textContent=error.message}},0)});
 setInterval(async()=>{if(!sessionUser||saving||$('dialog').open||document.hidden)return;try{adopt(await remote.refresh());render()}catch(error){hideSession();$('login-error').textContent=error.message}},30000);
 
 async function runFeature(a,p){if(saving)throw Error('Počkejte na uložení.');saving=true;try{adopt(await remote.feature(a,p));render();message('Uloženo.')}catch(e){try{adopt(await remote.refresh());render()}catch{}throw e}finally{saving=false}}
 const operationsUI=installOperations({state:()=>state,manager:isManager,admin:()=>role==='admin',me:()=>me,run:runFeature,message,refresh:async()=>{adopt(await remote.refresh());render()},standardArrival:()=>openArrival(),standardDeparture:()=>action('standard-depart')});
 document.addEventListener('change',e=>{if(e.target.name==='billing-filter'){reportBilling=e.target.value;render()}if(e.target.name==='job-status'){jobFilter=e.target.value;render()}});
+
+const registration=installRegistration();
+const companyMail=installCompanyMail({company:()=>remote.snapshot.company.id,message});
+
+
