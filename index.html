@@ -1,186 +1,22 @@
-<!doctype html> <html lang="cs"> 
-  <head> <meta charset="utf-8"> 
-    <meta name="viewport" content=" width=device-width, initial-scale=0.7, maximum-scale=3, minimum-scale=0.4, user-scalable=yes " > 
-    <title>EL-Morrel Dispečink</title> 
-    <link rel="icon" type="image/png" href="assets/icons/favicon.png" > 
-    <link rel="stylesheet" href="css/style.css">  
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
-<script src="js/config.js"></script>
-
-<script src="js/utils.js"></script>
-<script src="js/state.js"></script>
-
-<script src="js/helpers.js"></script>
-
-<script src="js/jobs.js"></script>
-<script src="js/workers.js"></script>
-<script src="js/vehicles.js"></script>
-<script src="js/assignments.js"></script>
-
-<script src="js/render.js"></script>
-
-<script src="js/supabase.js"></script>
-<script src="js/tables.js"></script>    
-<script src="js/db.js"></script>
-
-<script src="js/auth.js"></script>
-<script src="js/realtime.js"></script>
-<script src="js/app.js"></script>
-</head>
-
-<body>
-<header>
-  <div class="header-brand">
-
-  <img
-    src="assets/logo/logo.png"
-    class="header-logo"
-    alt="EL-Morrel"
-  >
-
-</div>
-  <div class="right" id="status">Připraveno</div>
-  <div id="authBar">
-    <div id="loginBox">
-      <input id="loginEmail" placeholder="Email" style="max-width:220px">
-      <input id="loginPassword" type="password" placeholder="Heslo" style="max-width:220px">
-      <button onclick="login()">Přihlásit</button>
-      <button onclick="register()">Registrace</button>
-    </div>
-    <button id="logoutBtn" onclick="logout()" style="display:none">
-      Odhlásit
-    </button>
-    <div id="currentUserBox" style="margin-left:auto;font-weight:bold;"></div>
-  </div>
-</header>
-<div class="toolbar">
-<button onclick="openJob()">+ Zakázka</button>
-  <button onclick="openWorker()">+ Pracovník</button>
-  <button onclick="openVehicle()">+ Vozidlo</button>
-<button class="secondary" onclick="prevWeek()">← týden</button>
-  <button class="secondary" onclick="goToday()">dnes</button>
-  <button class="secondary" onclick="nextWeek()">týden →</button>
-<input id="search" placeholder="Hledat zakázku, adresu, kontakt..." oninput="render()">
-<select id="viewMode" onchange="render()"><option value="workers">Pohled podle pracovníků</option>
-  <option value="vehicles">Pohled podle vozidel</option></select>
-<select id="jobFilter" onchange="render()"><option value="active">Aktivní</option>
-  <option value="archive">Archiv</option><option value="all">Vše</option>
-  <option value="to_invoice">Čeká na fakturaci</option><option value="overrun">Přetažené</option></select>
-<button class="secondary" onclick="exportData()">Export</button>
-  <button class="secondary" onclick="document.getElementById('importFile').click()">Import</button>
-  <input id="importFile" type="file" accept="application/json" class="hidden" onchange="importData(event)">
-</div>
-<div class="layout">
-
-<aside>
-<div class="tabs"><div class="tab active" id="tabJobs" onclick="switchTab('jobs')">Zakázky</div>
-<div class="tab" id="tabPeople" onclick="switchTab('people')">Lidé</div>
-<div class="tab" id="tabCars" onclick="switchTab('cars')">Vozidla</div></div>
-<section id="sideJobs"><h2 id="jobsTitle">Zakázky</h2><div id="unassigned" class="list"></div></section>
-<section id="sidePeople" class="hidden"><h2>Pracovníci</h2><div id="peopleList" class="list"></div></section>
-<section id="sideCars" class="hidden"><h2>Vozidla</h2><div id="carsList" class="list"></div></section>
-</aside>
-
-<main class="board-wrap">
-
-  <div class="board-scale">
-
-    <div class="board">
-
-      <div id="head" class="head"></div>
-
-      <div id="body"></div>
-
-    </div>
-
-  </div>
-
-</main>
-</div>
-<div id="jobModal" class="modal"><div class="dialog"><h2 id="jobModalTitle">Zakázka</h2>
-<div class="grid">
-  <label>Název zakázky<input id="j_title"></label>
-  <label>Priorita<select id="j_priority"><option>Vysoká</option><option>Střední</option><option>Nízká</option></select></label>
-  <label>Požadovaná odbornost<select id="j_skill"><option>Elektroinstalace</option><option>Optika</option><option>Kancelář</option><option>Servis</option><option>Montáž</option><option>Revize</option><option>Bez požadavku</option></select></label>
-  <label>Stav<select id="j_state"><option>Nová</option><option>Naplánováno</option><option>Probíhá</option><option>Dokončeno</option><option>Vyfakturováno</option><option>Storno</option></select></label>
-  <label class="full">Adresa<input id="j_address"></label>
-  <label>Kontakt<input id="j_contact"></label>
-  <label>Telefon<input id="j_phone"></label>
-  <label>Hlavní technik<select id="j_lead_worker"></select></label>
-  <label>Počet dní<input id="j_days" type="number" min="0" step="0.5" value="1" oninput="syncEstimateFromDaysPeople()"></label>
-  <label>Počet pracovníků<input id="j_people" type="number" min="0" step="1" value="1" oninput="syncEstimateFromDaysPeople()"></label>
-  <label>Odhad hodin<input id="j_estimated" type="number" min="0" step="0.5" value="10"></label>
-  <label>Hodin Pracovníka<input id="j_load" type="number" min="0" max="24" step="0.5" value="10"></label>
-  <label>Hodin vozidla hod.<input id="j_vehicle_load" type="number" min="0" max="24" step="0.5" value="10"></label>
-  <label>Čas od<input id="j_from" type="time" oninput="syncHoursFromTime()"></label>
-  <label>Čas do<input id="j_to" type="time" oninput="syncHoursFromTime()"></label>
-  <label class="full">Poznámka<textarea id="j_note" rows="4"></textarea></label>
-</div>
-<div id="jobStats" class="small" style="margin-top:10px"></div>
-<div class="actions"><button class="secondary" onclick="closeModal('jobModal')">Zavřít</button><button class="secondary" id="duplicateJobBtn" onclick="duplicateJob()">Duplikovat</button><button class="secondary" id="completeJobBtn" onclick="setJobState('Dokončeno')">Dokončeno</button><button class="secondary" id="invoiceJobBtn" onclick="setJobState('Vyfakturováno')">Vyfakturováno</button><button class="danger" id="deleteJobBtn" onclick="deleteJob()">Smazat</button><button onclick="saveJob()">Uložit</button></div>
-</div></div>
-<div id="workerModal" class="modal"><div class="dialog"><h2 id="workerModalTitle">Pracovník</h2><div class="grid">
-  <label>Jméno<input id="w_title"></label>
-  <label>Email<input id="w_email"></label>
-  <label>
-  Skrýt od
-  <input id="w_hidden_from" type="date">
-</label>
-  <label>Telefon<input id="w_phone"></label>
-  <label>Kapacita hodin / den<input id="w_capacity" type="number" min="0" max="24" value="10"></label>
-  <label class="full">Specializace pracovníka<select id="w_skills" multiple size="6"><option>Elektroinstalace</option>
-    <option>Optika</option><option>Kancelář</option>
-    <option>Servis</option><option>Montáž</option>
-    <option>Revize</option></select><div class="small">Podrž Ctrl pro výběr více specializací.</div>
-  </label>
-</div>
-<div class="actions"><button class="secondary" onclick="closeModal('workerModal')">Zavřít</button>
-  <button class="danger" id="deleteWorkerBtn" onclick="deleteWorker()">Smazat</button>
-  <button onclick="saveWorker()">Uložit</button>
-</div></div></div>
-<div id="vehicleModal" class="modal"><div class="dialog"><h2 id="vehicleModalTitle">Vozidlo</h2><div class="grid">
-  <label>Název / označení<input id="v_title"></label>
-  <label>SPZ<input id="v_spz"></label>
-  <label>Typ<input id="v_type"></label>
-  <label>Kapacita hod.<input id="v_capacity" type="number" min="0" max="24" value="10"></label>
-  <label>Kapacita osob<input id="v_people_capacity" type="number" min="1" value="5"></label>
-  <label class="full">Poznámka<textarea id="v_note" rows="3"></textarea></label>
-</div>
-<div class="actions"><button class="secondary" onclick="closeModal('vehicleModal')">Zavřít</button>
-  <button class="danger" id="deleteVehicleBtn" onclick="deleteVehicle()">Smazat</button>
-  <button onclick="saveVehicle()">Uložit</button>
-</div></div></div>
-<div id="assignModal" class="modal"><div class="dialog"><h2>Přiřazení zakázky</h2><p class="small">Zakázku můžeš přiřadit pracovníkovi i vozidlu. Nesoulad odbornosti se jen označí, neblokuje.</p>
-<div class="grid">
-  <label>Zakázka<input id="a_job_title" disabled></label>
-  <label>Datum<input id="a_date" type="date"></label>
-  <label>Pracovník<select id="a_worker"></select></label>
-  <label>Vozidla<select id="a_vehicle" multiple
-    size="6"
-  ></select>
-</label>
-  <label>Vytížení pracovníka hod.<input id="a_load" type="number" min="0" max="24" step="0.5"></label>
-  <label>Vytížení vozidla hod.<input id="a_vehicle_load" type="number" min="0" max="24" step="0.5"></label>
-  <label class="full">Poznámka k danému dni <textarea id="a_note" rows="3"></textarea></label>
-  <label class="full">
-  <div class="invoice-row">
-  <label class="checkbox-row">
-    <input
-      type="checkbox"
-      id="a_invoiced"
-    >
-    <span>
-      💰 Vyfakturováno
-    </span>
-  </label>
-
-</div>
-</div>
-<div class="actions"><button class="secondary" onclick="closeModal('assignModal')">Zavřít</button>
-  <button class="danger" onclick="unassignCurrent()">Odebrat z plánu</button>
-  <button onclick="saveAssignmentFromModal()">Uložit přiřazení</button>
-</div></div></div>
-
-</body>
-</html>
+<!doctype html><html lang="cs"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; connect-src https://fesvutrdfduoyqljxsuz.supabase.co wss://fesvutrdfduoyqljxsuz.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin"><title>El-Morrel — TEST</title>
+<link rel="icon" href="assets/icons/favicon.png"><link rel="stylesheet" href="css/planner.css">
+<script defer src="vendor/supabase-2.116.0.js"></script><script defer src="js/config.js"></script><script type="module" src="js/planner.js"></script>
+</head><body>
+<header><div class="brand"><img src="assets/logo/logo.png" alt="El-Morrel"><h1>Plánovač — TEST</h1></div>
+<form id="loginBox" class="actions"><label>E-mail<input id="loginEmail" type="email" autocomplete="username" required></label><label>Heslo<input id="loginPassword" type="password" autocomplete="current-password" required></label><button type="submit">Přihlásit</button><button type="button" class="secondary" data-action="reset">Zapomenuté heslo</button></form>
+<div class="actions"><span id="currentUser"></span><button type="button" id="logout" data-action="logout" hidden>Odhlásit</button></div></header>
+<p id="status" role="status" aria-live="polite"></p>
+<div id="workspace" hidden><nav class="toolbar" aria-label="Ovládání plánu">
+<button type="button" data-action="edit" data-table="jobs" data-editor>+ Zakázka</button><button type="button" data-action="edit" data-table="workers" data-editor>+ Pracovník</button><button type="button" data-action="edit" data-table="vehicles" data-editor>+ Vozidlo</button>
+<button type="button" class="secondary" data-action="previous">← Týden</button><button type="button" class="secondary" data-action="today">Dnes</button><button type="button" class="secondary" data-action="next">Týden →</button><strong id="weekLabel"></strong><button type="button" class="secondary" data-action="refresh">Obnovit</button><button type="button" class="secondary" data-action="export">Úplný export</button><button type="button" class="secondary" data-action="import" data-editor>Sloučit import</button><input id="importFile" type="file" accept="application/json,.json" hidden></nav>
+<div class="layout"><aside>
+<label>Zobrazit<select id="listMode"><option value="jobs">Zakázky</option><option value="workers">Pracovníci</option><option value="vehicles">Vozidla</option></select></label>
+<label>Hledat zakázku<input id="search" type="search" placeholder="Název, adresa, kontakt…"></label>
+<label>Filtr zakázek<select id="jobFilter"><option value="active">Aktivní</option><option value="all">Všechny</option><option value="archive">Archiv</option><option value="to_invoice">Čeká na fakturaci</option><option value="overrun">Přetažený odhad</option></select></label><div id="items"></div></aside>
+<main><label class="view-label">Plán podle<select id="viewMode"><option value="workers">Pracovníků</option><option value="vehicles">Vozidel</option></select></label><div id="board"></div></main></div></div>
+<dialog id="editor" aria-labelledby="dialogTitle"><form id="editForm"><h2 id="dialogTitle"></h2><p id="editWarning" class="error" role="alert"></p><fieldset id="fields" class="form-grid"></fieldset><div class="dialog-actions"><div id="extraActions" class="actions"></div><button type="button" class="secondary" data-action="close">Zavřít</button><button id="saveButton" type="submit">Uložit</button></div></form></dialog>
+<dialog id="passwordDialog" aria-labelledby="passwordTitle"><h2 id="passwordTitle">Nové heslo</h2><label>Heslo (alespoň 12 znaků)<input id="newPassword" type="password" autocomplete="new-password" minlength="12"></label><button type="button" data-action="password">Uložit heslo</button></dialog>
+</body></html>
