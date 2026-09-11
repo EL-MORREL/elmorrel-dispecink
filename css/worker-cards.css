@@ -1,0 +1,9 @@
+.worker-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:stretch}
+.worker-card{min-width:0;padding:22px;display:flex;flex-direction:column;border-radius:14px;overflow-wrap:anywhere}
+.worker-card .person>div{min-width:0}.worker-card .tags{display:flex;flex-wrap:wrap;gap:6px}
+.worker-actions{margin-top:auto;display:flex;flex-wrap:wrap;gap:8px;padding-top:14px}
+.worker-actions>button{flex:1 1 135px}.worker-actions>.job-more{width:100%}
+.worker-actions [data-op="delete-worker"]{color:#b42332}
+@media(min-width:1600px){.worker-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:1100px){.worker-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.worker-grid{grid-template-columns:1fr}}
