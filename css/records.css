@@ -2,3 +2,6 @@
 @media(max-width:700px){.record-table{background:transparent;border:0;overflow:visible}.record-table .simple-table{min-width:0;width:100%}.record-table thead{display:none}.record-table table,.record-table tbody,.record-table tr,.record-table td{display:block}.record-table tbody tr{background:white;border:1px solid #dfe7f1;border-radius:14px;margin-bottom:14px;padding:14px}.record-table td{display:grid;grid-template-columns:105px minmax(0,1fr);gap:12px;padding:8px 0;border:0;text-align:left;overflow-wrap:anywhere}.record-table td:before{content:attr(data-label);font-size:12px;color:#72839d}.record-table .record-actions{justify-content:flex-start}.record-table td.number{text-align:left}}
 
 .planner-layout-controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 14px}.planner-layout-controls>span{font-size:12px;color:#72839d;margin-right:4px}.schedule-transposed{table-layout:auto}.schedule-transposed thead th:not(:first-child){min-width:200px}.schedule-transposed tbody th{min-width:135px;background:#fff;text-align:left;padding:16px}.schedule-transposed .person{white-space:normal;text-align:left}
+
+.mobile-all-menu{display:grid;gap:6px}.mobile-all-menu .nav-item{min-height:48px}
+@media(max-width:720px){.mobile-nav{height:calc(65px + env(safe-area-inset-bottom))}body{padding-bottom:calc(75px + env(safe-area-inset-bottom))}}
