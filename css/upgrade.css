@@ -1,0 +1,9 @@
+.finance-dialog{width:min(1200px,96vw)}.finance-dialog .toolbar{margin:16px 0}.finance-dialog small{display:block}.finance-dialog input[type=checkbox]{width:18px}.finance-dialog .form-grid{padding:12px}.notification-count{background:#d22;color:white;border-radius:20px;padding:2px 5px;font-size:11px}
+[data-density=compact] .job-card{min-height:0}[data-density=compact] .job-body{padding:5px}[data-density=compact] .schedule td{padding:4px}
+[data-theme=dark]{color-scheme:dark;--line:#354559;--muted:#a6b5ca;background:#172334;color:#e7eef8}
+[data-theme=dark] body,[data-theme=dark] main,[data-theme=dark] .main-shell{background:#172334;color:#e7eef8}
+[data-theme=dark] :is(header,.sidebar,.workbar,.panel,.list-card,.board-wrap,dialog,.mobile-nav,.schedule th,.schedule .person-cell,.record-table tbody tr){background:#202f42;color:#e7eef8;border-color:#425166}
+[data-theme=dark] :is(input,select,textarea,button,.secondary,.nav-item){background:#2a3c53;color:#e7eef8;border-color:#425166}
+[data-theme=dark] :is(.job-title,.job-body,.job-body strong,.simple-table th,.simple-table tfoot td){background:#293e56;color:#e7eef8}
+[data-theme=dark] :is(h1,h2,h3,label,.list-card p,.person small,.subtle,.brand){color:#cddbec}
+[data-theme=dark] .warning{background:#493d22;color:#ffe5a5}[data-theme=dark] .warning.danger{background:#512b2b;color:#ffc2c2}
