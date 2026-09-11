@@ -5,7 +5,7 @@ import {arrangeJobCards} from './job-card-layout.js?v=planning-1';
 import {installVehicleBlocks} from './vehicle-blocks.js?v=planning-1';
 import {installRegistration} from './registration.js?v=planning-1';
 import {installCompanyMail} from './company-mail.js?v=planning-1';
-import {installOperations} from './operations.js?v=planning-1';
+import {installOperations} from './operations.js?v=inbox-1';
 import './passwords.js?v=planning-1';
 import {invitationsEnabled} from './features.js?v=planning-1';
 import {historicalRows,upgrade,bookings,jobTotals,saveAssignment,moveBooking,seed,DEMO_DAY,COLORS,uid,esc,dateKey,localDate,fmtHours,time,hours,safeColor,safeUrl,actual,mismatch,arrive,depart,reportRows} from './data.js?v=planning-1';
@@ -32,6 +32,10 @@ function render(){
  const entries=role==='worker'?[['plan','home','Můj den'],['attendance','clock','Moje docházka'],['fuel','fuel','Moje tankování'],['profile','users','Profil']]:menu.filter(m=>allowed.includes(m[0]));
  $('navigation').innerHTML=entries.map(([p,i,n])=>btn('nav',icon(i)+n,`nav-item ${page===p?'active':''}`,p)).join('');
  $('mobile-nav').innerHTML=entries.filter(m=>['plan','attendance','fuel','profile','reports'].includes(m[0])).map(([p,i,n])=>btn('nav',icon(i)+n,page===p?'active':'',p)).join('');
+ const pending=[...(state.extras?.requests||[]),...(state.extras?.absences||[])].filter(r=>r.status==='pending').length;
+ $('navigation').insertAdjacentHTML('beforeend',btn('notifications',icon('bell')+'Upozornění'+(pending?' ('+pending+')':''),'nav-item'));
+ $('bell').setAttribute('aria-label','Upozornění: '+pending+' čekajících žádostí');$('bell').title='Upozornění';
+ $('bell').innerHTML=icon('bell')+(pending?'<span class="notification-count">'+pending+'</span>':'');
  $('brand-name').textContent=state.company.name;$('brand-logo').innerHTML=state.company.logo?`<img alt="Logo firmy" src="${esc(state.company.logo)}">`:'';
  const active=openWork();document.querySelector('[data-action=arrive]').disabled=!me||!!active;document.querySelector('[data-action=depart]').disabled=!me||!active;document.querySelector('.workbar [data-action=fuel]').disabled=!me;
  $('switch-job').hidden=!active;$('work-state').innerHTML=active?`<span class="online-dot"></span>V práci od <strong>${time(active.start)}</strong> · ${esc(label('jobs',active.job))}`:'Příchod není zaznamenaný';
@@ -81,7 +85,7 @@ async function action(a,id,target){
  if(a==='arrive'){operationsUI.arrival();return}if(a==='depart'){operationsUI.departure();return}if(a==='switch'){openArrival(true);return}
  if(a==='standard-depart'){const t=openWork();if(!t)return;show('Zaznamenat odchod',`<p>${esc(label('jobs',t.job))} · Příchod ${time(t.start)}</p><div class="form-grid"><p class="subtle">Čas odchodu zaznamená server při potvrzení.</p>${field('breakMinutes','Přestávka (minuty)',0,'number','min="0" step="1" required')}</div>`,'depart',null,'Potvrdit odchod');return}
  if(a==='fuel'){const active=openWork(),assignment=state.assignments.find(x=>x.worker===me&&x.date===DEMO_DAY&&(!active||x.job===active.job));show('Tankování',`<div class="form-grid">${select('vehicle','Vozidlo',opts('vehicles'),assignment?.vehicles[0],'required')}${field('worker','Pracovník',label('workers',me),'text','disabled')}${field('card','Tankovací karta',find('workers',me).card,'text','disabled')}${field('at','Datum a čas',now().slice(0,16),'datetime-local','required')}<label class="full">Poznámka<textarea name="note" maxlength="500"></textarea></label><p class="subtle full">Pracovník a karta se doplní automaticky. Litry, cena a účtenka budou volitelné podle nastavení firmy.</p></div>`,'fuel');return}
- if(a==='notifications'){document.querySelector('[data-op=requests]')?.click();return}if(a==='unused-notifications'){const missing=state.assignments.filter(x=>x.date===DEMO_DAY&&!actual(state,x.worker,x.job,x.date).rows.length&&new Date(now()).getTime()>new Date(`${x.date}T${x.start||state.company.dayStart}:00`).getTime()+state.company.tolerance*60000);show('Upozornění',`<p class="notice">E-mailové notifikace zatím nejsou připojené. Z této ukázky se žádné zprávy neodesílají.</p>${missing.filter(x=>isManager()||x.worker===me).map(x=>`<p><strong>${esc(label('workers',x.worker))}</strong><br>Příchod nezaznamenán · ${esc(label('jobs',x.job))}</p>`).join('')||'<p>Žádná upozornění.</p>'}`,null);return}
+ if(a==='notifications'){operationsUI.inbox();return}if(a==='unused-notifications'){const missing=state.assignments.filter(x=>x.date===DEMO_DAY&&!actual(state,x.worker,x.job,x.date).rows.length&&new Date(now()).getTime()>new Date(`${x.date}T${x.start||state.company.dayStart}:00`).getTime()+state.company.tolerance*60000);show('Upozornění',`<p class="notice">E-mailové notifikace zatím nejsou připojené. Z této ukázky se žádné zprávy neodesílají.</p>${missing.filter(x=>isManager()||x.worker===me).map(x=>`<p><strong>${esc(label('workers',x.worker))}</strong><br>Příchod nezaznamenán · ${esc(label('jobs',x.job))}</p>`).join('')||'<p>Žádná upozornění.</p>'}`,null);return}
  if(a==='invite'){if(role!=='admin')throw Error('Pozvánky smí posílat jen administrátor.');if(!invitationsEnabled){message('Odesílání pozvánek je připravené, ale ještě není nasazené v Supabase.');return}const w=find('workers',id);show('Pozvat do aplikace', '<p>Pozvánka bude odeslána na <strong>'+esc(w.email)+'</strong>.</p>'+select('invite-role','Oprávnění',[['worker','Realizace'],['foreman','Vedoucí realizace'],['dispatcher','Dispečer'],['admin','Administrátor']],'worker')+'<p class="subtle">Pracovník si nastaví vlastní heslo z e-mailového odkazu.</p>','invite',id,'Odeslat pozvánku');return}
  if(a==='assignment'){if(id)openAssignment(id);else operationsUI.schedule();return}
  if(!isManager())throw Error('Tato část je určena dispečerovi.');
