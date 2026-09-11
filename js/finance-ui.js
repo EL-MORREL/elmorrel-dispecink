@@ -1,5 +1,5 @@
-import {costReport} from './costs.js?v=upgrade-1';
-import {esc} from './data.js?v=upgrade-1';
+import {costReport} from './costs.js?v=week-plan-2';
+import {esc} from './data.js?v=week-plan-2';
 export function installFinance(ctx){
  const dialog=document.createElement('dialog');dialog.className='finance-dialog';document.body.append(dialog);let data,from,to;
  const money=n=>n===null?'Neúplné podklady':new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK'}).format(n);

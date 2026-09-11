@@ -1,4 +1,4 @@
-import {esc,DEMO_DAY} from './data.js?v=upgrade-1';
+import {esc,DEMO_DAY} from './data.js?v=week-plan-2';
 const names={service:'Servis',fault:'Porucha',inspection:'STK',loan:'Zapůjčení mimo firmu',other:'Jiný důvod'};
 export function installVehicleBlocks(ctx){
  const dialog=document.createElement('dialog');dialog.className='operations-dialog';dialog.id='vehicle-block-dialog';document.body.append(dialog);
