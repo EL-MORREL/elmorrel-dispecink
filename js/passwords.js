@@ -1,4 +1,4 @@
-import {client} from './connection.js?v=delete-job-1';
+import {client} from './connection.js?v=planning-1';
 let setupRequested=new URL(location.href).searchParams.get('setup')==='1';
 document.body.insertAdjacentHTML('beforeend',`<dialog id="password-dialog"><form id="password-form"><div class="dialog-heading"><h2>Nastavit nové heslo</h2></div><div class="panel-content"><p>Zvolte heslo, kterým se budete přihlašovat do plánovače.</p><label>Nové heslo<input id="password-new" type="password" autocomplete="new-password" minlength="12" required></label><label style="margin-top:16px">Zopakovat heslo<input id="password-confirm" type="password" autocomplete="new-password" minlength="12" required></label><p id="password-message" role="alert"></p></div><div class="dialog-footer"><button type="submit" id="password-save" class="primary">Uložit heslo</button></div></form></dialog>`);
 const dialog=document.getElementById('password-dialog');

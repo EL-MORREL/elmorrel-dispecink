@@ -1,0 +1,1 @@
+export function decorateRecordTables(){document.querySelectorAll('.record-table table').forEach(table=>{const labels=[...table.querySelectorAll('thead th')].map(th=>th.textContent||'Akce');table.querySelectorAll('tbody tr').forEach(row=>[...row.children].forEach((td,i)=>td.dataset.label=labels[i]));});}
