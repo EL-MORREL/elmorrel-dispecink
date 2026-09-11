@@ -1,0 +1,17 @@
+import {esc,DEMO_DAY} from './data.js?v=details-1';
+const names={service:'Servis',fault:'Porucha',inspection:'STK',loan:'Zapůjčení mimo firmu',other:'Jiný důvod'};
+export function installVehicleBlocks(ctx){
+ const dialog=document.createElement('dialog');dialog.className='operations-dialog';dialog.id='vehicle-block-dialog';document.body.append(dialog);
+ const blocks=()=>ctx.state().extras?.vehicleBlocks||[];
+ const button=(id,text)=>`<button type="button" class="secondary" data-block="${esc(id)}">${text}</button>`;
+ function open(vehicle){const rows=blocks().filter(b=>b.vehicle_id===vehicle);dialog.innerHTML=`<form><h2>Mimo provoz / zapůjčení</h2><div class="form-grid"><label>Od<input type="date" name="from" value="${DEMO_DAY}" required></label><label>Do<input type="date" name="to" value="${DEMO_DAY}" required></label><label>Důvod<select name="kind">${Object.entries(names).map(([v,n])=>`<option value="${v}">${n}</option>`).join('')}</select></label><label>Komu je auto zapůjčené<input name="recipient" maxlength="200"></label><label class="full">Poznámka<textarea name="note" maxlength="2000"></textarea></label></div><p>Již existující přiřazení zůstanou v plánu označená jako konflikt. Nové přiřazení v tomto období nebude povoleno.</p><p class="block-error" role="alert"></p><button class="primary">Uložit</button> <button type="button" data-block-close>Zavřít</button><h3>Zadaná období</h3>${rows.map(b=>`<p>${esc(names[b.kind])} · ${esc(b.date_from)} – ${esc(b.date_to)} · ${esc(b.recipient)} ${esc(b.note)} <button type="button" data-unblock="${b.id}">Zrušit omezení</button></p>`).join('')||'<p>Žádné omezení.</p>'}</form>`;
+ dialog.querySelector('[data-block-close]').onclick=()=>dialog.close();dialog.querySelector('form').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target),b=e.target.querySelector('.primary');b.disabled=true;try{await ctx.run('vehicle_block',{vehicle,from:f.get('from'),to:f.get('to'),kind:f.get('kind'),recipient:f.get('recipient'),note:f.get('note')});dialog.close()}catch(e){dialog.querySelector('.block-error').textContent=e.message}finally{b.disabled=false}};
+ dialog.querySelectorAll('[data-unblock]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await ctx.run('vehicle_unblock',{id:b.dataset.unblock});dialog.close()}catch(e){dialog.querySelector('.block-error').textContent=e.message;b.disabled=false}});dialog.showModal();
+ }
+ document.addEventListener('click',e=>{const b=e.target.closest('[data-block]');if(b&&ctx.manager())open(b.dataset.block)});
+ return {reset(){dialog.close();dialog.replaceChildren()},decorate(){if(!ctx.manager())return;
+ document.querySelectorAll('[data-action=vehicle][data-id]').forEach(b=>{if(b.dataset.id)b.insertAdjacentHTML('afterend',button(b.dataset.id,'Mimo provoz / zapůjčení'))});
+ document.querySelectorAll('[data-drop-kind=vehicles]').forEach(cell=>{const vehicle=cell.dataset.resource,date=cell.dataset.date,rows=blocks().filter(b=>b.vehicle_id===vehicle&&b.date_from<=date&&b.date_to>=date),v=ctx.state().vehicles.find(v=>v.id===vehicle),used=ctx.state().vehicleBookings.filter(b=>b.vehicle===vehicle&&b.date===date).reduce((n,b)=>n+Number(b.hours),0);if(rows.length)cell.insertAdjacentHTML('afterbegin',`<div class="warning danger">${rows.map(b=>esc(names[b.kind])+': '+esc(b.recipient||b.note)).join('<br>')}${used?' · KONFLIKT S PLÁNEM':''}</div>`);if(used>Number(v?.capacity||8))cell.insertAdjacentHTML('afterbegin',`<div class="warning">Překročená kapacita: ${used} / ${v.capacity} h</div>`);
+ });
+ }};
+}
