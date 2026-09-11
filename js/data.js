@@ -6,7 +6,7 @@ export function upgrade(state){
  return state;
 }
 export const bookings=(state,job,date)=>state.vehicleBookings.filter(b=>b.job===job&&b.date===date);
-export function jobTotals(state,job){return {planned:state.assignments.filter(a=>a.job===job).reduce((sum,a)=>sum+Number(a.planned||0),0),actual:state.attendance.filter(a=>a.job===job).reduce((sum,a)=>sum+(hours(a)||0),0)}}
+export function jobTotals(state,job){return {planned:state.assignments.filter(a=>a.job===job).reduce((sum,a)=>sum+Number(a.planned||0),0),actual:state.attendance.filter(a=>a.job===job).reduce((sum,a)=>sum+(hours(a)||0),0)+historicalRows(state).filter(h=>h.job_id===job).reduce((sum,h)=>sum+Number(h.hours),0)}}
 export function saveAssignment(state,row,vehicleRows){
  const next=structuredClone(state),old=next.assignments.find(a=>a.id===row.id);
  if(!next.jobs.some(j=>j.id===row.job)||!next.workers.some(w=>w.id===row.worker))throw Error('Vyberte pracovníka a zakázku.');
@@ -53,7 +53,7 @@ export const time=s=>new Date(s).toLocaleTimeString('cs-CZ',{hour:'2-digit',minu
 export const hours=t=>t.end?Math.max(0,(new Date(t.end)-new Date(t.start))/3600000-(t.breakMinutes||0)/60):null;
 export const safeColor=c=>/^#[\da-f]{6}$/i.test(c??'')?c:COLORS[0];
 export function safeUrl(raw){try{const u=new URL(raw);return ['https:','http:'].includes(u.protocol)?u.href:null}catch{return null}}
-export function actual(state,worker,job,date){const rows=state.attendance.filter(t=>t.worker===worker&&t.job===job&&localDate(t.start)===date);return {rows,total:rows.reduce((s,t)=>s+(hours(t)??0),0),open:rows.some(t=>!t.end)};}
+export function actual(state,worker,job,date){const rows=state.attendance.filter(t=>t.worker===worker&&t.job===job&&localDate(t.start)===date);return {rows,historical:historicalRows(state).filter(h=>h.worker_id===worker&&h.job_id===job&&h.date===date),total:rows.reduce((s,t)=>s+(hours(t)??0),0)+historicalRows(state).filter(h=>h.worker_id===worker&&h.job_id===job&&h.date===date).reduce((sum,h)=>sum+Number(h.hours),0),open:rows.some(t=>!t.end)};}
 export function mismatch(state,job,date){const groups=new Map();for(const t of state.attendance.filter(t=>t.job===job&&localDate(t.start)===date&&t.end))groups.set(t.worker,(groups.get(t.worker)||0)+hours(t));return groups.size>1&&new Set([...groups.values()].map(h=>Math.round(h*60))).size>1;}
 export function arrive(state,worker,job,now){
  if(state.attendance.some(t=>t.worker===worker&&!t.end))throw Error('Příchod už je zaznamenaný.');
@@ -62,4 +62,12 @@ export function arrive(state,worker,job,now){
  const date=localDate(now);if(!state.assignments.some(a=>a.worker===worker&&a.job===job&&a.date===date))state.assignments.push({id:uid(),worker,job,date,start:time(now),planned:0,vehicles:[],fromAttendance:true});
 }
 export function depart(state,worker,now,breakMinutes=0){const row=state.attendance.find(t=>t.worker===worker&&!t.end);if(!row)throw Error('Nemáte zaznamenaný příchod.');const duration=(new Date(now)-new Date(row.start))/60000;if(!Number.isFinite(breakMinutes)||breakMinutes<0||breakMinutes>duration)throw Error('Přestávka nesmí přesáhnout délku práce.');if(duration<0)throw Error('Odchod nemůže být před příchodem.');row.end=now;row.breakMinutes=breakMinutes;return row;}
-export function reportRows(state,{month,job,worker,billing='all'}){return state.attendance.filter(t=>t.end&&(billing==='all'||(billing==='billed')===!!state.extras?.billing?.some(b=>b.locked&&b.job_id===t.job&&b.date===localDate(t.start)))&&localDate(t.start).startsWith(month)&&(!job||t.job===job)&&(!worker||t.worker===worker)).sort((a,b)=>a.start.localeCompare(b.start)).map(t=>({date:localDate(t.start),worker:state.workers.find(w=>w.id===t.worker)?.name??'—',job:state.jobs.find(j=>j.id===t.job)?.name??'—',arrival:time(t.start),departure:time(t.end),breakMinutes:t.breakMinutes||0,hours:hours(t)}));}
+function clockReportRows(state,{month,job,worker,billing='all'}){return state.attendance.filter(t=>t.end&&(billing==='all'||(billing==='billed')===!!state.extras?.billing?.some(b=>b.locked&&b.job_id===t.job&&b.date===localDate(t.start)))&&localDate(t.start).startsWith(month)&&(!job||t.job===job)&&(!worker||t.worker===worker)).sort((a,b)=>a.start.localeCompare(b.start)).map(t=>({date:localDate(t.start),worker:state.workers.find(w=>w.id===t.worker)?.name??'—',job:state.jobs.find(j=>j.id===t.job)?.name??'—',arrival:time(t.start),departure:time(t.end),breakMinutes:t.breakMinutes||0,hours:hours(t)}));}
+
+export function historicalRows(state){return state.extras?.historicalHours||[]}
+
+export function reportRows(state,options){
+ const {month,job,worker,billing='all'}=options;
+ const historical=historicalRows(state).filter(h=>h.date.startsWith(month)&&(!job||h.job_id===job)&&(!worker||h.worker_id===worker)&&(billing==='all'||(billing==='billed')===!!(state.jobs.find(j=>j.id===h.job_id)?.status==='invoiced'||state.extras?.billing?.some(b=>b.locked&&b.job_id===h.job_id&&b.date===h.date)))).map(h=>({date:h.date,worker:state.workers.find(w=>w.id===h.worker_id)?.name??'—',job:state.jobs.find(j=>j.id===h.job_id)?.name??'—',arrival:'',departure:'',breakMinutes:0,hours:Number(h.hours),note:h.note,source:'Výkaz 2026'}));
+ return [...clockReportRows(state,options),...historical].sort((a,b)=>a.date.localeCompare(b.date));
+}
