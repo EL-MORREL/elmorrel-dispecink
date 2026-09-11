@@ -1,3 +1,4 @@
+import './planner-scroll.js?v=scroll-1';
 import {decoratePlannerLayout} from './planner-layout.js?v=planning-1';
 import {decorateRecordTables} from './record-layout.js?v=planning-1';
 import {arrangeJobCards} from './job-card-layout.js?v=planning-1';
@@ -138,7 +139,7 @@ document.addEventListener('change',e=>{if(dialogMode!=='assignment'||!['job','da
 
 $('login-form').addEventListener('submit',async e=>{e.preventDefault();$('login-submit').disabled=true;$('login-error').textContent='Přihlašuji…';try{const {error}=await client.auth.signInWithPassword({email:$('login-email').value.trim(),password:$('login-password').value});if(error)throw error;}catch(error){$('login-error').textContent=error.message}finally{$('login-submit').disabled=false;$('login-password').value=''}});
 client.auth.onAuthStateChange((event,session)=>{setTimeout(async()=>{if(!session){hideSession();return}if(sessionUser===session.user.id)return;sessionUser=session.user.id;try{const {data,error}=await client.from('saas_members').select('company_id').eq('user_id',session.user.id);if(error)throw error;const chosen=await registration.pickCompany(data,session);if(!chosen||sessionUser!==session.user.id)return;adopt(await remote.connect(chosen));if(registration.takeWelcome())page='settings';document.querySelector('.shell').hidden=false;$('mobile-nav').hidden=false;$('login-panel').hidden=true;$('login-error').textContent='';render();}catch(error){hideSession();$('login-error').textContent=error.message}},0)});
-setInterval(async()=>{if(!sessionUser||saving||$('dialog').open||document.hidden)return;try{adopt(await remote.refresh());render()}catch(error){hideSession();$('login-error').textContent=error.message}},30000);
+setInterval(async()=>{if(!sessionUser||saving||dragging||$('dialog').open||document.hidden)return;try{adopt(await remote.refresh());render()}catch(error){hideSession();$('login-error').textContent=error.message}},30000);
 
 async function runFeature(a,p){if(saving)throw Error('Počkejte na uložení.');saving=true;try{adopt(await remote.feature(a,p));render();message('Uloženo.')}catch(e){try{adopt(await remote.refresh());render()}catch{}throw e}finally{saving=false}}
 const operationsUI=installOperations({state:()=>state,manager:isManager,admin:()=>role==='admin',me:()=>me,run:runFeature,message,refresh:async()=>{adopt(await remote.refresh());render()},standardArrival:()=>openArrival(),standardDeparture:()=>action('standard-depart')});
