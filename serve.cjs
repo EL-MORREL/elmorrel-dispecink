@@ -1,0 +1,3 @@
+const http=require('http'),fs=require('fs'),path=require('path');
+const root=__dirname;
+http.createServer((req,res)=>{let f;try{f=path.resolve(root,'.'+decodeURIComponent(req.url.split('?')[0]==='/'?'/index.html':req.url.split('?')[0]))}catch{res.writeHead(400).end();return}if(!f.startsWith(root+path.sep)||!['.html','.css','.js'].includes(path.extname(f))){res.writeHead(404).end();return}fs.readFile(f,(e,b)=>{if(e){res.writeHead(404).end();return}res.setHeader('Cache-Control','no-store');res.setHeader('Content-Type',f.endsWith('.js')?'text/javascript; charset=utf-8':f.endsWith('.css')?'text/css; charset=utf-8':'text/html; charset=utf-8');res.end(b)})}).listen(8769,'127.0.0.1',()=>console.log('http://127.0.0.1:8769'));

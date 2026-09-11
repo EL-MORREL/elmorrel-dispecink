@@ -1,0 +1,1 @@
+{"name":"planner-saas-prototype","private":true,"type":"module","scripts":{"start":"node serve.cjs","test":"node --test tests/model.test.js","test:browser":"node tests/browser.cjs"}}

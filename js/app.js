@@ -1,3 +1,4 @@
+import {sendInvitation} from './invitations.js?v=invite-1';
 import {installExperience} from './experience.js?v=week-plan-2';
 import {installFinance} from './finance-ui.js?v=week-plan-2';
 import {rememberLogin,remembered} from './session-storage.js?v=week-plan-2';
@@ -110,7 +111,7 @@ async function action(a,id,target){
  if(a==='remove-logo'){if(role!=='admin')throw Error('Nemáte oprávnění.');state.company.logo=null;persist('Logo odstraněno z ukázky.');}
 }
 async function saveForm(){const f=new FormData($('form')),s=k=>String(f.get(k)||'').trim(),n=k=>Number(f.get(k));let note='Uloženo do testovací databáze.';
- if(dialogMode==='invite'){if(role!=='admin')throw Error('Nemáte oprávnění.');const {data,error}=await client.functions.invoke('dynamic-handler',{body:{company:remote.snapshot.company.id,worker:dialogId,role:s('invite-role')}});if(error||data?.error)throw Error(data?.error||'Pozvánku se nepodařilo odeslat.');$('dialog').close();message('Pozvánka byla předána k odeslání e-mailem.');return;}
+ if(dialogMode==='invite'){if(role!=='admin')throw Error('Nemáte oprávnění.');await sendInvitation(client,{company:remote.snapshot.company.id,worker:dialogId,role:s('invite-role')});$('dialog').close();message('Pozvánka byla předána k odeslání e-mailem.');return;}
 
  if(['arrive','depart','switch','fuel'].includes(dialogMode)){saving=true;try{const next=dialogMode==='fuel'?await remote.fuel(s('vehicle'),s('note')):await remote.clock(dialogMode,s('job'),n('breakMinutes'));adopt(next);render();$('dialog').close();message('Uloženo do testovací databáze. Čas byl zaznamenán serverem.');}finally{saving=false}return;}
 
