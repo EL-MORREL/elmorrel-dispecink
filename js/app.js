@@ -1,3 +1,4 @@
+import {arrangeJobCards} from './job-card-layout.js?v=cards-1';
 import {installVehicleBlocks} from './vehicle-blocks.js?v=details-1';
 import {installRegistration} from './registration.js?v=details-1';
 import {installCompanyMail} from './company-mail.js?v=details-1';
@@ -32,7 +33,7 @@ function render(){
  const active=openWork();document.querySelector('[data-action=arrive]').disabled=!me||!!active;document.querySelector('[data-action=depart]').disabled=!me||!active;document.querySelector('.workbar [data-action=fuel]').disabled=!me;
  $('switch-job').hidden=!active;$('work-state').innerHTML=active?`<span class="online-dot"></span>V práci od <strong>${time(active.start)}</strong> · ${esc(label('jobs',active.job))}`:'Příchod není zaznamenaný';
  if(page==='plan')role==='worker'&&!foreman?renderMyDay():renderPlan();
- if(page==='jobs')renderJobs();if(page==='workers')renderWorkers();if(page==='vehicles')renderVehicles();if(page==='attendance')renderAttendance();if(page==='fuel')renderFuel();if(page==='reports')renderReports();if(page==='settings')renderSettings();if(page==='profile')renderProfile();operationsUI.decorate(page);vehicleBlocks.decorate();
+ if(page==='jobs')renderJobs();if(page==='workers')renderWorkers();if(page==='vehicles')renderVehicles();if(page==='attendance')renderAttendance();if(page==='fuel')renderFuel();if(page==='reports')renderReports();if(page==='settings')renderSettings();if(page==='profile')renderProfile();operationsUI.decorate(page);vehicleBlocks.decorate();if(page==='jobs')arrangeJobCards();
 }
 function heading(title,sub,actions=''){return `<div class="page-heading"><div><h1>${title}</h1><p class="subtle">${sub}</p></div><div class="toolbar">${actions}</div></div>`}
 function getDays(){const d=new Date(DEMO_DAY+'T12:00:00');d.setDate(d.getDate()-(d.getDay()||7)+1+weekOffset*7);return Array.from({length:showWeekend?7:5},(_,i)=>{const x=new Date(d);x.setDate(x.getDate()+i);return dateKey(x)})}
@@ -149,4 +150,5 @@ const companyMail=installCompanyMail({company:()=>remote.snapshot.company.id,mes
 document.addEventListener('change',e=>{if(dialogMode==='job'&&['timeFrom','timeTo'].includes(e.target.name)){const f=new FormData($('form')),a=String(f.get('timeFrom')),b=String(f.get('timeTo'));if(a&&b){const h=t=>Number(t.slice(0,2))+Number(t.slice(3,5))/60;document.querySelector('[name=defaultHours]').value=(h(b)-h(a)+24)%24;}}if(dialogMode==='assignment'&&!dialogId&&e.target.name==='job'){const j=find('jobs',e.target.value);if(j){document.querySelector('[name=planned]').value=j.defaultHours;document.querySelector('[name=start]').value=j.timeFrom;}}});
 
 const vehicleBlocks=installVehicleBlocks({state:()=>state,manager:isManager,run:runFeature});
+
 
