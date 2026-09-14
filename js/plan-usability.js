@@ -1,8 +1,9 @@
-import {esc} from './data.js?v=daily-1';
+import {glyph} from './daily-details.js?v=team-1';
+import {esc} from './data.js?v=team-1';
 export function contactMarkup(job){
  if(!job)return '';
  const phone=String(job.phone||'').replace(/[^+\d]/g,'');
- return `<section class="plan-contact"><strong>${esc(job.name)}</strong>${job.contact?`<div>${esc(job.contact)}</div>`:''}${job.phone?`<div>${esc(job.phone)}</div>`:''}<div class="plan-links">${phone?`<a class="secondary" href="tel:${phone}">Zavolat</a>`:''}${job.address?`<a class="secondary" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(job.address)}" target="_blank" rel="noopener noreferrer">${esc(job.address)} ↗</a>`:''}</div>${!phone&&!job.address?'<small>Kontakt ani adresa nejsou vyplněné.</small>':''}</section>`;
+ return `<section class="plan-contact"><strong>${esc(job.name)}</strong>${job.contact?`<div>${esc(job.contact)}</div>`:''}${job.phone?`<div>${esc(job.phone)}</div>`:''}<div class="plan-links">${phone?`<a class="secondary" href="tel:${phone}">${glyph('phone')} Zavolat</a>`:''}${job.address?`<a class="secondary" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(job.address)}" target="_blank" rel="noopener noreferrer">${glyph('pin')}${esc(job.address)} ↗</a>`:''}</div>${!phone&&!job.address?'<small>Kontakt ani adresa nejsou vyplněné.</small>':''}</section>`;
 }
 export function decoratePlanActions(state){
  const board=document.querySelector('.board-wrap');if(!board)return;
