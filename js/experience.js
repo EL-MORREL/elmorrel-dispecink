@@ -1,5 +1,5 @@
-import {attendanceChecks} from './checks.js?v=week-plan-2';
-import {esc,reportRows} from './data.js?v=week-plan-2';
+import {attendanceChecks} from './checks.js?v=mobile-2';
+import {esc,reportRows} from './data.js?v=mobile-2';
 export function installExperience(ctx){
  const dialog=document.createElement('dialog');document.body.append(dialog);
  const button=(a,t)=>`<button type="button" data-experience="${a}">${t}</button>`;

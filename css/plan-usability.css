@@ -1,0 +1,13 @@
+.board-wrap{max-height:72vh;max-height:72dvh;position:relative;isolation:isolate;overscroll-behavior:contain;scroll-padding:60px 140px}
+.schedule thead th{position:sticky;top:0;z-index:4;background:#fbfdff}
+.schedule .person-cell{position:sticky;left:0;z-index:3;background:#fff;vertical-align:top}
+.schedule th:first-child{width:140px;position:sticky;left:0;z-index:5}
+.schedule .resource-label{position:sticky;top:64px;overflow-wrap:anywhere}
+.schedule .plan-column-label{position:sticky;left:146px;display:block;width:max-content;max-width:100%;overflow-wrap:anywhere}
+@media(max-width:700px){.schedule .plan-column-label{left:118px}}
+.plan-contact{padding:10px;overflow-wrap:anywhere}.plan-contact strong{display:block;margin-bottom:6px}
+.plan-links{display:flex;flex-wrap:wrap;gap:6px}.plan-links a{display:inline-flex;align-items:center;min-height:44px;padding:8px;border-radius:6px}
+.plan-more,.plan-contact-toggle{margin:5px 0;max-width:100%}.plan-more summary,.plan-contact-toggle summary{cursor:pointer;padding:10px;min-height:44px;color:var(--blue);font-weight:600;border:1px solid var(--line);border-radius:7px}
+.plan-more-actions{display:flex;flex-direction:column;gap:5px;padding:6px 0}.card-tools{display:block}.day-note button{font-size:11px;padding:7px;min-height:44px}
+[data-theme=dark] .schedule thead th,[data-theme=dark] .schedule .person-cell{background:#202f42}
+@media(max-width:700px){.board-wrap{max-height:66vh;max-height:66dvh;border-radius:6px}.schedule th:first-child{width:112px;padding:8px}.schedule .person-cell{padding:8px}.schedule .person-cell .avatar{display:none}.schedule .person{display:block}.schedule .person strong{font-size:12px}.schedule .resource-label{top:64px}.schedule td{padding:5px}.planner-layout-controls{flex-wrap:wrap}.planner-layout-controls button{font-size:12px;padding:8px}.page-heading .toolbar{gap:6px}.job-body{padding:8px}.plan-contact-toggle summary,.plan-more summary{font-size:12px}}
