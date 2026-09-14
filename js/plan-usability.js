@@ -1,4 +1,4 @@
-import {esc} from './data.js?v=mobile-2';
+import {esc} from './data.js?v=daily-1';
 export function contactMarkup(job){
  if(!job)return '';
  const phone=String(job.phone||'').replace(/[^+\d]/g,'');
