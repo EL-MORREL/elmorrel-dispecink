@@ -1,7 +1,7 @@
-import {billingBadge} from './job-preferences.js?v=followups-1';
-import {avatar,glyph,teamMarkup,plannedTime} from './daily-details.js?v=followups-1';
-import {esc,dateKey} from './data.js?v=followups-1';
-import {contactMarkup} from './plan-usability.js?v=followups-1';
+import {billingBadge} from './job-preferences.js?v=perf-1';
+import {avatar,glyph,teamMarkup,plannedTime} from './daily-details.js?v=perf-1';
+import {esc,dateKey} from './data.js?v=perf-1';
+import {contactMarkup} from './plan-usability.js?v=perf-1';
 let date=dateKey(new Date()),filter='all',search='',sheet;
 const E=esc;
 const button=(action,text,active=false)=>`<button type="button" data-mobile="${action}" class="${active?'primary':'secondary'}">${text}</button>`;
