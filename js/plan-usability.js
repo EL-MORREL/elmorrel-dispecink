@@ -1,5 +1,5 @@
-import {glyph} from './daily-details.js?v=team-1';
-import {esc} from './data.js?v=team-1';
+import {glyph} from './daily-details.js?v=followups-1';
+import {esc} from './data.js?v=followups-1';
 export function contactMarkup(job){
  if(!job)return '';
  const phone=String(job.phone||'').replace(/[^+\d]/g,'');
