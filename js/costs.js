@@ -15,15 +15,16 @@ export function costReport(state,finance,from,to){
   job[mode+'Hours']+=r.hours;job[mode+'Cost']+=amount;if(!rate&&r.hours){job.missingRates++;issues.push({kind:'rate',worker:r.worker,date:r.date,job:r.job})}
   if(mode==='actual'){const w=workers.get(r.worker)||{id:r.worker,hours:0,cost:0,missingRates:0};w.hours+=r.hours;w.cost+=amount;if(!rate&&r.hours)w.missingRates++;workers.set(r.worker,w)}
  }
- for(const e of entries.filter(e=>e.kind==='overhead'))for(const mode of ['actual','planned']){const key=mode+e.valid_from.slice(0,7),pool=pools.get(key)||{cost:0,hours:0,missing:false};pool.cost+=Number(e.amount);pools.set(key,pool)}
+ for(const e of [...entries.filter(e=>e.kind==='overhead'),...(finance.purchases||[]).filter(p=>kinds.has(p.job_id)).map(p=>({valid_from:p.order_date,amount:p.amount}))])for(const mode of ['actual','planned']){const key=mode+e.valid_from.slice(0,7),pool=pools.get(key)||{cost:0,hours:0,missing:false};pool.cost+=Number(e.amount);pools.set(key,pool)}
  for(const [mode,rows] of [['actual',actual],['planned',planned]])for(const r of rows){if(r.date<from||r.date>to)continue;const job=result.get(r.job),pool=pools.get(mode+r.date.slice(0,7));if(job&&!job.overhead&&pool?.hours){job[mode+'Overhead']+=pool.cost*r.hours/pool.hours;if(pool.missing)job.missingRates++}}
  for(const j of result.values()){
+  j.purchaseCost=(finance.purchases||[]).filter(p=>p.job_id===j.id&&p.order_date>=from&&p.order_date<=to).reduce((n,p)=>n+Number(p.amount),0);
   const budget=entries.find(e=>e.kind==='budget'&&e.job_id===j.id);j.price=budget?Number(budget.amount)+entries.filter(e=>e.kind==='change'&&e.job_id===j.id&&e.status==='approved').reduce((n,e)=>n+Number(e.amount),0):null;
   const invoices=entries.filter(e=>e.kind==='invoice'&&e.job_id===j.id);j.invoiced=invoices.reduce((n,e)=>n+Number(e.amount),0);
   j.periodInvoiced=invoices.filter(e=>e.dates.every(d=>d>=from&&d<=to)).reduce((n,e)=>n+Number(e.amount),0);
   j.partialInvoice=invoices.some(e=>e.dates.some(d=>d>=from&&d<=to)&&!e.dates.every(d=>d>=from&&d<=to));
-  j.actualResult=j.missingRates?null:j.periodInvoiced-j.actualCost-j.actualOverhead;
-  j.plannedResult=j.missingRates||j.price===null?null:j.price-j.plannedCost-j.plannedOverhead;
+  j.actualResult=j.missingRates?null:j.periodInvoiced-j.actualCost-j.actualOverhead-j.purchaseCost;
+  j.plannedResult=j.missingRates||j.price===null?null:j.price-j.plannedCost-j.plannedOverhead-j.purchaseCost;
  }
  return {jobs:[...result.values()],workers:[...workers.values()],issues,pools};
 }
