@@ -1,6 +1,7 @@
+import {arrivalReviewMarkup,installArrivalReview} from './arrival-review.js?v=arrival-review-1';
 import {orderedJobChoices,pragueToday} from './arrival-order.js?v=jobs-read-1';
 import {billingBadge,installJobPreferences} from './job-preferences.js?v=jobs-read-1';
-import {renderMobileDaily} from './mobile-daily.js?v=jobs-read-1';
+import {renderMobileDaily} from './mobile-daily.js?v=arrival-review-1';
 import {contactMarkup,decoratePlanActions} from './plan-usability.js?v=jobs-read-1';
 import {sendInvitation} from './invitations.js?v=invite-1';
 import {installExperience} from './experience.js?v=jobs-read-1';
@@ -17,7 +18,7 @@ import {installOperations} from './operations.js?v=job-search-1';
 import './passwords.js?v=jobs-read-1';
 import {invitationsEnabled} from './features.js?v=jobs-read-1';
 import {historicalRows,upgrade,bookings,jobTotals,saveAssignment,moveBooking,seed,DEMO_DAY,COLORS,uid,esc,dateKey,localDate,fmtHours,time,hours,safeColor,safeUrl,actual,mismatch,arrive,depart,reportRows} from './data.js?v=jobs-read-1';
-import {client,createConnection} from './connection.js?v=jobs-read-1';
+import {client,createConnection} from './connection.js?v=arrival-review-1';
 const remote=createConnection();let saving=false,sessionUser=null,sessionGeneration=0,loadingSession=false;
 import {icon} from './icons.js?v=jobs-read-1';
 import {workbook,download} from './xlsx.js?v=jobs-read-1';
@@ -57,7 +58,7 @@ function getDays(){if(todayOnly){const now=new Date();now.setDate(now.getDate()+
 function matching(x){return JSON.stringify(x).toLocaleLowerCase('cs').includes(query)}
 function warningFor(a){if(!isManager()&&a.worker!==me)return '';const info=actual(state,a.worker,a.job,a.date),late=a.date===DEMO_DAY&&new Date(now())>new Date(`${a.date}T${a.start||state.company.dayStart}:00`).getTime()+state.company.tolerance*60000;
  if(late&&!info.rows.length&&!info.historical.length)return '<div class="warning danger">'+icon('warning')+' Příchod nezaznamenán</div>';
- if(mismatch(state,a.job,a.date)&&!state.reviewed.includes(a.job+a.date))return `<div class="warning">${icon('warning')} Rozdílné hodiny pracovníků<br>${btn('review','Zkontrolováno','link-button',a.job+'|'+a.date)}</div>`;return '';
+ return arrivalReviewMarkup(state,a.job,a.date,isManager());
 }
 function jobCard(a,booking=null){const j=find('jobs',a.job);if(!j)return '';const info=actual(state,a.worker,a.job,a.date);return `<article class="job-card" tabindex="0" role="button" aria-label="${esc(j.name)} — detail přiřazení" draggable="${isManager()}" data-job="${esc(a.job)}" data-booking="${booking?.id??''}" data-action="assignment" data-id="${a.id}" style="--job-color:${safeColor(j.color)}"><div class="job-title"><span class="color-dot"></span>${esc(j.name)}</div><div class="job-body"><strong>${booking?'Vozidlo · '+fmtHours(booking.hours)+' h':info.historical.length?'Výkaz 2026':info.rows.length?'Příchod '+time(info.rows[0].start):'Plán od '+esc(a.start)}</strong><p>${booking?'Hodiny vozidla vedené samostatně':'Plán '+fmtHours(a.planned)+' h · '+(info.open?'Probíhá':(info.rows.length||info.historical.length)?'Skutečnost '+fmtHours(info.total)+' h':(!isManager()&&a.worker!==me?'Naplánováno':'Čeká na příchod'))}</p><p>${a.vehicles.map(v=>esc(label('vehicles',v).replace('Ford ','').replace('VW ',''))).join(' · ')||'Bez vozidla'}</p>${info.historical.length?'<span class="value-pill">Z výkazu</span>':a.fromAttendance?'<span class="value-pill">Z docházky</span>':''}${booking?'':warningFor(a)}${billingBadge(state,a)}${estimateMarkup(j)}</div></article>`}
 function renderPlan(){planScope??=isManager()?'all':'mine';if(matchMedia('(max-width:700px)').matches){renderMobileDaily({state,scope:planScope,view,manager:isManager(),admin:role==='admin',me,render,schedule:a=>operationsUI.schedule(a),edit:openAssignment});return;}const days=getDays(),mineJobDay=(job,date)=>state.assignments.some(a=>a.worker===me&&a.job===job&&a.date===date),resources=state[view].filter(matching).filter(w=>planScope==='all'||(view==='workers'?w.id===me:state.vehicleBookings.some(b=>b.vehicle===w.id&&days.includes(b.date)&&mineJobDay(b.job,b.date)))).filter(w=>view!=='workers'||(!w.hiddenFrom||days.some(d=>d<w.hiddenFrom))&&(state.assignments.some(a=>a.worker===w.id&&days.includes(a.date))||w.enabled!==false&&(!w.casual||days.some(d=>(!w.active_from||d>=w.active_from)&&(!w.active_to||d<=w.active_to)))));const controls=`<div class="segmented">${btn('plan-scope','Můj plán',planScope==='mine'?'active':'','mine')}${btn('plan-scope','Celá firma',planScope==='all'?'active':'','all')}</div>${btn('prev','‹','secondary') }<span class="period">${days.length===1?dateLabel(days[0]):new Date(days[0]+'T12:00:00').getDate()+'.–'+dateLabel(days.at(-1))}</span>${btn('next','›','secondary')}<div class="segmented">${btn('view-workers','Pracovníci',view==='workers'?'active':'')}${btn('view-vehicles','Vozidla',view==='vehicles'?'active':'')}</div><div class="segmented">${btn('today','Dnes',todayOnly?'active':'secondary')}${btn('five-days','5 dní',!todayOnly&&!showWeekend?'active':'secondary')}${btn('seven-days','7 dní',!todayOnly&&showWeekend?'active':'secondary')}</div>${btn('new-assignment',icon('plus')+' Naplánovat','primary')}`;
@@ -91,7 +92,7 @@ async function action(a,id,target){
  if(a==='complete-job'||a==='reopen-job'){await runFeature(a==='complete-job'?'job_complete':'job_reopen',{id});return}
  if(a==='duplicate-job'){const original=find('jobs',id);if(!isManager()||!original)return;const copy={...structuredClone(original),id:uid(),name:original.name+' – kopie',status:'active',phase:'new'};state.jobs.push(copy);await persist('Kopie zakázky vytvořena.');return}
  if(a==='logout'){const {error}=await client.auth.signOut();if(error)throw error;hideSession();return}
- if(a==='correct'){operationsUI.request(id);return}if(a==='review'){operationsUI.request('',id.split('|')[0]);return}
+ if(a==='correct'){operationsUI.request(id);return}if(a==='review'){arrivalReviewUI.open(...id.split('|'));return}
  if(a==='export'||a==='export-fuel'){await remote.report(reportMonth);adopt(await remote.refresh());if(!isManager())throw Error('Nemáte oprávnění k exportu.');}
  if(a==='nav'){if($('dialog').open)$('dialog').close();page=id;render();return}if(a==='close'){$('dialog').close();return}
  if(a==='arrive'){operationsUI.arrival();return}if(a==='depart'){operationsUI.departure();return}if(a==='switch'){openArrival(true);return}
@@ -192,6 +193,7 @@ let refreshAfter=0,refreshFailures=0;
 async function refreshSafely(){if(Date.now()<refreshAfter)return;if(refreshing||loadingSession||!remote.snapshot||!sessionUser||saving||dragging||$('dialog').open||document.querySelector('dialog[open]')||document.hidden)return;refreshing=true;try{const previousSnapshot=remote.snapshot,previous=previousSnapshot?.company.version;const next=await remote.refresh({ifChanged:true});refreshFailures=0;refreshAfter=0;if(document.querySelector('dialog[open]')){remote.restoreSnapshot(previousSnapshot);return;}if(previous!==remote.snapshot.company.version){const board=document.querySelector('.board-wrap'),left=board?.scrollLeft||0,top=board?.scrollTop||0;adopt(next);render();const fresh=document.querySelector('.board-wrap');if(fresh){fresh.scrollLeft=left;fresh.scrollTop=top;}}message('')}catch(error){refreshAfter=Date.now()+Math.min(120000,30000*2**refreshFailures++);message('Spojení se přerušilo. Zobrazená data zůstávají zachovaná, připojení zkusíme znovu.')}finally{refreshing=false}}
 setInterval(refreshSafely,30000);let refreshTimer;const queueRefresh=()=>{clearTimeout(refreshTimer);refreshTimer=setTimeout(refreshSafely,300)};window.addEventListener('online',()=>{refreshAfter=0;queueRefresh()});window.addEventListener('planner-data-changed',queueRefresh);document.addEventListener('visibilitychange',()=>{if(!document.hidden)queueRefresh()});
 
+const arrivalReviewUI=installArrivalReview({state:()=>state,manager:isManager,version:()=>remote.snapshot?.company.version,run:runFeature});
 async function runFeature(a,p){if(saving)throw Error('Počkejte na uložení.');saving=true;try{adopt(await remote.feature(a,p));render();message('Uloženo.')}catch(e){try{adopt(await remote.refresh());render()}catch{}throw e}finally{saving=false}}
 const operationsUI=installOperations({finance:job=>financeUI.open(job),state:()=>state,manager:isManager,admin:()=>role==='admin',me:()=>me,run:runFeature,message,refresh:async()=>{adopt(await remote.refresh());render()},standardArrival:()=>openArrival(),standardDeparture:()=>action('standard-depart')});
 document.addEventListener('change',e=>{if(e.target.name==='billing-filter'){reportBilling=e.target.value;render()}if(e.target.name==='job-status'){jobFilter=e.target.value;render()}});
