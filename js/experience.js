@@ -17,7 +17,7 @@ export function installExperience(ctx){
  document.addEventListener('click',e=>{const b=e.target.closest('[data-experience]');if(b)act(b.dataset.experience).catch(e=>ctx.message(e.message))});
  function decorate(page){apply();const nav=document.getElementById('navigation');nav.insertAdjacentHTML('beforeend',button('preferences','Vzhled a rozložení')+button('guide','Nápověda')+(ctx.role()==='admin'?button('audit','Historie změn'):'')+(['admin','dispatcher'].includes(ctx.role())?button('checks','Kontrola docházky')+button('unbilled','Nevyfakturovaná práce'):''));
  if(page==='plan'&&ctx.me())document.getElementById('content').insertAdjacentHTML('afterbegin',button('pin','PIN mojí karty'));
- if(page==='workers'&&ctx.role()==='admin')document.getElementById('content').insertAdjacentHTML('afterbegin',button('edit-pin','Nastavit PIN karty'));
+ 
  if(localStorage.getItem('planner-guide:'+ctx.user())!==ctx.guideRole()&&!document.querySelector('dialog[open]')){localStorage.setItem('planner-guide:'+ctx.user(),ctx.guideRole());guide()}
  }
  return {decorate,reset(){dialog.close();dialog.innerHTML=''}};
