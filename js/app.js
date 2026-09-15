@@ -1,26 +1,26 @@
-import {orderedJobChoices,pragueToday} from './arrival-order.js?v=perf-1';
-import {billingBadge,installJobPreferences} from './job-preferences.js?v=perf-1';
-import {renderMobileDaily} from './mobile-daily.js?v=perf-1';
-import {contactMarkup,decoratePlanActions} from './plan-usability.js?v=perf-1';
+import {orderedJobChoices,pragueToday} from './arrival-order.js?v=perf-2';
+import {billingBadge,installJobPreferences} from './job-preferences.js?v=perf-2';
+import {renderMobileDaily} from './mobile-daily.js?v=perf-2';
+import {contactMarkup,decoratePlanActions} from './plan-usability.js?v=perf-2';
 import {sendInvitation} from './invitations.js?v=invite-1';
-import {installExperience} from './experience.js?v=perf-1';
-import {installFinance} from './finance-ui.js?v=perf-1';
-import {rememberLogin,remembered} from './session-storage.js?v=perf-1';
+import {installExperience} from './experience.js?v=perf-2';
+import {installFinance} from './finance-ui.js?v=perf-2';
+import {rememberLogin,remembered} from './session-storage.js?v=perf-2';
 import './planner-scroll.js?v=scroll-1';
-import {decoratePlannerLayout} from './planner-layout.js?v=perf-1';
-import {decorateRecordTables} from './record-layout.js?v=perf-1';
-import {arrangeJobCards} from './job-card-layout.js?v=perf-1';
-import {installVehicleBlocks} from './vehicle-blocks.js?v=perf-1';
-import {installRegistration} from './registration.js?v=perf-1';
-import {installCompanyMail} from './company-mail.js?v=perf-1';
-import {installOperations} from './operations.js?v=perf-1';
-import './passwords.js?v=perf-1';
-import {invitationsEnabled} from './features.js?v=perf-1';
-import {historicalRows,upgrade,bookings,jobTotals,saveAssignment,moveBooking,seed,DEMO_DAY,COLORS,uid,esc,dateKey,localDate,fmtHours,time,hours,safeColor,safeUrl,actual,mismatch,arrive,depart,reportRows} from './data.js?v=perf-1';
-import {client,createConnection} from './connection.js?v=perf-1';
-const remote=createConnection();let saving=false,sessionUser=null;
-import {icon} from './icons.js?v=perf-1';
-import {workbook,download} from './xlsx.js?v=perf-1';
+import {decoratePlannerLayout} from './planner-layout.js?v=perf-2';
+import {decorateRecordTables} from './record-layout.js?v=perf-2';
+import {arrangeJobCards} from './job-card-layout.js?v=perf-2';
+import {installVehicleBlocks} from './vehicle-blocks.js?v=perf-2';
+import {installRegistration} from './registration.js?v=perf-2';
+import {installCompanyMail} from './company-mail.js?v=perf-2';
+import {installOperations} from './operations.js?v=perf-2';
+import './passwords.js?v=perf-2';
+import {invitationsEnabled} from './features.js?v=perf-2';
+import {historicalRows,upgrade,bookings,jobTotals,saveAssignment,moveBooking,seed,DEMO_DAY,COLORS,uid,esc,dateKey,localDate,fmtHours,time,hours,safeColor,safeUrl,actual,mismatch,arrive,depart,reportRows} from './data.js?v=perf-2';
+import {client,createConnection} from './connection.js?v=perf-2';
+const remote=createConnection();let saving=false,sessionUser=null,sessionGeneration=0,loadingSession=false;
+import {icon} from './icons.js?v=perf-2';
+import {workbook,download} from './xlsx.js?v=perf-2';
 const $=id=>document.getElementById(id),KEY='planner-design-v3';
 let state=upgrade(seed());
 for(const key of ['workers','jobs','vehicles','assignments','attendance','fuel','vehicleBookings','skills'])state[key]=[];
@@ -31,7 +31,7 @@ const dateLabel=date=>new Date(date+'T12:00:00').toLocaleDateString('cs-CZ'),ini
 const btn=(action,text,cls='secondary',id='')=>`<button type="button" class="${cls}" data-action="${action}" data-id="${esc(id)}">${text}</button>`,opts=table=>state[table].map(x=>[x.id,x.name]),message=s=>{$('status').textContent=s},openWork=()=>state.attendance.find(t=>t.worker===me&&!t.end);
 function adopt(next){state=next;foreman=remote.snapshot.membership.role==='foreman';const m=remote.snapshot.membership;me=m.worker_id;role=['owner','admin'].includes(m.role)?'admin':['dispatcher','editor'].includes(m.role)?'dispatcher':'worker';$('role').value=foreman?'foreman':role;}
 async function persist(note){if(saving)return;saving=true;message('Ukládám…');try{adopt(await remote.save(state));render();message(note||'Uloženo.')}catch(error){try{adopt(await remote.refresh());render()}catch{}message(error.message)}finally{saving=false}}
-function hideSession(){planScope=null;document.querySelectorAll('dialog[open]').forEach(d=>d.close());experience.reset();vehicleBlocks.reset();registration.reset();companyMail.reset();remote.clear();sessionUser=null;me=null;document.querySelector('.shell').hidden=true;$('mobile-nav').hidden=true;$('login-panel').hidden=false;if($('dialog').open)$('dialog').close();document.querySelector('.operations-dialog')?.close();document.getElementById('operations-bar')?.remove();$('content').replaceChildren();state={};}
+function hideSession(){sessionGeneration++;loadingSession=false;$('login-submit').disabled=false;planScope=null;document.querySelectorAll('dialog[open]').forEach(d=>d.close());experience.reset();vehicleBlocks.reset();registration.reset();companyMail.reset();remote.clear();sessionUser=null;me=null;document.querySelector('.shell').hidden=true;$('mobile-nav').hidden=true;$('login-panel').hidden=false;if($('dialog').open)$('dialog').close();document.querySelector('.operations-dialog')?.close();document.getElementById('operations-bar')?.remove();$('content').replaceChildren();state={};}
 
 const menu=[['plan','calendar','Plánovač'],['attendance','clock','Docházka'],['jobs','file','Zakázky'],['workers','users','Pracovníci'],['vehicles','car','Vozidla'],['fuel','fuel','Tankování'],['reports','file','Výkazy'],['settings','settings','Nastavení firmy']];
 function render(){
@@ -159,11 +159,34 @@ document.addEventListener('drop',e=>{const cell=e.target.closest('[data-drop-kin
 document.addEventListener('change',e=>{if(dialogMode!=='assignment'||!['job','date'].includes(e.target.name))return;const job=document.querySelector('#fields [name=job]').value,date=document.querySelector('#fields [name=date]').value;for(const v of state.vehicles){const b=bookings(state,job,date).find(b=>b.vehicle===v.id);const checkbox=[...document.querySelectorAll('#fields [name=vehicles]')].find(x=>x.value===v.id);checkbox.checked=!!b;}});
 
 $('login-form').insertAdjacentHTML('beforeend','<label class=checkbox-row><input type=checkbox id=remember-login> Zůstat přihlášen</label>');$('remember-login').checked=remembered();
-$('login-form').addEventListener('submit',async e=>{e.preventDefault();rememberLogin($('remember-login').checked);$('login-submit').disabled=true;$('login-error').textContent='Přihlašuji…';try{const {error}=await client.auth.signInWithPassword({email:$('login-email').value.trim(),password:$('login-password').value});if(error)throw error;}catch(error){$('login-error').textContent=error.message}finally{$('login-submit').disabled=false;$('login-password').value=''}});
-client.auth.onAuthStateChange((event,session)=>{setTimeout(async()=>{if(!session){hideSession();return}if(sessionUser===session.user.id)return;sessionUser=session.user.id;try{const {data,error}=await client.from('saas_members').select('company_id').eq('user_id',session.user.id);if(error)throw error;const chosen=await registration.pickCompany(data,session);if(!chosen||sessionUser!==session.user.id)return;adopt(await remote.connect(chosen));if(registration.takeWelcome())page='settings';document.querySelector('.shell').hidden=false;$('mobile-nav').hidden=false;$('login-panel').hidden=true;$('login-error').textContent='';render();}catch(error){hideSession();$('login-error').textContent=error.message}},0)});
+$('login-form').addEventListener('submit',async e=>{e.preventDefault();rememberLogin($('remember-login').checked);$('login-submit').disabled=true;$('login-error').textContent='Přihlašuji…';try{const {error}=await client.auth.signInWithPassword({email:$('login-email').value.trim(),password:$('login-password').value});if(error)throw error;}catch(error){$('login-error').textContent=error.message}finally{$('login-submit').disabled=loadingSession;$('login-password').value=''}});
+client.auth.onAuthStateChange((event,session)=>{setTimeout(async()=>{
+ if(!session){hideSession();return}
+ if(sessionUser===session.user.id)return;
+ const generation=++sessionGeneration;
+ sessionUser=session.user.id;loadingSession=true;$('login-submit').disabled=true;
+ const current=()=>generation===sessionGeneration&&sessionUser===session.user.id;
+ try{
+  $('login-error').textContent='Načítám firemní data…';
+  const {data,error}=await client.from('saas_members').select('company_id').eq('user_id',session.user.id);
+  if(!current())return;
+  if(error)throw error;
+  const chosen=await registration.pickCompany(data,session);
+  if(!current()||!chosen)return;
+  const next=await remote.connect(chosen);
+  if(!current())return;
+  adopt(next);
+  if(registration.takeWelcome())page='settings';
+  document.querySelector('.shell').hidden=false;$('mobile-nav').hidden=false;$('login-panel').hidden=true;$('login-error').textContent='';render();
+ }catch(error){
+  if(!current())return;
+  hideSession();
+  $('login-error').textContent='Firemní data se nepodařilo načíst. '+error.message;
+ }finally{if(current()){loadingSession=false;$('login-submit').disabled=false}}
+},0)});
 let refreshing=false;
 let refreshAfter=0,refreshFailures=0;
-async function refreshSafely(){if(Date.now()<refreshAfter)return;if(refreshing||!sessionUser||saving||dragging||$('dialog').open||document.querySelector('dialog[open]')||document.hidden)return;refreshing=true;try{const previousSnapshot=remote.snapshot,previous=previousSnapshot?.company.version;const next=await remote.refresh({ifChanged:true});refreshFailures=0;refreshAfter=0;if(document.querySelector('dialog[open]')){remote.restoreSnapshot(previousSnapshot);return;}if(previous!==remote.snapshot.company.version){const board=document.querySelector('.board-wrap'),left=board?.scrollLeft||0,top=board?.scrollTop||0;adopt(next);render();const fresh=document.querySelector('.board-wrap');if(fresh){fresh.scrollLeft=left;fresh.scrollTop=top;}}message('')}catch(error){refreshAfter=Date.now()+Math.min(120000,30000*2**refreshFailures++);message('Spojení se přerušilo. Zobrazená data zůstávají zachovaná, připojení zkusíme znovu.')}finally{refreshing=false}}
+async function refreshSafely(){if(Date.now()<refreshAfter)return;if(refreshing||loadingSession||!remote.snapshot||!sessionUser||saving||dragging||$('dialog').open||document.querySelector('dialog[open]')||document.hidden)return;refreshing=true;try{const previousSnapshot=remote.snapshot,previous=previousSnapshot?.company.version;const next=await remote.refresh({ifChanged:true});refreshFailures=0;refreshAfter=0;if(document.querySelector('dialog[open]')){remote.restoreSnapshot(previousSnapshot);return;}if(previous!==remote.snapshot.company.version){const board=document.querySelector('.board-wrap'),left=board?.scrollLeft||0,top=board?.scrollTop||0;adopt(next);render();const fresh=document.querySelector('.board-wrap');if(fresh){fresh.scrollLeft=left;fresh.scrollTop=top;}}message('')}catch(error){refreshAfter=Date.now()+Math.min(120000,30000*2**refreshFailures++);message('Spojení se přerušilo. Zobrazená data zůstávají zachovaná, připojení zkusíme znovu.')}finally{refreshing=false}}
 setInterval(refreshSafely,30000);let refreshTimer;const queueRefresh=()=>{clearTimeout(refreshTimer);refreshTimer=setTimeout(refreshSafely,300)};window.addEventListener('online',()=>{refreshAfter=0;queueRefresh()});window.addEventListener('planner-data-changed',queueRefresh);document.addEventListener('visibilitychange',()=>{if(!document.hidden)queueRefresh()});
 
 async function runFeature(a,p){if(saving)throw Error('Počkejte na uložení.');saving=true;try{adopt(await remote.feature(a,p));render();message('Uloženo.')}catch(e){try{adopt(await remote.refresh());render()}catch{}throw e}finally{saving=false}}

@@ -1,5 +1,5 @@
-import {attendanceChecks} from './checks.js?v=perf-1';
-import {esc,reportRows} from './data.js?v=perf-1';
+import {attendanceChecks} from './checks.js?v=perf-2';
+import {esc,reportRows} from './data.js?v=perf-2';
 export function installExperience(ctx){
  const dialog=document.createElement('dialog');document.body.append(dialog);
  const button=(a,t)=>`<button type="button" data-experience="${a}">${t}</button>`;
