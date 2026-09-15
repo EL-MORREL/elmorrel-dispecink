@@ -68,6 +68,19 @@ export function historicalRows(state){return state.extras?.historicalHours||[]}
 
 export function reportRows(state,options){
  const {month,job,worker,billing='all'}=options;
- const historical=historicalRows(state).filter(h=>h.date.startsWith(month)&&(!job||h.job_id===job)&&(!worker||h.worker_id===worker)&&(billing==='all'||(billing==='billed')===!!(state.jobs.find(j=>j.id===h.job_id)?.status==='invoiced'||state.extras?.billing?.some(b=>b.locked&&b.job_id===h.job_id&&b.date===h.date)))).map(h=>({date:h.date,worker:state.workers.find(w=>w.id===h.worker_id)?.name??'—',job:state.jobs.find(j=>j.id===h.job_id)?.name??'—',arrival:'',departure:'',breakMinutes:0,hours:Number(h.hours),note:h.note,source:'Výkaz 2026'}));
- return [...clockReportRows(state,options),...historical].sort((a,b)=>a.date.localeCompare(b.date));
+ const jobs=new Map(state.jobs.map(j=>[j.id,j])),workers=new Map(state.workers.map(w=>[w.id,w.name]));
+ const overhead=new Set((state.extras?.jobKinds||[]).filter(k=>k.overhead).map(k=>k.job_id));
+ const billedDays=new Set((state.extras?.billing||[]).filter(b=>b.locked).map(b=>b.job_id+'|'+b.date));
+ const isBilled=r=>jobs.get(r.jobId)?.status==='invoiced'||billedDays.has(r.jobId+'|'+r.date);
+ const raw=state.attendance.filter(t=>t.end&&localDate(t.start).startsWith(month)).map(t=>({date:localDate(t.start),workerId:t.worker,jobId:t.job,arrival:time(t.start),departure:time(t.end),breakMinutes:t.breakMinutes||0,hours:hours(t)}))
+ .concat(historicalRows(state).filter(h=>h.date.startsWith(month)).map(h=>({date:h.date,workerId:h.worker_id,jobId:h.job_id,arrival:'',departure:'',breakMinutes:0,hours:Number(h.hours),note:h.note,source:'Výkaz 2026'})));
+ // Same full-month productive-hour denominator as costReport. Filter job/worker only afterwards.
+ let productive=0,covered=0;
+ for(const r of raw)if(jobs.has(r.jobId)&&!overhead.has(r.jobId)){productive+=r.hours;if(isBilled(r))covered+=r.hours}
+ const coveredShare=productive>0?Math.max(0,Math.min(1,covered/productive)):0;
+ return raw.filter(r=>(!job||r.jobId===job)&&(!worker||r.workerId===worker)).map(r=>{
+  const share=isBilled(r)?1:overhead.has(r.jobId)?coveredShare:0;
+  const factor=billing==='all'?1:billing==='billed'?share:1-share;
+  return {...r,worker:workers.get(r.workerId)??'—',job:jobs.get(r.jobId)?.name??'—',hours:r.hours*factor,overheadAllocation:billing!=='all'&&overhead.has(r.jobId)};
+ }).filter(r=>billing==='all'||r.hours>1e-9).sort((a,b)=>a.date.localeCompare(b.date));
 }
