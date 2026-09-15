@@ -3,16 +3,18 @@ import {esc,localDate,hours} from './data.js?v=overhead-unbilled-1';
 import {financeOverview,money,financeButton as button} from './finance-overview.js?v=finance-detail-1';
 import {readJobPreferences,writeJobPreferences} from './job-preferences.js?v=finance-detail-1';
 export function installFinance(ctx){
- const dialog=document.createElement('dialog');dialog.className='finance-dialog';document.body.append(dialog);
+ const dialog=document.createElement('section');dialog.className='finance-page';let generation=0;
  let data,selected='',summary=false,tab='budget',from='',to='',search='',workerId='';
  const today=()=>localDate(new Date().toISOString());
  const input=(n,label,value='',type='text',extra='')=>`<label>${label}<input name="${n}" type="${type}" ${type==='number'?'step="0.01"':''} value="${esc(value??'')}" ${extra}></label>`;
  const choices=(n,label,rows,value='')=>`<label>${label}<select name="${n}">${rows.map(r=>`<option value="${esc(r.id)}" ${r.id===value?'selected':''}>${esc(r.name)}</option>`).join('')}</select></label>`;
- function shell(title,body){dialog.innerHTML=`<div class="dialog-heading"><h2>${title}</h2>${button('close','Zavřít')}</div><div class="panel-content">${body}<p role="alert" id="finance-error"></p></div>`;if(!dialog.open)dialog.showModal()}
+ function shell(title,body){dialog.innerHTML=`<div class="page-heading"><h1>${title}</h1>${workerId?button('close','← Pracovníci'):''}</div><div class="panel-content">${body}<p role="alert" id="finance-error"></p></div>`}
  const fail=e=>{const el=dialog.querySelector('#finance-error');if(el)el.textContent=e.message;else ctx.message(e.message)};
- async function load(){if(!ctx.admin())return false;data=await ctx.read();return true}
- async function open(job){try{if(!await load())return;workerId='';selected=job||'';tab=job?'invoice':'budget';render()}catch(e){ctx.message(e.message)}}
- async function worker(id){try{if(!await load())return;workerId=id;selected='';render()}catch(e){ctx.message(e.message)}}
+ function mount(){const content=document.getElementById('content');if(dialog.parentElement!==content)content.replaceChildren(dialog)}
+ function reset(){generation++;data=null;selected=workerId=from=to=search='';summary=false;tab='budget';dialog.replaceChildren()}
+ async function begin(job='',worker=''){if(!ctx.admin())return;const request=++generation;workerId=worker;selected=job;tab=job?'invoice':'budget';ctx.navigate('finance');shell('Finance zakázek','<p role="status">Načítám finance…</p>');try{const next=await ctx.read();if(request!==generation)return;data=next;render()}catch(e){if(request!==generation)return;shell('Finance zakázek',button('reload','Zkusit načíst znovu'));fail(e)}}
+ async function open(job){return begin(job||'')}
+ async function worker(id){return begin('',id)}
  function render(){
   if(workerId){const w=ctx.state().workers.find(w=>w.id===workerId);shell('Hodinové náklady · '+esc(w?.name||''),`<p>Sazby platí od zvoleného dne. Pro novou sazbu přidejte záznam s novým datem.</p>${button('rate','Přidat sazbu')} ${(data.entries||[]).filter(e=>e.kind==='rate'&&e.worker_id===workerId).sort((a,b)=>b.valid_from.localeCompare(a.valid_from)).map(e=>`<article class="finance-record"><strong>${esc(e.valid_from)} · ${money(Number(e.amount))}/h</strong><p>${esc(e.note)}</p>${button('rate','Upravit',e.id)} ${button('delete','Smazat',e.id)}</article>`).join('')||'<p>Sazba zatím není zadaná.</p>'}`);return}
   const prefs=readJobPreferences(ctx.state(),ctx.user());shell('Finance zakázek',financeOverview(ctx.state(),data,prefs,{selected,summary,tab,from,to,search}));
@@ -51,6 +53,6 @@ export function installFinance(ctx){
   }
   wireSave(form,kind==='kind'?'job_kind':kind.endsWith('_month')?kind:'save',f=>{const p=Object.fromEntries(f);p.kind=kind;if(form.elements.job?.disabled)p.job=form.elements.job.value;if(form.elements.worker?.disabled)p.worker=form.elements.worker.value;if(id){p.id=id;if(e.job_id)p.job=e.job_id;if(e.worker_id)p.worker=e.worker_id}if(kind==='invoice'){if(p.daysFrom&&p.daysTo&&p.daysFrom>p.daysTo)throw Error('Zkontrolujte období.');p.dates=form.selectedInvoiceDays()}if(kind==='kind')p.overhead=f.has('overhead');if(p.month)p.month+='-01';if(itemized){p.line_items=lineValues();if(p.line_items.some(x=>!x.name||!Number.isFinite(x.amount)))throw Error('Vyplňte název každé oceněné položky.')}delete p.daysFrom;delete p.daysTo;return p});
  }
- dialog.addEventListener('click',event=>{const el=event.target.closest('[data-finance]');if(!el)return;try{const a=el.dataset.finance,id=el.dataset.id,job=el.dataset.job||selected;if(a==='close'){dialog.close();return}if(a==='overview'){selected='';render()}else if(a==='back')render();else if(a==='job'){selected=id;tab='budget';render()}else if(a==='tab'){tab=id;render()}else if(a==='summary'){summary=!summary;render()}else if(a==='clear-period'){from=to='';render()}else if(a==='delete')remove(id);else if(a==='job_status')jobStatus(job);else edit(a,id,job)}catch(e){fail(e)}});
- return {open,worker};
+ dialog.addEventListener('click',event=>{const el=event.target.closest('[data-finance]');if(!el)return;try{const a=el.dataset.finance,id=el.dataset.id,job=el.dataset.job||selected;if(a==='close'){ctx.navigate('workers');return}if(a==='reload'){begin(selected,workerId);return}if(a==='overview'){selected='';render()}else if(a==='back')render();else if(a==='job'){selected=id;tab='budget';render()}else if(a==='tab'){tab=id;render()}else if(a==='summary'){summary=!summary;render()}else if(a==='clear-period'){from=to='';render()}else if(a==='delete')remove(id);else if(a==='job_status')jobStatus(job);else edit(a,id,job)}catch(e){fail(e)}});
+ return {open,worker,mount,reset};
 }
