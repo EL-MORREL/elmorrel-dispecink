@@ -1,3 +1,4 @@
+import {updateProfileIdentity} from './profile-identity.js?v=profile-identity-1';
 import {arrivalReviewMarkup,installArrivalReview} from './arrival-review.js?v=arrival-review-1';
 import {orderedJobChoices,pragueToday} from './arrival-order.js?v=jobs-read-1';
 import {billingBadge,installJobPreferences} from './job-preferences.js?v=jobs-read-1';
@@ -36,6 +37,7 @@ function hideSession(){sessionGeneration++;loadingSession=false;$('login-submit'
 
 const menu=[['plan','calendar','Plánovač'],['attendance','clock','Docházka'],['jobs','file','Zakázky'],['workers','users','Pracovníci'],['vehicles','car','Vozidla'],['fuel','fuel','Tankování'],['reports','file','Výkazy'],['settings','settings','Nastavení firmy']];
 function render(){
+ updateProfileIdentity(document.querySelector('.profile .avatar'),state.workers,me);
  const allowed=role==='worker'?['plan','attendance','jobs','fuel','profile']:role==='admin'?menu.map(m=>m[0]):menu.filter(m=>m[0]!=='settings').map(m=>m[0]);
  if(!allowed.includes(page))page='plan';
  const entries=role==='worker'?[['plan','home','Můj den'],['attendance','clock','Moje docházka'],['jobs','file','Zakázky'],['fuel','fuel','Moje tankování'],['profile','users','Profil']]:menu.filter(m=>allowed.includes(m[0]));
