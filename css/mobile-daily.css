@@ -7,3 +7,5 @@
 
 
 .job-preferences{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0;align-items:end}.job-preferences small{width:100%;color:#637b98}.job-personal{display:flex;gap:8px;margin-top:12px}.job-personal label{flex:1}.job-personal button{font-size:24px;align-self:end;color:#a36a00}.billing-badge{margin:8px;background:#dff3e7;color:#176837;font-weight:700;border:1px solid #a4d8b7}
+
+.daily-card{border-left-color:var(--job-color,var(--blue))}.daily-open>strong{border-radius:4px;padding:4px 6px;background:color-mix(in srgb,var(--job-color,var(--blue)) 14%,transparent)}
