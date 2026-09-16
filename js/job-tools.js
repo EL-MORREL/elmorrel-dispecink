@@ -14,4 +14,9 @@ export function setupJobFields(root,state,user,id){
   if(n!==generation||!box.isConnected)return;results.replaceChildren();if(!rows.length)results.textContent='Adresa nenalezena. Zpřesněte obec nebo ji zadejte ručně.';for(const value of rows){const b=document.createElement('button');b.type='button';b.className='secondary';b.style.cssText='display:block;width:100%;text-align:left;margin:6px 0';b.textContent=value;b.onclick=()=>{address.value=value;generation++;results.replaceChildren();address.focus()};results.append(b)}
  }catch{if(n===generation&&box.isConnected)results.textContent='Vyhledávání není dostupné. Adresu můžete vyplnit ručně.'}finally{button.disabled=false}};
 }
-export function jobNotes(state,job,date){const notes=[state.jobs.find(j=>j.id===job)?.note,...(state.extras?.notes||[]).filter(n=>n.job_id===job&&n.date===date).map(n=>n.note)].filter(n=>n?.trim());return notes.map(n=>`<div class="day-note" style="white-space:pre-wrap;overflow-wrap:anywhere"><strong>Poznámka</strong><br>${esc(n)}</div>`).join('')}
+export function jobNotes(state,job,date,worker=null,manager=false){
+ const general=state.jobs.find(j=>j.id===job)?.note;
+ const notes=(state.extras?.notes||[]).filter(n=>n.date===date&&(n.job_id===job||n.assigned_job_id===job&&(!worker||n.worker_id===worker)));
+ const controls=n=>manager?`<div><button type="button" data-op="edit-note" data-key="${esc(n.id)}">Upravit poznámku</button><button type="button" data-op="delete-note" data-key="${esc(n.id)}">Smazat</button></div>`:'';
+ return (general?.trim()?`<div class="day-note" style="white-space:pre-wrap;overflow-wrap:anywhere"><strong>Poznámka zakázky</strong><br>${esc(general)}</div>`:'')+notes.map(n=>`<div class="day-note" style="white-space:pre-wrap;overflow-wrap:anywhere"><strong>${n.worker_id?esc(state.workers.find(w=>w.id===n.worker_id)?.name||'Pracovník'):'Poznámka ke dni'}</strong><br>${esc(n.note)}${controls(n)}</div>`).join('');
+}
