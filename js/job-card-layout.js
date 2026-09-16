@@ -6,7 +6,7 @@ export function arrangeJobCards(){
   const menu=document.createElement('div');menu.className='job-more-menu';more.append(menu);
   [...actions.children].forEach(button=>{
    if(button.dataset.action==='job'){button.classList.remove('secondary');button.classList.add('primary');button.textContent='Detail zakázky';}
-   else if(button.dataset.op!=='billing')menu.append(button);
+   else if(button.dataset.action!=='plan-job'&&button.dataset.op!=='billing')menu.append(button);
   });
   if(menu.children.length)actions.append(more);
  });
