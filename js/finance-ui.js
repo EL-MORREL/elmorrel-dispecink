@@ -1,13 +1,14 @@
+import {byName,searchText} from './selection-order.js?v=selection-1';
 import {costReport} from './costs.js?v=purchases-1';
 import {esc,localDate,hours} from './data.js?v=overhead-unbilled-1';
-import {financeOverview,money,financeButton as button} from './finance-overview.js?v=shared-groups-1';
-import {readJobPreferences,writeJobPreferences} from './job-preferences.js?v=shared-groups-1';
+import {financeOverview,money,financeButton as button} from './finance-overview.js?v=selection-1';
+import {readJobPreferences,writeJobPreferences} from './job-preferences.js?v=selection-1';
 export function installFinance(ctx){
  const dialog=document.createElement('section');dialog.className='finance-page';let generation=0;
  let data,selected='',summary=false,tab='budget',from='',to='',search='',workerId='';
  const today=()=>localDate(new Date().toISOString());
  const input=(n,label,value='',type='text',extra='')=>`<label>${label}<input name="${n}" type="${type}" ${type==='number'?'step="0.01"':''} value="${esc(value??'')}" ${extra}></label>`;
- const choices=(n,label,rows,value='')=>`<label>${label}<select name="${n}">${rows.map(r=>`<option value="${esc(r.id)}" ${r.id===value?'selected':''}>${esc(r.name)}</option>`).join('')}</select></label>`;
+ const choices=(n,label,rows,value='')=>`<label>${label}<select name="${n}">${byName(rows).map(r=>`<option value="${esc(r.id)}" ${r.id===value?'selected':''}>${esc(r.name)}</option>`).join('')}</select></label>`;
  function shell(title,body){dialog.innerHTML=`<div class="page-heading"><h1>${title}</h1>${workerId?button('close','← Pracovníci'):''}</div><div class="panel-content">${body}<p role="alert" id="finance-error"></p></div>`;if(dialog.isConnected)window.scrollTo(0,0)}
  const fail=e=>{const el=dialog.querySelector('#finance-error');if(el)el.textContent=e.message;else ctx.message(e.message)};
  function mount(){const content=document.getElementById('content');if(dialog.parentElement!==content)content.replaceChildren(dialog)}

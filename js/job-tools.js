@@ -1,9 +1,9 @@
 import {esc} from './data.js?v=jobs-read-1';
-import {readJobPreferences} from './job-preferences.js?v=shared-groups-1';
+import {readJobPreferences} from './job-preferences.js?v=selection-1';
 const cache=new Map();
 export function setupJobFields(root,state,user,id){
  const prefs=readJobPreferences(state,user),label=document.createElement('label');
- label.innerHTML=`Skupina zakázky<input name="personalGroup" maxlength="60" list="job-group-list" value="${esc(prefs.groups[id]||'')}" placeholder="Vyberte nebo napište novou skupinu"><datalist id="job-group-list">${[...new Set(Object.values(prefs.groups).filter(Boolean))].sort().map(g=>`<option value="${esc(g)}"></option>`).join('')}</datalist>`;
+ label.innerHTML=`Skupina zakázky<input name="personalGroup" maxlength="60" list="job-group-list" value="${esc(prefs.groups[id]||'')}" placeholder="Vyberte nebo napište novou skupinu"><datalist id="job-group-list">${[...new Set(Object.values(prefs.groups).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'cs',{numeric:true,sensitivity:'base'})).map(g=>`<option value="${esc(g)}"></option>`).join('')}</datalist>`;
  root.querySelector('.form-grid').prepend(label);
  const address=root.querySelector('[name=address]'),box=document.createElement('div');box.className='full';
  box.innerHTML='<button type="button" class="secondary">Vyhledat adresu</button><p class="subtle">Napište ulici a obec, potom vyberte adresu z výsledků. Vyhledání přes Photon / <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a>.</p><div role="status" aria-live="polite"></div>';
