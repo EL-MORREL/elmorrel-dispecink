@@ -1,6 +1,6 @@
 import {byName,searchText} from './selection-order.js?v=selection-1';
 import {setupJobFields,jobNotes} from './job-tools.js?v=selection-1';
-import {installPurchases} from './purchases.js?v=selection-1';
+import {installPurchases} from './purchases.js?v=purchase-save-1';
 import {accountLabel,roleLabel} from './worker-accounts.js?v=finance-detail-1';
 import {updateProfileIdentity} from './profile-identity.js?v=profile-identity-1';
 import {arrivalReviewMarkup,installArrivalReview} from './arrival-review.js?v=arrival-review-1';
@@ -231,5 +231,5 @@ const experience=installExperience({role:()=>role,guideRole:()=>remote.snapshot?
 
 matchMedia('(max-width:700px)').addEventListener('change',()=>{if(sessionUser&&page==='plan'&&!document.querySelector('dialog[open]'))render()});
 
-const purchasesUI=installPurchases({manager:isManager,state:()=>state,navigate:target=>{if($('dialog').open)$('dialog').close();page=target;render();window.scrollTo(0,0)},read:()=>remote.purchases(),save:async(action,p)=>{const result=await remote.purchases(action,p);adopt(await remote.refresh());render();return result}});
+const purchasesUI=installPurchases({manager:isManager,state:()=>state,navigate:target=>{if($('dialog').open)$('dialog').close();page=target;render();window.scrollTo(0,0)},read:()=>remote.purchases(),save:async(action,p)=>{let result;try{result=await remote.purchases(action,p)}catch(error){if(error.code!=='PT409')throw error;adopt(await remote.refresh());if(!((action==='save'||action==='supplier_save')&&!p.id))throw Error('Data mezitím změnil jiný uživatel. Rozpracované údaje zůstaly zachované; zkontrolujte je a zkuste uložit znovu.');result=await remote.purchases(action,p)}try{adopt(await remote.refresh())}catch{message('Záznam je uložený. Obnovení ostatních dat se nezdařilo.')}return result}});
 
