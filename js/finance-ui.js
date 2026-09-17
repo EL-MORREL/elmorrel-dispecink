@@ -1,7 +1,7 @@
 import {costReport} from './costs.js?v=purchases-1';
 import {esc,localDate,hours} from './data.js?v=overhead-unbilled-1';
-import {financeOverview,money,financeButton as button} from './finance-overview.js?v=purchases-1';
-import {readJobPreferences,writeJobPreferences} from './job-preferences.js?v=finance-detail-1';
+import {financeOverview,money,financeButton as button} from './finance-overview.js?v=shared-groups-1';
+import {readJobPreferences,writeJobPreferences} from './job-preferences.js?v=shared-groups-1';
 export function installFinance(ctx){
  const dialog=document.createElement('section');dialog.className='finance-page';let generation=0;
  let data,selected='',summary=false,tab='budget',from='',to='',search='',workerId='';

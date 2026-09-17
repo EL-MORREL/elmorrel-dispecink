@@ -1,4 +1,4 @@
-import {client} from './connection.js?v=purchases-1';
+import {client} from './connection.js?v=shared-groups-1';
 import {esc} from './data.js?v=jobs-read-1';
 export function installRegistration(){
  const panel=document.getElementById('login-panel'),login=document.getElementById('login-form');
