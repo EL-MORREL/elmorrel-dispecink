@@ -1,4 +1,4 @@
-import {client} from './connection.js?v=jobs-read-1';
+import {client} from './connection.js?v=purchases-1';
 import {esc} from './data.js?v=jobs-read-1';
 export function installCompanyMail(ctx){
  const dialog=document.createElement('dialog');dialog.className='operations-dialog';dialog.id='company-mail-dialog';dialog.innerHTML='<form><h2>E-maily firmy</h2><div class="mail-fields form-grid"></div><p class="mail-message" role="status"></p><div class="toolbar"><button type="button" data-mail="close" class="secondary">Zavřít</button><button class="primary">Uložit nastavení</button></div></form>';document.body.append(dialog);

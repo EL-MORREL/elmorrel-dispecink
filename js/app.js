@@ -16,10 +16,10 @@ import {decoratePlannerLayout} from './planner-layout.js?v=jobs-read-1';
 import {decorateRecordTables} from './record-layout.js?v=jobs-read-1';
 import {arrangeJobCards} from './job-card-layout.js?v=job-tools-1';
 import {installVehicleBlocks} from './vehicle-blocks.js?v=jobs-read-1';
-import {installRegistration} from './registration.js?v=jobs-read-1';
-import {installCompanyMail} from './company-mail.js?v=jobs-read-1';
-import {installOperations} from './operations.js?v=next-plan-1';
-import './passwords.js?v=jobs-read-1';
+import {installRegistration} from './registration.js?v=manual-time-1';
+import {installCompanyMail} from './company-mail.js?v=manual-time-1';
+import {installOperations} from './operations.js?v=manual-time-1';
+import './passwords.js?v=manual-time-1';
 import {invitationsEnabled} from './features.js?v=jobs-read-1';
 import {historicalRows,upgrade,bookings,jobTotals,saveAssignment,moveBooking,seed,DEMO_DAY,COLORS,uid,esc,dateKey,localDate,fmtHours,time,hours,safeColor,safeUrl,actual,mismatch,arrive,depart,reportRows} from './data.js?v=overhead-unbilled-1';
 import {client,createConnection} from './connection.js?v=purchases-1';
@@ -209,7 +209,7 @@ setInterval(refreshSafely,30000);let refreshTimer;const queueRefresh=()=>{clearT
 
 const arrivalReviewUI=installArrivalReview({state:()=>state,manager:isManager,version:()=>remote.snapshot?.company.version,run:runFeature});
 async function runFeature(a,p){if(saving)throw Error('Počkejte na uložení.');saving=true;try{adopt(await remote.feature(a,p));render();message('Uloženo.')}catch(e){try{adopt(await remote.refresh());render()}catch{}throw e}finally{saving=false}}
-const operationsUI=installOperations({foreman:()=>foreman,editJob:id=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());openJob(id)},finance:job=>financeUI.open(job),state:()=>state,manager:isManager,admin:()=>role==='admin',me:()=>me,run:runFeature,message,refresh:async()=>{adopt(await remote.refresh());render()},standardArrival:()=>openArrival(),standardDeparture:()=>action('standard-depart')});
+const operationsUI=installOperations({foreman:()=>foreman,editJob:id=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());openJob(id)},finance:job=>financeUI.open(job),state:()=>state,manager:isManager,directTime:()=>['owner','admin','dispatcher'].includes(remote.snapshot.membership.role),admin:()=>role==='admin',me:()=>me,run:runFeature,message,refresh:async()=>{adopt(await remote.refresh());render()},standardArrival:()=>openArrival(),standardDeparture:()=>action('standard-depart')});
 document.addEventListener('change',e=>{if(e.target.name==='billing-filter'){reportBilling=e.target.value;render()}if(e.target.name==='job-status'){jobFilter=e.target.value;render()}});
 
 const registration=installRegistration();
