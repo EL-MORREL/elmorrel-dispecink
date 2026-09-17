@@ -2,7 +2,7 @@ import {byName,searchText} from './selection-order.js?v=selection-1';
 import {costReport} from './costs.js?v=purchases-1';
 import {esc,localDate,hours} from './data.js?v=overhead-unbilled-1';
 import {financeOverview,money,financeButton as button} from './finance-overview.js?v=selection-1';
-import {readJobPreferences,writeJobPreferences} from './job-preferences.js?v=group-filter-fix-1';
+import {readJobPreferences,writeJobPreferences} from './job-preferences.js?v=group-recovery-1';
 export function installFinance(ctx){
  const dialog=document.createElement('section');dialog.className='finance-page';let generation=0;
  let data,selected='',summary=false,tab='budget',from='',to='',search='',workerId='';
