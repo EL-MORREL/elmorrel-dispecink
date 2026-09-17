@@ -1,5 +1,5 @@
 import {esc} from './data.js?v=jobs-read-1';
-import {readJobPreferences} from './job-preferences.js?v=selection-1';
+import {readJobPreferences} from './job-preferences.js?v=group-filter-fix-1';
 const cache=new Map();
 export function setupJobFields(root,state,user,id){
  const prefs=readJobPreferences(state,user),label=document.createElement('label');

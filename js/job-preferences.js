@@ -2,7 +2,7 @@ import {esc} from './data.js?v=jobs-read-1';
 export function billingBadge(state,a){const job=state.jobs.find(j=>j.id===a.job),billed=(state.extras?.billing||[]).some(b=>b.job_id===a.job&&b.date===a.date&&b.locked);return job?.status==='invoiced'||billed?`<span class="value-pill billing-badge">✓ ${job?.status==='invoiced'?'Celá zakázka vyfakturována':'Den vyfakturován'}</span>`:''}
 export function installJobPreferences(state,user,ctx={}){
  const grid=document.querySelector('#content .list-grid');if(!grid)return;const key='planner-job-preferences:'+user+':'+state.company.id;let prefs={filter:'all',sort:'name',group:'',groups:{},favorites:[]};try{Object.assign(prefs,JSON.parse(localStorage.getItem(key)||'{}'))}catch{}
- const legacyGroups={...prefs.groups};prefs.groups=Object.fromEntries(state.jobs.map(j=>[j.id,j.groupName||'']));
+ const legacyGroups={...prefs.groups};prefs.groups=Object.fromEntries(state.jobs.map(j=>[j.id,j.groupName||'']));if(prefs.group&&!Object.values(prefs.groups).includes(prefs.group))prefs.group='';
  const cards=[...grid.children].map(card=>({card,job:state.jobs.find(j=>j.id===card.dataset.jobId)})).filter(r=>r.job);
  const save=()=>{try{localStorage.setItem(key,JSON.stringify({...prefs,groups:legacyGroups}))}catch{}};
  let search='';const searchLabel=document.createElement('label');searchLabel.className='full';searchLabel.innerHTML='Vyhledat zakázku<input type="search" placeholder="Název nebo adresa…" autocomplete="off">';grid.before(searchLabel);searchLabel.querySelector('input').oninput=e=>{search=e.target.value;draw()};const normalize=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('cs');
@@ -15,5 +15,5 @@ export function installJobPreferences(state,user,ctx={}){
 
 }
 
-export function readJobPreferences(state,user){const prefs={filter:'all',sort:'name',group:'',groups:{},favorites:[]};try{Object.assign(prefs,JSON.parse(localStorage.getItem('planner-job-preferences:'+user+':'+state.company.id)||'{}'))}catch{}prefs.groups=Object.fromEntries(state.jobs.map(j=>[j.id,j.groupName||'']));return prefs}
+export function readJobPreferences(state,user){const prefs={filter:'all',sort:'name',group:'',groups:{},favorites:[]};try{Object.assign(prefs,JSON.parse(localStorage.getItem('planner-job-preferences:'+user+':'+state.company.id)||'{}'))}catch{}prefs.groups=Object.fromEntries(state.jobs.map(j=>[j.id,j.groupName||'']));if(prefs.group&&!Object.values(prefs.groups).includes(prefs.group))prefs.group='';return prefs}
 export function writeJobPreferences(state,user,prefs){try{const key='planner-job-preferences:'+user+':'+state.company.id,old=JSON.parse(localStorage.getItem(key)||'{}');localStorage.setItem(key,JSON.stringify({...prefs,groups:old.groups||{}}))}catch{}}
