@@ -1,3 +1,4 @@
+import {holidayName} from './holidays.js?v=finance-categories-1';
 import {byName,searchText} from './selection-order.js?v=selection-1';
 import {nextPlanTime} from './next-plan-time.js?v=next-plan-1';
 import {blockingAbsences,absenceMessage} from './absence-planning.js?v=absence-notes-1';
@@ -10,7 +11,7 @@ const select=(n,l,rows,value='')=>`<label>${l}<select name="${n}">${byName(rows)
 const check=(n,l,on=false)=>`<label class="op-check"><input type="checkbox" name="${n}" ${on?'checked':''}>${l}</label>`;
 const dt=v=>v?new Date(new Date(v)-new Date(v).getTimezoneOffset()*60000).toISOString().slice(0,16):'';
 export function daysBetween(from,to){const out=[];let d=new Date(from+'T12:00:00');const end=new Date(to+'T12:00:00');if(!Number.isFinite(+d)||!Number.isFinite(+end)||d>end)throw Error('Zkontrolujte období.');while(d<=end){out.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);d.setDate(d.getDate()+1);if(out.length>366)throw Error('Vyberte nejvýše jeden rok.')}return out}
-export function workday(day,week=[1,2,3,4,5]){const d=new Date(day+'T12:00:00'),y=d.getFullYear();if(!week.includes(d.getDay()||7))return false;if(['01-01','05-01','05-08','07-05','07-06','09-28','10-28','11-17','12-24','12-25','12-26'].includes(day.slice(5)))return false;const a=y%19,b=Math.floor(y/100),c=y%100,h=(19*a+b-Math.floor(b/4)-Math.floor((b-Math.floor((b+8)/25)+1)/3)+15)%30,l=(32+2*(b%4)+2*Math.floor(c/4)-h-c%4)%7,m=Math.floor((a+11*h+22*l)/451),n=h+l-7*m+114,e=new Date(y,Math.floor(n/31)-1,n%31+1,12);return ![-2,1].some(x=>{const t=new Date(e);t.setDate(t.getDate()+x);return +t===+d})}
+export function workday(day,week=[1,2,3,4,5]){return week.includes(new Date(day+'T12:00:00Z').getUTCDay()||7)&&!holidayName(day)}
 export function scheduleConflicts(assignments,workers,dates,start,hours){
  const minute=(date,time)=>Date.parse(date+'T00:00:00Z')/60000+Number((time||'07:00').slice(0,2))*60+Number((time||'07:00').slice(3,5));
  const length=Number(hours)*60;
