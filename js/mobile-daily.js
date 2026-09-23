@@ -1,6 +1,6 @@
 import {dayBadge,holidayName} from './holidays.js?v=finance-categories-1';
 import {blockingAbsences} from './absence-planning.js?v=absence-notes-1';
-import {jobNotes} from './job-tools.js?v=group-recovery-1';
+import {jobNotes} from './job-tools.js?v=job-tasks-1';
 import {arrivalReviewMarkup} from './arrival-review.js?v=arrival-review-1';
 import {billingBadge} from './job-preferences.js?v=group-recovery-1';
 import {avatar,glyph,teamMarkup,plannedTime} from './daily-details.js?v=jobs-read-1';
