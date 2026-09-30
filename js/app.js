@@ -1,4 +1,4 @@
-import {installOverview} from './overview.js?v=overview-day-1';
+import {installOverview} from './overview.js?v=overview-columns-2';
 import {filteredFuel,fuelDate} from './fuel-filters.js?v=fuel-filters-1';
 import {installOverheads} from './overheads.js?v=overheads-auto-1';
 import {byStart} from './plan-order.js?v=plan-order-1';
