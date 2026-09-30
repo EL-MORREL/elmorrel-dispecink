@@ -3,7 +3,7 @@ import {purchaseShares} from './purchase-shares.js?v=purchase-allocations-1';
 import {byName,searchText} from './selection-order.js?v=selection-1';
 import {costReport} from './costs.js?v=purchase-allocations-1';
 import {esc,localDate,hours} from './data.js?v=overhead-unbilled-1';
-import {financeOverview,money,financeButton as button} from './finance-overview.js?v=finance-categories-1';
+import {financeOverview,money,financeButton as button} from './finance-overview.js?v=overheads-1';
 import {readJobPreferences,writeJobPreferences} from './job-preferences.js?v=group-recovery-1';
 export function installFinance(ctx){
  const dialog=document.createElement('section');dialog.className='finance-page';let generation=0;
@@ -56,6 +56,6 @@ export function installFinance(ctx){
   }
   wireSave(form,kind==='kind'?'job_kind':kind.endsWith('_month')?kind:'save',f=>{const p=Object.fromEntries(f);p.kind=kind;if(form.elements.job?.disabled)p.job=form.elements.job.value;if(form.elements.worker?.disabled)p.worker=form.elements.worker.value;if(id){p.id=id;if(e.job_id)p.job=e.job_id;if(e.worker_id)p.worker=e.worker_id}if(kind==='invoice'){if(p.daysFrom&&p.daysTo&&p.daysFrom>p.daysTo)throw Error('Zkontrolujte období.');p.dates=form.selectedInvoiceDays();p.purchases=f.getAll('purchases');p.allocations_version=1}if(kind==='kind')p.overhead=f.has('overhead');if(p.month)p.month+='-01';if(itemized){p.line_items=lineValues();if(p.line_items.some(x=>!x.name||!Number.isFinite(x.amount)))throw Error('Vyplňte název každé oceněné položky.')}delete p.daysFrom;delete p.daysTo;return p});
  }
- dialog.addEventListener('click',event=>{const el=event.target.closest('[data-finance]');if(!el)return;try{const a=el.dataset.finance,id=el.dataset.id,job=el.dataset.job||selected;if(a==='purchases'){ctx.purchases(job);return}if(a==='close'){ctx.navigate('workers');return}if(a==='reload'){begin(selected,workerId);return}if(a==='overview'){selected='';render()}else if(a==='back')render();else if(a==='job'){selected=id;tab='budget';render()}else if(a==='tab'){tab=id;render()}else if(a==='summary'){summary=!summary;render()}else if(a==='clear-period'){from=to='';render()}else if(a==='delete')remove(id);else if(a==='job_status')jobStatus(job);else edit(a,id,job)}catch(e){fail(e)}});
+ dialog.addEventListener('click',event=>{const el=event.target.closest('[data-finance]');if(!el)return;try{const a=el.dataset.finance,id=el.dataset.id,job=el.dataset.job||selected;if(a==='overheads'){ctx.overheads();return}if(a==='purchases'){ctx.purchases(job);return}if(a==='close'){ctx.navigate('workers');return}if(a==='reload'){begin(selected,workerId);return}if(a==='overview'){selected='';render()}else if(a==='back')render();else if(a==='job'){selected=id;tab='budget';render()}else if(a==='tab'){tab=id;render()}else if(a==='summary'){summary=!summary;render()}else if(a==='clear-period'){from=to='';render()}else if(a==='delete')remove(id);else if(a==='job_status')jobStatus(job);else edit(a,id,job)}catch(e){fail(e)}});
  return {open,worker,mount,reset};
 }
