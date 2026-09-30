@@ -1,4 +1,4 @@
-import {installOverheads} from './overheads.js?v=overheads-1';
+import {installOverheads} from './overheads.js?v=overheads-auto-1';
 import {byStart} from './plan-order.js?v=plan-order-1';
 import {createPlannerMemory} from './planner-memory.js?v=planner-position-1';
 import {installJobTasks} from './job-tasks.js?v=job-tasks-1';
@@ -234,7 +234,7 @@ const vehicleBlocks=installVehicleBlocks({state:()=>state,manager:isManager,run:
 
 
 const overheadsUI=installOverheads({remote,state:()=>state,admin:()=>role==='admin',navigate:target=>{page=target;render();window.scrollTo(0,0)}});
-const financeUI=installFinance({overheads:()=>overheadsUI.open(),purchases:job=>purchasesUI.open(job),navigate:target=>{if($('dialog').open)$('dialog').close();page=target;render();window.scrollTo(0,0)},user:()=>sessionUser,admin:()=>role==='admin',state:()=>state,message,read:()=>remote.finance(),save:async(action,p)=>{const data=await remote.finance(action,p);adopt(await remote.refresh());render();return data}});
+const financeUI=installFinance({overheads:()=>overheadsUI.open(),purchases:job=>purchasesUI.open(job),navigate:target=>{if($('dialog').open)$('dialog').close();page=target;render();window.scrollTo(0,0)},user:()=>sessionUser,admin:()=>role==='admin',state:()=>state,message,read:async()=>{const data=await overheadsUI.finance();adopt(await remote.refresh());return data},save:async(action,p)=>{const data=await remote.finance(action,p);adopt(await remote.refresh());render();return data}});
 const experience=installExperience({role:()=>role,guideRole:()=>remote.snapshot?.membership.role,version:()=>remote.snapshot?.company.version,user:()=>sessionUser,me:()=>me,state:()=>state,render,message,shared:()=>remote.sharedPlan(),audit:()=>remote.audit(),pin:(w,value)=>remote.pin(w,value)});
 
 
