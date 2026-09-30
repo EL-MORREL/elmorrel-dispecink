@@ -1,4 +1,4 @@
-import {installOverview} from './overview.js?v=overview-1';
+import {installOverview} from './overview.js?v=overview-day-1';
 import {filteredFuel,fuelDate} from './fuel-filters.js?v=fuel-filters-1';
 import {installOverheads} from './overheads.js?v=overheads-auto-1';
 import {byStart} from './plan-order.js?v=plan-order-1';
@@ -273,4 +273,4 @@ const plannerMemory=createPlannerMemory({
 async function refreshFuel(){if(fuelRefreshing||saving||!sessionUser)return;fuelRefreshing=true;const generation=sessionGeneration;try{const next=await remote.refresh();if(generation!==sessionGeneration)return;adopt(next);if(page==='fuel')render();message('Tankování a oprávnění jsou aktuální.')}finally{fuelRefreshing=false;if(page==='fuel'&&generation===sessionGeneration)render()}}
 document.addEventListener('change',e=>{if(page!=='fuel'||!e.target.closest('.fuel-filters'))return;const key=e.target.name.replace('fuel-','');if(!Object.hasOwn(fuelFilters,key))return;fuelFilters[key]=e.target.value;if(key==='month'){fuelFilters.from='';fuelFilters.to=''}else if(key==='from'||key==='to')fuelFilters.month='';render()});
 
-const overviewUI=installOverview({state:()=>state,me:()=>me,manager:isManager,admin:()=>role==='admin',foreman:()=>foreman,documents,identity:()=>sessionUser+':'+remote.companyId+':'+remote.snapshot?.company.version,active:()=>page==='overview',finance:()=>remote.finance()});
+const overviewUI=installOverview({state:()=>state,me:()=>me,manager:isManager,admin:()=>role==='admin',foreman:()=>foreman,documents,identity:()=>sessionUser+':'+remote.companyId+':'+remote.snapshot?.company.version,active:()=>page==='overview',finance:()=>remote.finance(),purchases:()=>remote.purchases()});
