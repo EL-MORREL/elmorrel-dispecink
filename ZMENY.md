@@ -30,3 +30,13 @@ Automatické testy běží nad samostatnou PostgreSQL databází PGlite a v proh
 Částečné volno s časem od–do blokuje pouze daný úsek; bez času blokuje celý den. Změna délky směny může ovlivnit přepočet historických hodin volna na dny; hodinové záznamy zůstávají zachované. Úprava série mění začátek a hodiny; přesun termínů se provádí na konkrétních přiřazeních.
 
 Tato aktualizace nezavádí placení předplatného ani ukládání PINů tankovacích karet.
+
+24. 9. 2026 — dispatcher-access-1: sjednocena provozní oprávnění dispečera pro úpravy a mazání docházky/tankování, odebrání přiřazení na desktopu i mobilu a provozní nastavení. Finanční a účtová oprávnění zůstávají oddělená. Migrace 048, testy databáze i rozhraní prošly.
+
+25. 9. 2026 — planner-position-1: plánovač zachovává období, zobrazení a posunutí po uložení i dalším otevření ve stejném prohlížeči; samostatná paměť uživatele a firmy, desktopu a mobilu.
+
+25. 9. 2026 — readable-history-1: skutečné role pracovníků v desktopovém a mobilním plánovači; historie s českými popisy, autorem a hodnotami před/po místo technického výpisu. Migrace 049.
+
+25. 9. 2026 — absence-cancel-1: návrat Tento týden na desktopu; Zrušit volno přímo v plánu a přehledu, zachování historie a správné vrácení hodin dovolené. Migrace 050.
+
+30. 9. 2026: Modul Režijní náklady, pravidelné předpisy a jednorázové náklady, měsíční rozpočítání do zakázek; pouze administrátor.
