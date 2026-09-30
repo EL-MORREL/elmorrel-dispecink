@@ -1,3 +1,4 @@
+import {installOverview} from './overview.js?v=overview-1';
 import {filteredFuel,fuelDate} from './fuel-filters.js?v=fuel-filters-1';
 import {installOverheads} from './overheads.js?v=overheads-auto-1';
 import {byStart} from './plan-order.js?v=plan-order-1';
@@ -37,7 +38,7 @@ const $=id=>document.getElementById(id),KEY='planner-design-v3';
 let state=upgrade(seed());
 for(const key of ['workers','jobs','vehicles','assignments','attendance','fuel','vehicleBookings','skills'])state[key]=[];
 let dragging=null,planScope=null;
-let role='dispatcher',page='plan',weekOffset=0,view='workers',showWeekend=false,todayOnly=false,dayOffset=0,dialogMode=null,dialogId=null,returnFocus=null,reportMode='workers',reportBilling='all',reportMonth=DEMO_DAY.slice(0,7),reportJob='',reportWorker='',query='';
+let role='dispatcher',page='overview',weekOffset=0,view='workers',showWeekend=false,todayOnly=false,dayOffset=0,dialogMode=null,dialogId=null,returnFocus=null,reportMode='workers',reportBilling='all',reportMonth=DEMO_DAY.slice(0,7),reportJob='',reportWorker='',query='';
 let attendanceMonth='',attendanceWorker='',attendanceJob='';
 let fuelFilters={vehicle:'',worker:'',month:'',from:'',to:''},fuelRefreshing=false;
 const fuelRows=()=>filteredFuel(state.fuel,fuelFilters,isManager(),me);
@@ -46,17 +47,17 @@ const dateLabel=date=>new Date(date+'T12:00:00').toLocaleDateString('cs-CZ'),ini
 const btn=(action,text,cls='secondary',id='')=>`<button type="button" class="${cls}" data-action="${action}" data-id="${esc(id)}">${text}</button>`,opts=table=>byName(state[table]).map(x=>[x.id,x.name]),message=s=>{$('status').textContent=s},openWork=()=>state.attendance.find(t=>t.worker===me&&!t.end);
 function adopt(next){state=next;for(const entry of state.extras?.workerRoles||[]){const w=state.workers.find(w=>w.id===entry.worker_id);if(w)w.role=entry.role}foreman=remote.snapshot.membership.role==='foreman';const m=remote.snapshot.membership;me=m.worker_id;role=['owner','admin'].includes(m.role)?'admin':['dispatcher','editor'].includes(m.role)?'dispatcher':'worker';$('role').value=foreman?'foreman':role;}
 async function persist(note){if(saving)return;saving=true;message('Ukládám…');try{adopt(await remote.save(state));render();message(note||'Uloženo.')}catch(error){try{adopt(await remote.refresh());render()}catch{}message(error.message)}finally{saving=false}}
-function hideSession(){fuelFilters={vehicle:'',worker:'',month:'',from:'',to:''};plannerMemory.reset();overheadsUI.reset();jobTasksUI.reset();attendanceMonth='';attendanceWorker='';attendanceJob='';sessionGeneration++;loadingSession=false;$('login-submit').disabled=false;planScope=null;document.querySelectorAll('dialog[open]').forEach(d=>d.close());experience.reset();financeUI.reset();purchasesUI.reset();page='plan';vehicleBlocks.reset();registration.reset();companyMail.reset();remote.clear();sessionUser=null;me=null;document.querySelector('.shell').hidden=true;$('mobile-nav').hidden=true;$('login-panel').hidden=false;if($('dialog').open)$('dialog').close();document.querySelector('.operations-dialog')?.close();document.getElementById('operations-bar')?.remove();$('content').replaceChildren();state={};}
+function hideSession(){overviewUI.reset();fuelFilters={vehicle:'',worker:'',month:'',from:'',to:''};plannerMemory.reset();overheadsUI.reset();jobTasksUI.reset();attendanceMonth='';attendanceWorker='';attendanceJob='';sessionGeneration++;loadingSession=false;$('login-submit').disabled=false;planScope=null;document.querySelectorAll('dialog[open]').forEach(d=>d.close());experience.reset();financeUI.reset();purchasesUI.reset();page='overview';vehicleBlocks.reset();registration.reset();companyMail.reset();remote.clear();sessionUser=null;me=null;document.querySelector('.shell').hidden=true;$('mobile-nav').hidden=true;$('login-panel').hidden=false;if($('dialog').open)$('dialog').close();document.querySelector('.operations-dialog')?.close();document.getElementById('operations-bar')?.remove();$('content').replaceChildren();state={};}
 
-const menu=[['plan','calendar','Plánovač'],['attendance','clock','Docházka'],['jobs','file','Zakázky'],['workers','users','Pracovníci'],['vehicles','car','Vozidla'],['fuel','fuel','Tankování'],['reports','file','Výkazy'],['settings','settings','Nastavení firmy']];
+const menu=[['overview','home','Přehled'],['plan','calendar','Plánovač'],['attendance','clock','Docházka'],['jobs','file','Zakázky'],['workers','users','Pracovníci'],['vehicles','car','Vozidla'],['fuel','fuel','Tankování'],['reports','file','Výkazy'],['settings','settings','Nastavení firmy']];
 function render(){
  plannerMemory.before();
  updateProfileIdentity(document.querySelector('.profile .avatar'),state.workers,me);
- const allowed=role==='worker'?['plan','attendance','jobs','fuel','profile']:role==='admin'?[...menu.map(m=>m[0]),'finance','purchases','overheads']:[...menu.map(m=>m[0]),'purchases'];
- if(!allowed.includes(page))page='plan';
- const entries=role==='worker'?[['plan','home','Můj den'],['attendance','clock','Moje docházka'],['jobs','file','Zakázky'],['fuel','fuel','Moje tankování'],['profile','users','Profil']]:menu.filter(m=>allowed.includes(m[0]));
+ const allowed=role==='worker'?['overview','plan','attendance','jobs','fuel','profile']:role==='admin'?[...menu.map(m=>m[0]),'finance','purchases','overheads']:[...menu.map(m=>m[0]),'purchases'];
+ if(!allowed.includes(page))page='overview';
+ const entries=role==='worker'?[['overview','home','Přehled'],['plan','calendar','Můj den'],['attendance','clock','Moje docházka'],['jobs','file','Zakázky'],['fuel','fuel','Moje tankování'],['profile','users','Profil']]:menu.filter(m=>allowed.includes(m[0]));
  $('navigation').innerHTML=entries.map(([p,i,n])=>btn('nav',icon(i)+n,`nav-item ${page===p?'active':''}`,p)).join('');
- $('mobile-nav').innerHTML=entries.filter(m=>['plan','attendance','fuel','profile','reports'].includes(m[0])).map(([p,i,n])=>btn('nav',icon(i)+n,page===p?'active':'',p)).join('');
+ $('mobile-nav').innerHTML=entries.filter(m=>['overview','plan','attendance','fuel'].includes(m[0])).map(([p,i,n])=>btn('nav',icon(i)+n,page===p?'active':'',p)).join('');
  $('mobile-nav').insertAdjacentHTML('beforeend',btn('more','<span aria-hidden="true">•••</span>Více'));
  if(isManager())$('navigation').insertAdjacentHTML('beforeend',btn('purchases',icon('file')+' Nákupy a dodavatelé',`nav-item ${page==='purchases'?'active':''}`));if(role==='admin')$('navigation').insertAdjacentHTML('beforeend',btn('finance',icon('money')+' Finance zakázek',`nav-item ${page==='finance'?'active':''}`));
  if(role==='admin')$('navigation').insertAdjacentHTML('beforeend',btn('overheads',icon('money')+' Režijní náklady',`nav-item ${page==='overheads'?'active':''}`));
@@ -67,7 +68,7 @@ function render(){
  $('brand-name').textContent=state.company.name;$('brand-logo').innerHTML=state.company.logo?`<img alt="Logo firmy" src="${esc(state.company.logo)}">`:'';
  const active=openWork();document.querySelector('[data-action=arrive]').disabled=!me||!!active;document.querySelector('[data-action=depart]').disabled=!me||!active;document.querySelector('.workbar [data-action=fuel]').disabled=!me&&!['owner','admin','dispatcher'].includes(remote.snapshot.membership.role);
  $('switch-job').hidden=!active;$('work-state').innerHTML=active?`<span class="online-dot"></span>V práci od <strong>${time(active.start)}</strong> · ${esc(label('jobs',active.job))}`:'Příchod není zaznamenaný';
- if(page==='plan')renderPlan();if(page==='finance')financeUI.mount();if(page==='overheads')overheadsUI.mount();if(page==='purchases')purchasesUI.mount();
+ if(page==='overview')overviewUI.mount();if(page==='plan')renderPlan();if(page==='finance')financeUI.mount();if(page==='overheads')overheadsUI.mount();if(page==='purchases')purchasesUI.mount();
  if(page==='jobs')renderJobs();if(page==='workers')renderWorkers();if(page==='vehicles')renderVehicles();if(page==='attendance')renderAttendance();if(page==='fuel')renderFuel();if(page==='reports'){renderReports();$('content').insertAdjacentHTML('afterbegin',btn('worker-export','Měsíční výkaz pracovníka','secondary'));}if(page==='settings')renderSettings();if(page==='profile')renderProfile();operationsUI.decorate(page);vehicleBlocks.decorate();if(page==='jobs'){arrangeJobCards();installJobPreferences(state,sessionUser,{canEdit:['owner','admin','dispatcher'].includes(remote.snapshot.membership.role),admin:role==='admin',saveGroups:async groups=>{const next=structuredClone(state);for(const j of next.jobs)if(Object.hasOwn(groups,j.id))j.groupName=groups[j.id];adopt(await remote.save(next));render()},error:message});}if(page==='attendance'||page==='fuel')decorateRecordTables();if(page==='plan'){decoratePlannerLayout(render,sessionUser);decoratePlanActions(state);}experience.decorate(page);plannerMemory.after(page==='plan');
 }
 function heading(title,sub,actions=''){return `<div class="page-heading"><div><h1>${title}</h1><p class="subtle">${sub}</p></div><div class="toolbar">${actions}</div></div>`}
@@ -265,3 +266,5 @@ const plannerMemory=createPlannerMemory({
 
 async function refreshFuel(){if(fuelRefreshing||saving||!sessionUser)return;fuelRefreshing=true;const generation=sessionGeneration;try{const next=await remote.refresh();if(generation!==sessionGeneration)return;adopt(next);if(page==='fuel')render();message('Tankování a oprávnění jsou aktuální.')}finally{fuelRefreshing=false;if(page==='fuel'&&generation===sessionGeneration)render()}}
 document.addEventListener('change',e=>{if(page!=='fuel'||!e.target.closest('.fuel-filters'))return;const key=e.target.name.replace('fuel-','');if(!Object.hasOwn(fuelFilters,key))return;fuelFilters[key]=e.target.value;if(key==='month'){fuelFilters.from='';fuelFilters.to=''}else if(key==='from'||key==='to')fuelFilters.month='';render()});
+
+const overviewUI=installOverview({state:()=>state,me:()=>me,manager:isManager,admin:()=>role==='admin',foreman:()=>foreman,documents,identity:()=>sessionUser+':'+remote.companyId+':'+remote.snapshot?.company.version,active:()=>page==='overview',finance:()=>remote.finance()});
