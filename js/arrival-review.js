@@ -39,7 +39,7 @@ export function installArrivalReview(ctx){
    e.preventDefault();error.textContent='';const f=new FormData(e.currentTarget),ids=f.getAll('records');
    if(!ids.length){error.textContent='Vyberte alespoň jeden záznam.';return}
    // Resolve times in the same local day as the displayed attendance record.
-   const items=ids.map(id=>{const t=rows.find(t=>t.id===id);const start=new Date(t.start);if(mode==='edit'){const [h,m]=String(f.get('start-'+id)).split(':').map(Number);start.setHours(h,m,0,0)}return {id,start:start.toISOString(),...(mode==='edit'?{end:f.get('end-'+id)?new Date(String(f.get('end-'+id))).toISOString():null}:{})}});
+   const items=ids.map(id=>{const t=rows.find(t=>t.id===id);const start=new Date(t.start);if(mode==='edit'&&f.get('start-'+id)!==time(t.start)){const [h,m]=String(f.get('start-'+id)).split(':').map(Number);start.setHours(h,m,0,0)}return {id,start:start.toISOString(),...(mode==='edit'?{end:f.get('end-'+id)===(t.end?localDate(t.end)+'T'+time(t.end):'')?t.end||null:f.get('end-'+id)?new Date(String(f.get('end-'+id))).toISOString():null}:{})}});
    dialog.querySelectorAll('button').forEach(b=>b.disabled=true);
    try{await ctx.run('review_arrivals',{mode,fields:f.get('scope')||'start',job,date,expectedVersion,source:f.get('source'),reason:f.get('reason'),items});dialog.close()}
    catch(e){error.textContent=e.message}
