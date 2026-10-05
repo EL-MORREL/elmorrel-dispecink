@@ -1,5 +1,5 @@
-import {attendanceOverlaps} from './overlap-repair.js?v=overlap-repair-1';
-import {missingAttendance} from './missing-attendance.js?v=missing-attendance-1';
+import {attendanceOverlaps} from './overlap-repair.js?v=attendance-replace-1';
+import {missingAttendance} from './missing-attendance.js?v=attendance-replace-1';
 import {pragueToday} from './arrival-order.js?v=jobs-read-1';
 export function attendanceChecks(state,from='',to=pragueToday()){
  const date=s=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Prague'}).format(new Date(s)),issues=[],seen=new Set();

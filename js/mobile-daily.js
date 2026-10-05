@@ -1,4 +1,4 @@
-import {missingAttendanceMarkup} from './missing-attendance.js?v=missing-attendance-1';
+import {missingAttendanceMarkup} from './missing-attendance.js?v=attendance-replace-1';
 import {byStart} from './plan-order.js?v=plan-order-1';
 import {roleLabel} from './worker-accounts.js?v=finance-detail-1';
 import {dayBadge,holidayName} from './holidays.js?v=finance-categories-1';
