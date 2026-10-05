@@ -1,1 +1,5 @@
 .purchases-page .list-card.purchase-alert{background:#fff0f0;border:2px solid #dc6060;color:#542020}.purchases-page .list-card.purchase-listed{background:#fff8d6;border:2px solid #d2aa25;color:#483d16}.purchases-page .purchase-warning{font-weight:600;color:#b42318}.purchases-page [data-purchase-status]{width:100%;margin:6px 0 12px}.purchases-page [data-purchase-card]{min-width:0;overflow-wrap:anywhere}
+
+.purchases-page .list-card.purchase-returned{background:#ddfaf7;border:2px solid #19a89d;color:#164c48}.purchases-page .list-card.purchase-ready{background:#e7f8e9;border:2px solid #42a854;color:#22492a}
+
+#purchase-status-settings fieldset{border:1px solid #d6e1ee;border-radius:10px;padding:16px;margin:0 0 12px}#purchase-status-settings input[type=color]{height:42px;width:100%}
