@@ -1,4 +1,4 @@
-import {auditMarkup} from './audit-labels.js?v=driver-reports-1';
+import {auditMarkup} from './audit-labels.js?v=inline-reports-1';
 import {byName} from './selection-order.js?v=selection-1';
 import {attendanceChecks} from './checks.js?v=jobs-read-1';
 import {esc,reportRows,localDate} from './data.js?v=overhead-unbilled-1';
