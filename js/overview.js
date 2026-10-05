@@ -1,3 +1,4 @@
+import {driverMarkup} from './driver-labels.js?v=visible-drivers-1';
 import {fuelDate} from './fuel-filters.js?v=fuel-filters-1';
 import {allocationsOf} from './purchase-shares.js?v=purchase-allocations-1';
 import {esc,fmtHours,hours,localDate,safeColor} from './data.js?v=overhead-unbilled-1';
@@ -45,7 +46,7 @@ export function installOverview(ctx){
   const list=(rows,draw)=>rows.length?'<div class="overview-records">'+rows.map(draw).join('')+'</div>':'<p class="subtle">Pro tento den nejsou záznamy.</p>';
   grid.insertAdjacentHTML('beforeend','<section class="overview-panel"><h2>Docházka za den</h2>'+list(dayAttendance,a=>'<article><strong>'+esc(name(a.worker))+'</strong><p>'+esc(s.jobs.find(j=>j.id===a.job)?.name||'Bez zakázky')+'</p><p>'+clock(a.start)+' – '+(a.end?clock(a.end):'Odchod nezapsán')+(a.end?' · '+fmtHours(hours(a))+' h':'')+'</p></article>')+nav('attendance','Otevřít docházku')+'</section><section class="overview-panel"><h2>Tankování vozidel</h2>'+list(dayFuel,f=>'<article><strong>'+esc(f.vehicle?s.vehicles.find(v=>v.id===f.vehicle)?.name||'Vozidlo':'Soukromé vozidlo')+'</strong><p>'+esc(name(f.worker))+' · '+clock(f.at)+'</p><p>'+esc(f.note||'')+'</p></article>')+nav('fuel','Otevřít tankování')+'</section><section class="overview-panel"><h2>Volno a dovolené</h2>'+list(absences,a=>'<article><strong>'+esc(name(a.worker_id))+'</strong><p>'+esc(s.extras.absenceTypes?.find(t=>t.id===a.type_id)?.name||'Volno')+' · '+fmtHours(Number(a.hours)||0)+' h · '+(a.status==='approved'?'Schváleno':'Čeká na schválení')+'</p></article>')+'<button type="button" data-action="notifications">Žádosti a upozornění</button></section>');
   const vehicleRows=s.vehicleBookings.filter(b=>b.date===today&&(manager||own.some(a=>a.job===b.job)));
-  grid.insertAdjacentHTML('beforeend','<section class="overview-panel"><h2>Vozidla v plánu</h2>'+list(vehicleRows,b=>'<article><strong>'+esc(s.vehicles.find(v=>v.id===b.vehicle)?.name||'Vozidlo')+'</strong><p>'+esc(s.jobs.find(j=>j.id===b.job)?.name||'Zakázka')+' · '+fmtHours(Number(b.hours)||0)+' h</p></article>')+nav('plan','Otevřít plánovač')+'</section>');
+  grid.insertAdjacentHTML('beforeend','<section class="overview-panel"><h2>Vozidla v plánu</h2>'+list(vehicleRows,b=>'<article><strong>'+esc(s.vehicles.find(v=>v.id===b.vehicle)?.name||'Vozidlo')+'</strong><p>'+esc(s.jobs.find(j=>j.id===b.job)?.name||'Zakázka')+' · '+fmtHours(Number(b.hours)||0)+' h</p>'+driverMarkup(b)+'</article>')+nav('plan','Otevřít plánovač')+'</section>');
   if(manager){
    grid.insertAdjacentHTML('beforeend','<section class="overview-panel" id="overview-purchases" aria-live="polite"><h2>Objednávky za den</h2><p>Načítám objednávky…</p></section>');
    const key=ctx.identity(),token=epoch;
