@@ -1,4 +1,6 @@
 import {holidayName} from './holidays.js?v=finance-categories-1';
+export function workedDays(rows){return new Set(rows.filter(r=>Number(r.hours)>0).map(r=>(r.workerId||r.worker)+'|'+r.date)).size;}
+export function workedDaysLabel(count){return count+' '+(count===1?'den':count>=2&&count<=4?'dny':'dnů');}
 export function monthWorkdays(month){
  if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(month))return null;
  const [year,m]=month.split('-').map(Number);if(year<1583)return null;
