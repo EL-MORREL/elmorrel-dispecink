@@ -21,7 +21,7 @@ import {billingBadge,installJobPreferences,readJobPreferences,writeJobPreference
 import {renderMobileDaily,getMobilePlanState,setMobilePlanState} from './mobile-daily.js?v=missing-attendance-1';
 import {contactMarkup,decoratePlanActions} from './plan-usability.js?v=jobs-read-1';
 import {sendInvitation} from './invitations.js?v=invite-1';
-import {installExperience} from './experience.js?v=attendance-checks-2';
+import {installExperience} from './experience.js?v=overlap-repair-1';
 import {installFinance} from './finance-ui.js?v=overheads-1';
 import {rememberLogin,remembered} from './session-storage.js?v=jobs-read-1';
 import './planner-scroll.js?v=scroll-1';
@@ -269,7 +269,7 @@ const vehicleBlocks=installVehicleBlocks({state:()=>state,manager:isManager,run:
 
 const overheadsUI=installOverheads({remote,state:()=>state,admin:()=>role==='admin',navigate:target=>{page=target;render();window.scrollTo(0,0)}});
 const financeUI=installFinance({overheads:()=>overheadsUI.open(),purchases:job=>purchasesUI.open(job),navigate:target=>{if($('dialog').open)$('dialog').close();page=target;render();window.scrollTo(0,0)},user:()=>sessionUser,admin:()=>role==='admin',state:()=>state,message,read:async()=>{const data=await overheadsUI.finance();adopt(await remote.refresh());return data},save:async(action,p)=>{const data=await remote.finance(action,p);adopt(await remote.refresh());render();return data}});
-const experience=installExperience({requestAttendance:id=>attendanceFollowupUI.request(id),role:()=>role,guideRole:()=>remote.snapshot?.membership.role,version:()=>remote.snapshot?.company.version,user:()=>sessionUser,me:()=>me,state:()=>state,render,message,shared:()=>remote.sharedPlan(),audit:()=>remote.audit(),pin:(w,value)=>remote.pin(w,value)});
+const experience=installExperience({run:runFeature,requestAttendance:id=>attendanceFollowupUI.request(id),role:()=>role,guideRole:()=>remote.snapshot?.membership.role,version:()=>remote.snapshot?.company.version,user:()=>sessionUser,me:()=>me,state:()=>state,render,message,shared:()=>remote.sharedPlan(),audit:()=>remote.audit(),pin:(w,value)=>remote.pin(w,value)});
 
 
 matchMedia('(max-width:700px)').addEventListener('change',()=>{if(sessionUser&&page==='plan'&&!document.querySelector('dialog[open]'))render()});

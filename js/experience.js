@@ -1,11 +1,13 @@
+import {overlapMarkup,installOverlapRepair} from './overlap-repair.js?v=overlap-repair-1';
 import {auditMarkup} from './audit-labels.js?v=inline-reports-1';
 import {byName} from './selection-order.js?v=selection-1';
-import {attendanceChecks} from './checks.js?v=attendance-checks-2';
+import {attendanceChecks} from './checks.js?v=overlap-repair-1';
 import {esc,reportRows,localDate} from './data.js?v=overhead-unbilled-1';
 export function installExperience(ctx){
  const dialog=document.createElement('dialog');document.body.append(dialog);
  const button=(a,t)=>`<button type="button" data-experience="${a}">${t}</button>`;
  function show(title,body){dialog.innerHTML=`<div class="dialog-heading"><h2>${title}</h2>${button('close','Zavřít')}</div><div class="panel-content">${body}</div>`;if(!dialog.open)dialog.showModal()}
+ const overlapUI=installOverlapRepair({state:ctx.state,manager:()=>['admin','dispatcher'].includes(ctx.role()),run:ctx.run,message:ctx.message,done:()=>checks()});
  const key=()=>`planner-preferences:${ctx.user()}`;
  function prefs(){try{return JSON.parse(localStorage.getItem(key())||'{}')}catch{return {}}}
  function apply(){const p=prefs();document.documentElement.dataset.theme=p.theme||'light';document.documentElement.dataset.density=p.density||'normal'}
@@ -14,9 +16,9 @@ export function installExperience(ctx){
  function checks(){
   if(!['admin','dispatcher'].includes(ctx.role()))return;
   show('Kontrola docházky','<p>Porovnání minulých plánů se skutečnou docházkou, včetně starších měsíců.</p><div class="form-grid"><label>Od<input type="date" data-check-from></label><label>Do<input type="date" data-check-to></label></div><div data-check-rows></div>');
-  const draw=()=>{const s=ctx.state(),rows=attendanceChecks(s,dialog.querySelector('[data-check-from]').value,dialog.querySelector('[data-check-to]').value||undefined);dialog.querySelector('[data-check-rows]').innerHTML=rows.map(r=>{const req=(s.extras?.requests||[]).find(p=>p.status==='pending'&&p.worker_id===r.worker&&p.job_id===r.job&&localDate(p.proposed_start)===r.date),prompt=(s.extras?.attendancePrompts||[]).find(p=>p.worker_id===r.worker&&p.job_id===r.job&&p.date===r.date);return '<section class="op-item"><strong>'+esc(s.workers.find(w=>w.id===r.worker)?.name||'Pracovník')+'</strong> · '+esc(r.date)+'<p>'+esc(s.jobs.find(j=>j.id===r.job)?.name||'Zakázka')+' · '+esc(r.text)+'</p>'+(req?'<p>Návrh čeká na schválení</p><button type="button" data-op="review-request" data-key="'+esc(req.id)+'">Posoudit návrh</button>':(r.assignment?'<button type="button" data-missing-attendance="'+esc(r.assignment)+'">Doplnit / podle kolegy</button>':'<button type="button" data-op="request" data-key="'+esc(r.attendance)+'">Upravit příchod / odchod</button>')+(r.assignment?(prompt?.status==='requested'?'<p>Výzva odeslána — čeká na návrh pracovníka.</p>':'<button type="button" data-check-prompt="'+esc(r.assignment)+'">Vyžádat časy od pracovníka</button>'):'') )+'</section>'}).join('')||'<p>V tomto období nebyly nalezeny chybějící záznamy ani nesrovnalosti.</p>';};
+  const draw=()=>{const s=ctx.state(),rows=attendanceChecks(s,dialog.querySelector('[data-check-from]').value,dialog.querySelector('[data-check-to]').value||undefined);dialog.querySelector('[data-check-rows]').innerHTML=rows.map(r=>{if(r.overlap)return '<section class="op-item"><strong>'+esc(s.workers.find(w=>w.id===r.worker)?.name||'Pracovník')+'</strong>'+overlapMarkup(s,r)+'</section>';const req=(s.extras?.requests||[]).find(p=>p.status==='pending'&&p.worker_id===r.worker&&p.job_id===r.job&&localDate(p.proposed_start)===r.date),prompt=(s.extras?.attendancePrompts||[]).find(p=>p.worker_id===r.worker&&p.job_id===r.job&&p.date===r.date);return '<section class="op-item"><strong>'+esc(s.workers.find(w=>w.id===r.worker)?.name||'Pracovník')+'</strong> · '+esc(r.date)+'<p>'+esc(s.jobs.find(j=>j.id===r.job)?.name||'Zakázka')+' · '+esc(r.text)+'</p>'+(req?'<p>Návrh čeká na schválení</p><button type="button" data-op="review-request" data-key="'+esc(req.id)+'">Posoudit návrh</button>':(r.assignment?'<button type="button" data-missing-attendance="'+esc(r.assignment)+'">Doplnit / podle kolegy</button>':'<button type="button" data-op="request" data-key="'+esc(r.attendance)+'">Upravit příchod / odchod</button>')+(r.assignment?(prompt?.status==='requested'?'<p>Výzva odeslána — čeká na návrh pracovníka.</p>':'<button type="button" data-check-prompt="'+esc(r.assignment)+'">Vyžádat časy od pracovníka</button>'):'') )+'</section>'}).join('')||'<p>V tomto období nebyly nalezeny chybějící záznamy ani nesrovnalosti.</p>';};
   dialog.querySelectorAll('input').forEach(el=>el.onchange=draw);
-  dialog.onclick=e=>{if(e.target.closest('[data-missing-attendance],[data-op]'))dialog.close();const b=e.target.closest('[data-check-prompt]');if(b){dialog.close();ctx.requestAttendance(b.dataset.checkPrompt)}};draw();
+  dialog.onclick=e=>{const repair=e.target.closest('[data-overlap-edit]');if(repair){dialog.close();overlapUI.open(repair.dataset.overlapEdit,repair.dataset.overlapOther);return}if(e.target.closest('[data-missing-attendance],[data-op]'))dialog.close();const b=e.target.closest('[data-check-prompt]');if(b){dialog.close();ctx.requestAttendance(b.dataset.checkPrompt)}};draw();
  }
  async function act(a){const menu=document.getElementById('dialog');if(menu?.open)menu.close();if(a==='close')dialog.close();if(a==='guide')guide();if(a==='guide-done'){localStorage.setItem('planner-guide:'+ctx.user(),ctx.guideRole());dialog.close()}
  if(a==='preferences'){const p=prefs();show('Vzhled a rozložení',`<form id="experience-prefs"><label>Vzhled<select name="theme"><option value="light">Světlý</option><option value="dark">Tmavý</option></select></label><label>Hustota plánu<select name="density"><option value="normal">Běžná</option><option value="compact">Kompaktní</option></select></label><button>Uložit</button></form>`);const f=dialog.querySelector('form');f.theme.value=p.theme||'light';f.density.value=p.density||'normal';f.onsubmit=e=>{e.preventDefault();localStorage.setItem(key(),JSON.stringify(Object.fromEntries(new FormData(f))));apply();dialog.close()}}
@@ -30,5 +32,5 @@ export function installExperience(ctx){
  
  if(localStorage.getItem('planner-guide:'+ctx.user())!==ctx.guideRole()&&!document.querySelector('dialog[open]')){localStorage.setItem('planner-guide:'+ctx.user(),ctx.guideRole());guide()}
  }
- return {decorate,reset(){dialog.close();dialog.innerHTML=''}};
+ return {decorate,reset(){overlapUI.reset();dialog.close();dialog.innerHTML=''}};
 }
