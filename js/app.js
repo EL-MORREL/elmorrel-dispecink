@@ -1,4 +1,4 @@
-import {monthWorkdaysMarkup,workedDays,workedDaysLabel,workedDayBreakdownMarkup} from './month-workdays.js?v=worked-breakdown-1';
+import {monthWorkdaysMarkup,workedDays,workedDaysLabel,workedDayBreakdownMarkup} from './month-workdays.js?v=nonworking-days-1';
 import {vacationRows,vehicleRows} from './resource-reports.js?v=driver-reports-1';
 import {installVehicleDrivers} from './vehicle-drivers.js?v=driver-reports-1';
 import {installOverview} from './overview.js?v=overview-columns-2';
