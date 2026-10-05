@@ -1,6 +1,6 @@
 import {replacementButton} from './attendance-replace.js?v=attendance-replace-1';
 import {overlapMarkup,installOverlapRepair} from './overlap-repair.js?v=attendance-replace-2';
-import {auditMarkup} from './audit-labels.js?v=purchase-workflow-1';
+import {auditMarkup} from './audit-labels.js?v=purchase-workflow-3';
 import {byName} from './selection-order.js?v=selection-1';
 import {attendanceChecks} from './checks.js?v=attendance-replace-2';
 import {esc,reportRows,localDate} from './data.js?v=overhead-unbilled-1';
