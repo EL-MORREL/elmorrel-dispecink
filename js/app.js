@@ -13,7 +13,7 @@ import {installJobTasks} from './job-tasks.js?v=role-view-1';
 import {dayBadge,dayOffLabel} from './holidays.js?v=finance-categories-1';
 import {byName,searchText} from './selection-order.js?v=selection-1';
 import {setupJobFields,jobNotes} from './job-tools.js?v=job-tasks-1';
-import {installPurchases} from './purchases.js?v=finance-categories-1';
+import {installPurchases} from './purchases.js?v=purchase-workflow-1';
 import {accountLabel,roleLabel} from './worker-accounts.js?v=finance-detail-1';
 import {updateProfileIdentity} from './profile-identity.js?v=profile-identity-1';
 import {arrivalReviewMarkup,installArrivalReview} from './arrival-review.js?v=departure-review-1';
@@ -22,7 +22,7 @@ import {billingBadge,installJobPreferences,readJobPreferences,writeJobPreference
 import {renderMobileDaily,getMobilePlanState,setMobilePlanState} from './mobile-daily.js?v=attendance-replace-1';
 import {contactMarkup,decoratePlanActions} from './plan-usability.js?v=jobs-read-1';
 import {sendInvitation} from './invitations.js?v=invite-1';
-import {installExperience} from './experience.js?v=backdrop-close-1';
+import {installExperience} from './experience.js?v=purchase-workflow-1';
 import {installFinance} from './finance-ui.js?v=overheads-1';
 import {rememberLogin,remembered} from './session-storage.js?v=jobs-read-1';
 import './planner-scroll.js?v=scroll-1';
