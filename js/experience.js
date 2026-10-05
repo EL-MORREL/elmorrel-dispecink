@@ -6,6 +6,12 @@ import {attendanceChecks} from './checks.js?v=attendance-replace-2';
 import {esc,reportRows,localDate} from './data.js?v=overhead-unbilled-1';
 export function installExperience(ctx){
  const dialog=document.createElement('dialog');document.body.append(dialog);
+ // Close read-only panels only when the gesture starts and ends on the backdrop.
+ let backdropPointer=null;
+ const outside=e=>{const r=dialog.getBoundingClientRect();return e.target===dialog&&(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)};
+ dialog.addEventListener('pointerdown',e=>{backdropPointer=e.isPrimary&&e.button===0&&outside(e)?e.pointerId:null});
+ dialog.addEventListener('pointercancel',()=>{backdropPointer=null});
+ dialog.addEventListener('click',e=>{const fromBackdrop=backdropPointer!==null;backdropPointer=null;if(fromBackdrop&&outside(e)&&!dialog.querySelector('form'))dialog.close()});
  const button=(a,t)=>`<button type="button" data-experience="${a}">${t}</button>`;
  function show(title,body){dialog.innerHTML=`<div class="dialog-heading"><h2>${title}</h2>${button('close','Zavřít')}</div><div class="panel-content">${body}</div>`;if(!dialog.open)dialog.showModal()}
  const overlapUI=installOverlapRepair({state:ctx.state,manager:()=>['admin','dispatcher'].includes(ctx.role()),run:ctx.run,message:ctx.message,done:()=>checks()});
