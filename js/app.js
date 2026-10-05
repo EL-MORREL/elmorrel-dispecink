@@ -1,3 +1,4 @@
+import {installAttendanceFollowup} from './attendance-followup.js?v=attendance-checks-2';
 import {missingAttendanceMarkup,installMissingAttendance} from './missing-attendance.js?v=missing-attendance-1';
 import {monthWorkdaysMarkup,workedDays,workedDaysLabel,workedDayBreakdownMarkup} from './month-workdays.js?v=nonworking-days-1';
 import {vacationRows,absenceRows,vehicleRows} from './resource-reports.js?v=absence-reports-1';
@@ -20,7 +21,7 @@ import {billingBadge,installJobPreferences,readJobPreferences,writeJobPreference
 import {renderMobileDaily,getMobilePlanState,setMobilePlanState} from './mobile-daily.js?v=missing-attendance-1';
 import {contactMarkup,decoratePlanActions} from './plan-usability.js?v=jobs-read-1';
 import {sendInvitation} from './invitations.js?v=invite-1';
-import {installExperience} from './experience.js?v=inline-reports-1';
+import {installExperience} from './experience.js?v=attendance-checks-2';
 import {installFinance} from './finance-ui.js?v=overheads-1';
 import {rememberLogin,remembered} from './session-storage.js?v=jobs-read-1';
 import './planner-scroll.js?v=scroll-1';
@@ -30,13 +31,13 @@ import {arrangeJobCards} from './job-card-layout.js?v=job-tasks-1';
 import {installVehicleBlocks} from './vehicle-blocks.js?v=jobs-read-1';
 import {installRegistration} from './registration.js?v=shared-groups-1';
 import {installCompanyMail} from './company-mail.js?v=shared-groups-1';
-import {installOperations} from './operations.js?v=planner-absence-1';
+import {installOperations} from './operations.js?v=attendance-checks-2';
 import './passwords.js?v=shared-groups-1';
 import {invitationsEnabled} from './features.js?v=jobs-read-1';
 import {historicalRows,upgrade,bookings,jobTotals,saveAssignment,moveBooking,seed,DEMO_DAY,COLORS,uid,esc,dateKey,localDate,fmtHours,time,hours,safeColor,safeUrl,actual,mismatch,arrive,depart,reportRows} from './data.js?v=overhead-unbilled-1';
 import {client,createConnection} from './connection.js?v=shared-groups-1';
 const remote=createConnection();let saving=false,sessionUser=null,sessionGeneration=0,loadingSession=false;
-import {icon} from './icons.js?v=jobs-read-1';
+import {icon} from './icons.js?v=attendance-checks-2';
 import {workbook,download} from './xlsx.js?v=jobs-read-1';
 const $=id=>document.getElementById(id),KEY='planner-design-v3';
 let state=upgrade(seed());
@@ -53,23 +54,23 @@ let viewRole=null,fullState=null;
 const actualAdmin=()=>['owner','admin'].includes(remote.snapshot?.membership.role);
 const effectiveRole=()=>actualAdmin()&&viewRole?viewRole:remote.snapshot?.membership.role;
 function adopt(next){fullState=next;if(!actualAdmin())viewRole=null;state=structuredClone(next);for(const entry of state.extras?.workerRoles||[]){const w=state.workers.find(w=>w.id===entry.worker_id);if(w)w.role=entry.role}const m=remote.snapshot.membership,r=effectiveRole();foreman=r==='foreman';me=m.worker_id;role=['owner','admin'].includes(r)?'admin':['dispatcher','editor'].includes(r)?'dispatcher':'worker';if(viewRole&&role==='worker'){state.attendance=state.attendance.filter(t=>t.worker===me||foreman&&state.assignments.some(a=>a.worker===me&&a.job===t.job&&a.date===localDate(t.start)));state.fuel=state.fuel.filter(t=>t.worker===me);for(const key of ['requests','absences'])if(state.extras?.[key])state.extras[key]=state.extras[key].filter(t=>t.worker_id===me);}const control=$('role');control.disabled=!actualAdmin();control.value=foreman?'foreman':role;control.setAttribute('aria-label',actualAdmin()?'Zobrazit aplikaci jako':'Oprávnění účtu');control.title=actualAdmin()?'Přepnout pohled; uložená oprávnění účtu se nemění.':'';}
-function switchRoleView(value){missingAttendanceUI.reset();if(!actualAdmin()||!['admin','dispatcher','foreman','worker'].includes(value))return;if(saving){$('role').value=foreman?'foreman':role;message('Počkejte na dokončení ukládání.');return}document.querySelectorAll('dialog[open]').forEach(d=>d.close());reportDrivers=null;reportDriverError='';vehicleDrivers.reset();overviewUI.reset();financeUI.reset();overheadsUI.reset();purchasesUI.reset();jobTasksUI.reset();experience.reset();viewRole=value==='admin'?null:value;planScope=null;query='';$('search').value='';attendanceWorker='';fuelFilters={vehicle:'',worker:'',month:'',from:'',to:''};adopt(fullState);page='overview';render();}
+function switchRoleView(value){attendanceFollowupUI.reset();missingAttendanceUI.reset();if(!actualAdmin()||!['admin','dispatcher','foreman','worker'].includes(value))return;if(saving){$('role').value=foreman?'foreman':role;message('Počkejte na dokončení ukládání.');return}document.querySelectorAll('dialog[open]').forEach(d=>d.close());reportDrivers=null;reportDriverError='';vehicleDrivers.reset();overviewUI.reset();financeUI.reset();overheadsUI.reset();purchasesUI.reset();jobTasksUI.reset();experience.reset();viewRole=value==='admin'?null:value;planScope=null;query='';$('search').value='';attendanceWorker='';fuelFilters={vehicle:'',worker:'',month:'',from:'',to:''};adopt(fullState);page='overview';render();}
 $('role').addEventListener('change',e=>switchRoleView(e.target.value));
 
 async function persist(note){if(saving)return;saving=true;message('Ukládám…');try{adopt(await remote.save(state));render();message(note||'Uloženo.')}catch(error){try{adopt(await remote.refresh());render()}catch{}message(error.message)}finally{saving=false}}
-function hideSession(){missingAttendanceUI.reset();reportDrivers=null;reportDriverError='';vehicleDrivers.reset();viewRole=null;fullState=null;document.getElementById('role-view-notice')?.remove();overviewUI.reset();fuelFilters={vehicle:'',worker:'',month:'',from:'',to:''};plannerMemory.reset();overheadsUI.reset();jobTasksUI.reset();attendanceMonth='';attendanceWorker='';attendanceJob='';sessionGeneration++;loadingSession=false;$('login-submit').disabled=false;planScope=null;document.querySelectorAll('dialog[open]').forEach(d=>d.close());experience.reset();financeUI.reset();purchasesUI.reset();page='overview';vehicleBlocks.reset();registration.reset();companyMail.reset();remote.clear();sessionUser=null;me=null;document.querySelector('.shell').hidden=true;$('mobile-nav').hidden=true;$('login-panel').hidden=false;if($('dialog').open)$('dialog').close();document.querySelector('.operations-dialog')?.close();document.getElementById('operations-bar')?.remove();$('content').replaceChildren();state={};}
+function hideSession(){attendanceFollowupUI.reset();missingAttendanceUI.reset();reportDrivers=null;reportDriverError='';vehicleDrivers.reset();viewRole=null;fullState=null;document.getElementById('role-view-notice')?.remove();overviewUI.reset();fuelFilters={vehicle:'',worker:'',month:'',from:'',to:''};plannerMemory.reset();overheadsUI.reset();jobTasksUI.reset();attendanceMonth='';attendanceWorker='';attendanceJob='';sessionGeneration++;loadingSession=false;$('login-submit').disabled=false;planScope=null;document.querySelectorAll('dialog[open]').forEach(d=>d.close());experience.reset();financeUI.reset();purchasesUI.reset();page='overview';vehicleBlocks.reset();registration.reset();companyMail.reset();remote.clear();sessionUser=null;me=null;document.querySelector('.shell').hidden=true;$('mobile-nav').hidden=true;$('login-panel').hidden=false;if($('dialog').open)$('dialog').close();document.querySelector('.operations-dialog')?.close();document.getElementById('operations-bar')?.remove();$('content').replaceChildren();state={};}
 
-const menu=[['overview','home','Přehled'],['plan','calendar','Plánovač'],['attendance','clock','Docházka'],['jobs','file','Zakázky'],['workers','users','Pracovníci'],['vehicles','car','Vozidla'],['fuel','fuel','Tankování'],['reports','file','Výkazy'],['settings','settings','Nastavení firmy']];
+const menu=[['overview','home','Přehled'],['plan','calendar','Plánovač'],['attendance','clock','Docházka'],['jobs','briefcase','Zakázky'],['workers','users','Pracovníci'],['vehicles','car','Vozidla'],['fuel','fuel','Tankování'],['reports','file','Výkazy'],['settings','settings','Nastavení firmy']];
 function render(){
  plannerMemory.before();
  updateProfileIdentity(document.querySelector('.profile .avatar'),state.workers,me);
  const allowed=role==='worker'?['overview','plan','attendance','jobs','fuel','profile']:role==='admin'?[...menu.map(m=>m[0]),'finance','purchases','overheads']:[...menu.map(m=>m[0]),'purchases'];
  if(!allowed.includes(page))page='overview';
- const entries=role==='worker'?[['overview','home','Přehled'],['plan','calendar','Můj den'],['attendance','clock','Moje docházka'],['jobs','file','Zakázky'],['fuel','fuel','Moje tankování'],['profile','users','Profil']]:menu.filter(m=>allowed.includes(m[0]));
+ const entries=role==='worker'?[['overview','home','Přehled'],['plan','calendar','Můj den'],['attendance','clock','Moje docházka'],['jobs','briefcase','Zakázky'],['fuel','fuel','Moje tankování'],['profile','users','Profil']]:menu.filter(m=>allowed.includes(m[0]));
  $('navigation').innerHTML=entries.map(([p,i,n])=>btn('nav',icon(i)+n,`nav-item ${page===p?'active':''}`,p)).join('');
  $('mobile-nav').innerHTML=entries.filter(m=>['overview','plan','attendance','fuel'].includes(m[0])).map(([p,i,n])=>btn('nav',icon(i)+n,page===p?'active':'',p)).join('');
  $('mobile-nav').insertAdjacentHTML('beforeend',btn('more','<span aria-hidden="true">•••</span>Více'));
- if(isManager())$('navigation').insertAdjacentHTML('beforeend',btn('purchases',icon('file')+' Nákupy a dodavatelé',`nav-item ${page==='purchases'?'active':''}`));if(role==='admin')$('navigation').insertAdjacentHTML('beforeend',btn('finance',icon('money')+' Finance zakázek',`nav-item ${page==='finance'?'active':''}`));
+ if(isManager())$('navigation').insertAdjacentHTML('beforeend',btn('purchases',icon('file')+' Nákupy a dodavatelé',`nav-item ${page==='purchases'?'active':''}`));if(role==='admin')$('navigation').insertAdjacentHTML('beforeend',btn('finance',icon('chart')+' Finance zakázek',`nav-item ${page==='finance'?'active':''}`));
  if(role==='admin')$('navigation').insertAdjacentHTML('beforeend',btn('overheads',icon('money')+' Režijní náklady',`nav-item ${page==='overheads'?'active':''}`));
  const pending=[...(state.extras?.requests||[]),...(state.extras?.absences||[])].filter(r=>r.status==='pending').length;
  $('navigation').insertAdjacentHTML('beforeend',btn('notifications',icon('bell')+'Upozornění'+(pending?' ('+pending+')':''),'nav-item'));
@@ -248,9 +249,10 @@ let refreshAfter=0,refreshFailures=0;
 async function refreshSafely(){if(['finance','purchases','overheads'].includes(page)||Date.now()<refreshAfter)return;if(refreshing||loadingSession||!remote.snapshot||!sessionUser||saving||dragging||$('dialog').open||document.querySelector('dialog[open]')||document.hidden)return;refreshing=true;try{const previousSnapshot=remote.snapshot,previous=previousSnapshot?.company.version;const next=await remote.refresh({ifChanged:true});refreshFailures=0;refreshAfter=0;if(document.querySelector('dialog[open]')){remote.restoreSnapshot(previousSnapshot);return;}if(previous!==remote.snapshot.company.version){const board=document.querySelector('.board-wrap'),left=board?.scrollLeft||0,top=board?.scrollTop||0;adopt(next);render();const fresh=document.querySelector('.board-wrap');if(fresh){fresh.scrollLeft=left;fresh.scrollTop=top;}}message('')}catch(error){refreshAfter=Date.now()+Math.min(120000,30000*2**refreshFailures++);message('Spojení se přerušilo. Zobrazená data zůstávají zachovaná, připojení zkusíme znovu.')}finally{refreshing=false}}
 setInterval(refreshSafely,30000);let refreshTimer;const queueRefresh=()=>{clearTimeout(refreshTimer);refreshTimer=setTimeout(refreshSafely,300)};window.addEventListener('online',()=>{refreshAfter=0;queueRefresh()});window.addEventListener('planner-data-changed',queueRefresh);document.addEventListener('visibilitychange',()=>{if(!document.hidden)queueRefresh()});
 
+const attendanceFollowupUI=installAttendanceFollowup({state:()=>state,manager:isManager,me:()=>me,run:runFeature,message});
 const missingAttendanceUI=installMissingAttendance({state:()=>state,manager:()=>['owner','admin','dispatcher'].includes(effectiveRole()),run:runFeature});
 const arrivalReviewUI=installArrivalReview({state:()=>state,manager:isManager,version:()=>remote.snapshot?.company.version,run:runFeature});
-async function runFeature(a,p){if(saving)throw Error('Počkejte na uložení.');saving=true;try{if(a==='fuel_create'){const {error}=await client.rpc('saas_create_fueling',{c:remote.companyId,expected_version:remote.snapshot.company.version,p});if(error)throw Object.assign(Error(error.message),{code:error.code});adopt(await remote.refresh())}else adopt(await remote.feature(a,p));render();message('Uloženo.')}catch(e){try{adopt(await remote.refresh());render()}catch{}throw e}finally{saving=false}}
+async function runFeature(a,p){if(saving)throw Error('Počkejte na uložení.');saving=true;try{if(a==='attendance_followup'){const {error}=await client.rpc('saas_attendance_followup',{c:remote.companyId,expected_version:remote.snapshot.company.version,action:p.action,p});if(error)throw Object.assign(Error(error.message),{code:error.code});adopt(await remote.refresh())}else if(a==='fuel_create'){const {error}=await client.rpc('saas_create_fueling',{c:remote.companyId,expected_version:remote.snapshot.company.version,p});if(error)throw Object.assign(Error(error.message),{code:error.code});adopt(await remote.refresh())}else adopt(await remote.feature(a,p));render();message('Uloženo.')}catch(e){try{adopt(await remote.refresh());render()}catch{}throw e}finally{saving=false}}
 const operationsUI=installOperations({foreman:()=>foreman,editJob:id=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());openJob(id)},finance:job=>financeUI.open(job),state:()=>state,manager:isManager,directTime:()=>['owner','admin','dispatcher'].includes(effectiveRole()),admin:()=>role==='admin',me:()=>me,run:runFeature,message,refresh:async()=>{adopt(await remote.refresh());render()},standardArrival:()=>openArrival(),standardDeparture:()=>action('standard-depart')});
 document.addEventListener('change',e=>{if(e.target.name==='billing-filter'){reportBilling=e.target.value;render()}if(e.target.name==='job-status'){jobFilter=e.target.value;render()}});
 
@@ -267,7 +269,7 @@ const vehicleBlocks=installVehicleBlocks({state:()=>state,manager:isManager,run:
 
 const overheadsUI=installOverheads({remote,state:()=>state,admin:()=>role==='admin',navigate:target=>{page=target;render();window.scrollTo(0,0)}});
 const financeUI=installFinance({overheads:()=>overheadsUI.open(),purchases:job=>purchasesUI.open(job),navigate:target=>{if($('dialog').open)$('dialog').close();page=target;render();window.scrollTo(0,0)},user:()=>sessionUser,admin:()=>role==='admin',state:()=>state,message,read:async()=>{const data=await overheadsUI.finance();adopt(await remote.refresh());return data},save:async(action,p)=>{const data=await remote.finance(action,p);adopt(await remote.refresh());render();return data}});
-const experience=installExperience({role:()=>role,guideRole:()=>remote.snapshot?.membership.role,version:()=>remote.snapshot?.company.version,user:()=>sessionUser,me:()=>me,state:()=>state,render,message,shared:()=>remote.sharedPlan(),audit:()=>remote.audit(),pin:(w,value)=>remote.pin(w,value)});
+const experience=installExperience({requestAttendance:id=>attendanceFollowupUI.request(id),role:()=>role,guideRole:()=>remote.snapshot?.membership.role,version:()=>remote.snapshot?.company.version,user:()=>sessionUser,me:()=>me,state:()=>state,render,message,shared:()=>remote.sharedPlan(),audit:()=>remote.audit(),pin:(w,value)=>remote.pin(w,value)});
 
 
 matchMedia('(max-width:700px)').addEventListener('change',()=>{if(sessionUser&&page==='plan'&&!document.querySelector('dialog[open]'))render()});
