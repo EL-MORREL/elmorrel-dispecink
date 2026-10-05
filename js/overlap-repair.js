@@ -1,18 +1,19 @@
 import {replacementButton} from './attendance-replace.js?v=attendance-replace-1';
 import {esc,localDate,time} from './data.js?v=jobs-read-1';
 export function attendanceOverlaps(rows,from,to){
+ const minute=v=>Math.floor(Date.parse(v)/60000)*60000;
  const out=[],groups=new Map(),date=s=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Prague'}).format(new Date(s));
  for(const r of rows){if(!groups.has(r.worker))groups.set(r.worker,[]);groups.get(r.worker).push(r)}
  for(const group of groups.values()){group.sort((a,b)=>Date.parse(a.start)-Date.parse(b.start)||a.id.localeCompare(b.id));for(let i=0;i<group.length;i++)for(let k=i+1;k<group.length;k++){
- const a=group[i],b=group[k],start=Math.max(Date.parse(a.start),Date.parse(b.start));
+ const a=group[i],b=group[k],start=Math.max(minute(a.start),minute(b.start));
  // An unfinished shift has no known duration. Report it separately, never as a proven overlap.
  const uncertain=!a.end||!b.end;if(uncertain&&date(a.start)!==date(b.start))continue;
- const end=Math.min(a.end?Date.parse(a.end):Infinity,b.end?Date.parse(b.end):Infinity);if(!(start<end))continue;
+ const end=Math.min(a.end?minute(a.end):Infinity,b.end?minute(b.end):Infinity);if(!(start<end))continue;
  const d=date(start);if(d<from||d>to)continue;
  out.push({worker:a.worker,job:a.job,date:d,attendance:a.id,otherAttendance:b.id,overlap:{start:new Date(start).toISOString(),end:Number.isFinite(end)?new Date(end).toISOString():null,uncertain},text:uncertain?'Možný překryv — chybí odchod':'Překrývající se docházka'});
  }}return out;
 }
-const stamp=v=>v?new Date(v).toLocaleString('cs-CZ',{timeZone:'Europe/Prague',day:'numeric',month:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'}):'Odchod chybí';
+const stamp=v=>v?new Date(v).toLocaleString('cs-CZ',{timeZone:'Europe/Prague',day:'numeric',month:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}):'Odchod chybí';
 export function overlapMarkup(s,r,actions=true){const rows=[r.attendance,r.otherAttendance].map(id=>s.attendance.find(t=>t.id===id)).filter(Boolean),o=r.overlap;const seconds=o?.end?Math.round((Date.parse(o.end)-Date.parse(o.start))/1000):0;const duration=seconds>=3600?Math.floor(seconds/3600)+' h '+Math.floor(seconds%3600/60)+' min':seconds>=60?Math.floor(seconds/60)+' min'+(seconds%60?' '+seconds%60+' s':''):seconds+' s';return '<div class="warning"><strong>'+esc(r.text)+'</strong><p>'+(o?.uncertain?'Dokud není doplněný odchod, skutečnou délku překryvu nelze určit.':esc(stamp(o.start)+' – '+stamp(o.end))+'<br><strong>Překryv: '+esc(duration)+'</strong>')+'</p></div>'+rows.map((t,i)=>'<section class="op-item"><strong>'+esc(s.jobs.find(j=>j.id===t.job)?.name||'Zakázka')+'</strong><p>Příchod: '+esc(stamp(t.start))+'<br>Odchod: '+esc(stamp(t.end))+'</p>'+(actions?'<button type="button" data-overlap-edit="'+esc(t.id)+'" data-overlap-other="'+esc(rows[1-i]?.id||'')+'">Upravit tento záznam</button>':'')+'</section>').join('');}
 const input=v=>v?localDate(v)+'T'+time(v):'';
 export function installOverlapRepair(ctx){const dialog=document.body.appendChild(document.createElement('dialog'));dialog.className='operations-dialog';let generation=0;

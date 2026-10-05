@@ -22,7 +22,7 @@ import {billingBadge,installJobPreferences,readJobPreferences,writeJobPreference
 import {renderMobileDaily,getMobilePlanState,setMobilePlanState} from './mobile-daily.js?v=attendance-replace-1';
 import {contactMarkup,decoratePlanActions} from './plan-usability.js?v=jobs-read-1';
 import {sendInvitation} from './invitations.js?v=invite-1';
-import {installExperience} from './experience.js?v=attendance-replace-1';
+import {installExperience} from './experience.js?v=attendance-replace-2';
 import {installFinance} from './finance-ui.js?v=overheads-1';
 import {rememberLogin,remembered} from './session-storage.js?v=jobs-read-1';
 import './planner-scroll.js?v=scroll-1';
