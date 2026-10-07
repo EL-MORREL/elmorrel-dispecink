@@ -1,14 +1,15 @@
-import {purchaseShares} from './purchase-shares.js?v=purchase-allocations-1';
-import {costReport} from './costs.js?v=purchase-allocations-1';
+import {purchaseShares} from './purchase-shares.js?v=custom-categories-1';
+import {costReport} from './costs.js?v=custom-categories-1';
 import {esc,localDate,hours} from './data.js?v=overhead-unbilled-1';
 export const categories=[['labor','Práce'],['material','Materiál'],['transport','Doprava'],['other','Ostatní'],['unclassified','Nerozčleněno']];
-export function categoryOf(item){if(categories.some(([key])=>key===item.category))return item.category;const n=String(item.name||'').trim().toLocaleLowerCase('cs');return ({'práce':'labor','materiál':'material','doprava':'transport'})[n]||'unclassified';}
-export const categoryOptions=value=>categories.map(([key,label])=>`<option value="${key}" ${key===value?'selected':''}>${label}</option>`).join('');
+export const categoryList=data=>data?.categories?.length?data.categories.map(c=>[c.id,c.name]):categories;
+export function categoryOf(item){if(item.category)return item.category;const n=String(item.name||'').trim().toLocaleLowerCase('cs');return ({'práce':'labor','materiál':'material','doprava':'transport'})[n]||'unclassified';}
+export const categoryOptions=(value,data)=>categoryList(data).map(([key,label])=>`<option value="${esc(key)}" ${key===value?'selected':''}>${esc(label)}</option>`).join('');
 export function categoryComparison(s,data,job){
- const rows=new Map(categories.map(([id,name])=>[id,{id,name,offer:0,invoiced:0,purchases:0,cost:0,billedCost:0}]));rows.set('overhead',{id:'overhead',name:'Režie',offer:0,invoiced:0,purchases:0,cost:0,billedCost:0});
+ const rows=new Map(categoryList(data).map(([id,name])=>[id,{id,name,offer:0,invoiced:0,purchases:0,cost:0,billedCost:0}]));rows.set('overhead',{id:'overhead',name:'Režie',offer:0,invoiced:0,purchases:0,cost:0,billedCost:0});
  const entries=(data.entries||[]).filter(e=>e.job_id===job),invoices=entries.filter(e=>e.kind==='invoice'),invoiceIds=new Set(invoices.map(e=>e.id)),days=new Set(invoices.flatMap(e=>e.dates||[]));
- for(const e of entries.filter(e=>e.kind==='budget'||e.kind==='invoice'||e.kind==='change'&&e.status==='approved')){const key=e.kind==='invoice'?'invoiced':'offer',items=e.line_items||[];let sum=0;for(const item of items){rows.get(categoryOf(item))[key]+=Number(item.amount);sum+=Number(item.amount)}const remainder=Number(e.amount)-sum;if(Math.abs(remainder)>=0.005)rows.get('unclassified')[key]+=remainder;}
- for(const p of purchaseShares(data).filter(p=>p.job_id===job)){const r=rows.get(p.cost_category)||rows.get('unclassified');r.purchases+=Number(p.amount);r.cost+=Number(p.amount);if(invoiceIds.has(p.invoice_id))r.billedCost+=Number(p.amount);}
+ for(const e of entries.filter(e=>e.kind==='budget'||e.kind==='invoice'||e.kind==='change'&&e.status==='approved')){const key=e.kind==='invoice'?'invoiced':'offer',items=e.line_items||[];let sum=0;for(const item of items){(rows.get(categoryOf(item))||rows.get('unclassified'))[key]+=Number(item.amount);sum+=Number(item.amount)}const remainder=Number(e.amount)-sum;if(Math.abs(remainder)>=0.005)rows.get('unclassified')[key]+=remainder;}
+ for(const p of purchaseShares(data).filter(p=>p.job_id===job)){const r=rows.get(p.is_overhead?'overhead':p.cost_category)||rows.get('unclassified');if(p.is_overhead)continue;r.purchases+=Number(p.amount);r.cost+=Number(p.amount);if(invoiceIds.has(p.invoice_id))r.billedCost+=Number(p.amount);}
  const report=costReport(s,data,'1900-01-01','9999-12-31'),metric=report.jobs.find(j=>j.id===job),rates=(data.entries||[]).filter(e=>e.kind==='rate').sort((a,b)=>b.valid_from.localeCompare(a.valid_from));let missing=false;
  if(metric){rows.get('labor').cost+=metric.actualCost;rows.get('overhead').cost+=metric.actualOverhead;}
  const actual=s.attendance.filter(a=>a.job===job&&a.end).map(a=>({worker:a.worker,date:localDate(a.start),hours:hours(a)})).concat((s.extras?.historicalHours||[]).filter(a=>a.job_id===job).map(a=>({worker:a.worker_id,date:a.date,hours:Number(a.hours)})));

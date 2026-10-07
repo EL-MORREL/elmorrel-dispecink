@@ -1,14 +1,14 @@
-import {categoryComparisonMarkup} from './finance-categories.js?v=finance-categories-1';
-import {purchaseShares} from './purchase-shares.js?v=purchase-allocations-1';
+import {categoryComparisonMarkup} from './finance-categories.js?v=custom-categories-1';
+import {purchaseShares} from './purchase-shares.js?v=custom-categories-1';
 import {esc,safeColor,localDate,hours} from './data.js?v=overhead-unbilled-1';
-import {costReport} from './costs.js?v=purchase-allocations-1';
+import {costReport} from './costs.js?v=custom-categories-1';
 export const money=n=>n===null||!Number.isFinite(n)?'—':new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:0}).format(n);
 export const financeButton=(a,label,id='',job='')=>`<button type="button" data-finance="${a}" data-id="${esc(id)}" data-job="${esc(job)}">${label}</button>`;
 export function financeMetrics(s,data){
  const whole=costReport(s,data,'1900-01-01','9999-12-31'),rates=data.entries.filter(e=>e.kind==='rate').sort((a,b)=>b.valid_from.localeCompare(a.valid_from));
  const actual=s.attendance.filter(a=>a.end).map(a=>({worker:a.worker,job:a.job,date:localDate(a.start),hours:hours(a)})).concat((s.extras.historicalHours||[]).map(a=>({worker:a.worker_id,job:a.job_id,date:a.date,hours:Number(a.hours)})));
  const byDay=new Map();for(const r of actual){const key=r.job+'|'+r.date,day=byDay.get(key)||{cost:0,hours:0,missing:false};const rate=rates.find(e=>e.worker_id===r.worker&&e.valid_from<=r.date),pool=whole.pools.get('actual'+r.date.slice(0,7));day.hours+=r.hours;day.cost+=(rate?Number(rate.amount)*r.hours:0)+(pool?.hours?pool.cost*r.hours/pool.hours:0);day.missing||=(!rate&&r.hours>0)||!!pool?.missing;byDay.set(key,day)}
- return whole.jobs.map(j=>{const invoices=data.entries.filter(e=>e.kind==='invoice'&&e.job_id===j.id),days=new Set(invoices.flatMap(e=>e.dates||[]));let cost=0,missing=false;for(const d of days){const r=byDay.get(j.id+'|'+d);if(r){cost+=r.cost;missing||=r.missing}}cost+=purchaseShares(data).filter(p=>p.job_id===j.id&&invoices.some(i=>i.id===p.invoice_id)).reduce((n,p)=>n+Number(p.amount),0);const profit=invoices.length&&!missing&&!j.overhead?j.invoiced-cost:null;return {...j,billedProfit:profit,billedMargin:profit!==null&&j.invoiced>0?profit/j.invoiced*100:null,plannedMargin:j.plannedResult!==null&&j.price>0?j.plannedResult/j.price*100:null,completion:!j.overhead&&j.price>0?j.invoiced/j.price*100:null}});
+ return whole.jobs.map(j=>{const invoices=data.entries.filter(e=>e.kind==='invoice'&&e.job_id===j.id),days=new Set(invoices.flatMap(e=>e.dates||[]));let cost=0,missing=false;for(const d of days){const r=byDay.get(j.id+'|'+d);if(r){cost+=r.cost;missing||=r.missing}}cost+=purchaseShares(data).filter(p=>!p.is_overhead&&p.job_id===j.id&&invoices.some(i=>i.id===p.invoice_id)).reduce((n,p)=>n+Number(p.amount),0);const profit=invoices.length&&!missing&&!j.overhead?j.invoiced-cost:null;return {...j,billedProfit:profit,billedMargin:profit!==null&&j.invoiced>0?profit/j.invoiced*100:null,plannedMargin:j.plannedResult!==null&&j.price>0?j.plannedResult/j.price*100:null,completion:!j.overhead&&j.price>0?j.invoiced/j.price*100:null}});
 }
 const pct=n=>n===null?'—':n.toLocaleString('cs-CZ',{maximumFractionDigits:1})+' %';
 const metric=(label,value)=>`<div><small>${label}</small><strong>${value}</strong></div>`;
