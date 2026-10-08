@@ -1,5 +1,5 @@
 import {openCategorySettings} from './category-settings.js?v=custom-categories-1';
-import {arrivalDriverMarkup,driverChoice} from './arrival-driver.js?v=arrival-driver-1';
+import {arrivalDriverMarkup,driverChoice} from './arrival-driver.js?v=arrival-absence-1';
 import {driverMarkup} from './driver-labels.js?v=visible-drivers-1';
 import {installAttendanceReplacement} from './attendance-replace.js?v=attendance-replace-1';
 import {installAttendanceFollowup} from './attendance-followup.js?v=attendance-checks-2';
@@ -25,7 +25,7 @@ import {billingBadge,installJobPreferences,readJobPreferences,writeJobPreference
 import {renderMobileDaily,getMobilePlanState,setMobilePlanState} from './mobile-daily.js?v=visible-drivers-1';
 import {contactMarkup,decoratePlanActions} from './plan-usability.js?v=jobs-read-1';
 import {sendInvitation} from './invitations.js?v=invite-1';
-import {installExperience} from './experience.js?v=purchase-workflow-3';
+import {installExperience} from './experience.js?v=arrival-absence-1';
 import {installFinance} from './finance-ui.js?v=custom-categories-1';
 import {rememberLogin,remembered} from './session-storage.js?v=jobs-read-1';
 import './planner-scroll.js?v=scroll-1';
@@ -35,7 +35,7 @@ import {arrangeJobCards} from './job-card-layout.js?v=job-tasks-1';
 import {installVehicleBlocks} from './vehicle-blocks.js?v=jobs-read-1';
 import {installRegistration} from './registration.js?v=shared-groups-1';
 import {installCompanyMail} from './company-mail.js?v=shared-groups-1';
-import {installOperations} from './operations.js?v=arrival-driver-1';
+import {installOperations} from './operations.js?v=arrival-absence-1';
 import './passwords.js?v=shared-groups-1';
 import {invitationsEnabled} from './features.js?v=jobs-read-1';
 import {historicalRows,upgrade,bookings,jobTotals,saveAssignment,moveBooking,seed,DEMO_DAY,COLORS,uid,esc,dateKey,localDate,fmtHours,time,hours,safeColor,safeUrl,actual,mismatch,arrive,depart,reportRows} from './data.js?v=overhead-unbilled-1';
@@ -258,7 +258,7 @@ const attendanceFollowupUI=installAttendanceFollowup({state:()=>state,manager:is
 const missingAttendanceUI=installMissingAttendance({state:()=>state,manager:()=>['owner','admin','dispatcher'].includes(effectiveRole()),run:runFeature});
 const arrivalReviewUI=installArrivalReview({state:()=>state,manager:isManager,version:()=>remote.snapshot?.company.version,run:runFeature});
 async function saveArrivalDriver(action,p){const {error}=await client.rpc('saas_arrival_driver',{c:remote.companyId,action,p,expected_version:remote.snapshot.company.version});if(error)throw Object.assign(Error(error.message),{code:error.code});return remote.refresh()}
-document.addEventListener('change',e=>{if(e.target.name==='job'&&['arrive','switch'].includes(dialogMode)){const box=$('fields').querySelector('.arrival-driver');if(box)box.outerHTML=arrivalDriverMarkup(state,me,e.target.value,pragueToday())}});
+document.addEventListener('change',e=>{if(e.target.name==='job'&&['arrive','switch'].includes(dialogMode)){const box=$('fields').querySelector('.arrival-driver');if(box){$('fields').querySelector('.arrival-absence')?.remove();box.outerHTML=arrivalDriverMarkup(state,me,e.target.value,pragueToday())}}});
 async function runFeature(a,p){if(saving)throw Error('Počkejte na uložení.');saving=true;try{if(a==='arrival_driver'){adopt(await saveArrivalDriver('peer_arrival',p))}else if(a==='attendance_replace'){const {error}=await client.rpc('saas_replace_attendance',{c:remote.companyId,expected_version:remote.snapshot.company.version,p});if(error)throw Object.assign(Error(error.message),{code:error.code});adopt(await remote.refresh())}else if(a==='attendance_followup'){const {error}=await client.rpc('saas_attendance_followup',{c:remote.companyId,expected_version:remote.snapshot.company.version,action:p.action,p});if(error)throw Object.assign(Error(error.message),{code:error.code});adopt(await remote.refresh())}else if(a==='fuel_create'){const {error}=await client.rpc('saas_create_fueling',{c:remote.companyId,expected_version:remote.snapshot.company.version,p});if(error)throw Object.assign(Error(error.message),{code:error.code});adopt(await remote.refresh())}else adopt(await remote.feature(a,p));render();message('Uloženo.')}catch(e){try{adopt(await remote.refresh());render()}catch{}throw e}finally{saving=false}}
 const operationsUI=installOperations({foreman:()=>foreman,editJob:id=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());openJob(id)},finance:job=>financeUI.open(job),state:()=>state,manager:isManager,directTime:()=>['owner','admin','dispatcher'].includes(effectiveRole()),admin:()=>role==='admin',me:()=>me,run:runFeature,message,refresh:async()=>{adopt(await remote.refresh());render()},standardArrival:()=>openArrival(),standardDeparture:()=>action('standard-depart')});
 document.addEventListener('change',e=>{if(e.target.name==='billing-filter'){reportBilling=e.target.value;render()}if(e.target.name==='job-status'){jobFilter=e.target.value;render()}});
