@@ -1,5 +1,5 @@
-import {purchaseShares} from './purchase-shares.js?v=custom-categories-1';
-import {costReport} from './costs.js?v=custom-categories-1';
+import {purchaseShares} from './purchase-shares.js?v=partial-purchases-1';
+import {costReport} from './costs.js?v=partial-purchases-1';
 import {esc,localDate,hours} from './data.js?v=overhead-unbilled-1';
 export const categories=[['labor','Práce'],['material','Materiál'],['transport','Doprava'],['other','Ostatní'],['unclassified','Nerozčleněno']];
 export const categoryList=data=>data?.categories?.length?data.categories.map(c=>[c.id,c.name]):categories;

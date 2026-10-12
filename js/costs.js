@@ -1,4 +1,4 @@
-import {purchaseShares} from './purchase-shares.js?v=custom-categories-1';
+import {purchaseShares} from './purchase-shares.js?v=partial-purchases-1';
 export function costReport(state,finance,from,to){
  const entries=finance.entries||[],kinds=new Set((finance.jobKinds||[]).filter(k=>k.overhead).map(k=>k.job_id));
  const rates=entries.filter(e=>e.kind==='rate').sort((a,b)=>b.valid_from.localeCompare(a.valid_from));

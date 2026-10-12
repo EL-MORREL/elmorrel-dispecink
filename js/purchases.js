@@ -1,5 +1,5 @@
-import {categoryOptions} from './finance-categories.js?v=custom-categories-1';
-import {allocationsOf,unallocated} from './purchase-shares.js?v=custom-categories-1';
+import {categoryOptions} from './finance-categories.js?v=partial-purchases-1';
+import {allocationsOf,unallocated} from './purchase-shares.js?v=partial-purchases-1';
 import {byName,searchText} from './selection-order.js?v=selection-1';
 import {esc,localDate,safeUrl} from './data.js?v=overhead-unbilled-1';
 const defaultWorkflow=[{id:'normal',name:''},{id:'in_list',name:'V soupisu'},{id:'unresolved',name:'Nedořešená'},{id:'returned',name:'Vratka'},{id:'ready',name:'Připraveno na montáž'},{id:'awaiting_delivery',name:'Čekáme na dodání'}];
