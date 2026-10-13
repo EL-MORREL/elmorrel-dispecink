@@ -1,4 +1,4 @@
-import {esc,localDate,time} from './data.js?v=jobs-read-1';
+import {esc,localDate,time} from './data.js?v=warranty-1';
 export function replacementButton(attendance='',assignment=''){return '<button type="button" data-replace-attendance="'+esc(attendance)+'" data-replace-plan="'+esc(assignment)+'">Odebrat záznam / nahradit volnem</button>';}
 export function installAttendanceReplacement(ctx){const dialog=document.body.appendChild(document.createElement('dialog'));dialog.className='operations-dialog';let generation=0;
  function reset(){generation++;dialog.close();dialog.replaceChildren()}

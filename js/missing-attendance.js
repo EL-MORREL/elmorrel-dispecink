@@ -1,5 +1,5 @@
-import {replacementButton} from './attendance-replace.js?v=attendance-replace-1';
-import {esc,localDate,time} from './data.js?v=jobs-read-1';
+import {replacementButton} from './attendance-replace.js?v=warranty-1';
+import {esc,localDate,time} from './data.js?v=warranty-1';
 import {pragueToday} from './arrival-order.js?v=jobs-read-1';
 export function missingAttendance(state,a){
  if(!a?.worker||a.date>=pragueToday())return null;

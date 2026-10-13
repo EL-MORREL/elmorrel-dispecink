@@ -1,45 +1,46 @@
+import {installWarranty} from './warranty-ui.js?v=warranty-1';
 import {protectPlannerSave,guardedDomainSave} from './save-guard.js?v=drafts-1';
-import {openCategorySettings} from './category-settings.js?v=custom-categories-1';
-import {arrivalDriverMarkup,driverChoice} from './arrival-driver.js?v=free-vehicles-1';
-import {driverMarkup} from './driver-labels.js?v=visible-drivers-1';
-import {installAttendanceReplacement} from './attendance-replace.js?v=attendance-replace-1';
-import {installAttendanceFollowup} from './attendance-followup.js?v=attendance-checks-2';
-import {missingAttendanceMarkup,installMissingAttendance} from './missing-attendance.js?v=attendance-replace-1';
-import {monthWorkdaysMarkup,workedDays,workedDaysLabel,workedDayBreakdownMarkup} from './month-workdays.js?v=nonworking-days-1';
-import {vacationRows,absenceRows,vehicleRows} from './resource-reports.js?v=absence-reports-1';
-import {installVehicleDrivers} from './vehicle-drivers.js?v=driver-claims-1';
-import {installOverview} from './overview.js?v=overview-periods-1';
+import {openCategorySettings} from './category-settings.js?v=warranty-1';
+import {arrivalDriverMarkup,driverChoice} from './arrival-driver.js?v=warranty-1';
+import {driverMarkup} from './driver-labels.js?v=warranty-1';
+import {installAttendanceReplacement} from './attendance-replace.js?v=warranty-1';
+import {installAttendanceFollowup} from './attendance-followup.js?v=warranty-1';
+import {missingAttendanceMarkup,installMissingAttendance} from './missing-attendance.js?v=warranty-1';
+import {monthWorkdaysMarkup,workedDays,workedDaysLabel,workedDayBreakdownMarkup} from './month-workdays.js?v=warranty-1';
+import {vacationRows,absenceRows,vehicleRows} from './resource-reports.js?v=warranty-1';
+import {installVehicleDrivers} from './vehicle-drivers.js?v=warranty-1';
+import {installOverview} from './overview.js?v=warranty-1';
 import {filteredFuel,fuelDate} from './fuel-filters.js?v=fuel-filters-1';
-import {installOverheads} from './overheads.js?v=drafts-1';
+import {installOverheads} from './overheads.js?v=warranty-1';
 import {byStart} from './plan-order.js?v=plan-order-1';
 import {createPlannerMemory} from './planner-memory.js?v=planner-position-1';
-import {installJobTasks} from './job-tasks.js?v=foreman-create-1';
-import {dayBadge,dayOffLabel} from './holidays.js?v=finance-categories-1';
+import {installJobTasks} from './job-tasks.js?v=warranty-1';
+import {dayBadge,dayOffLabel} from './holidays.js?v=warranty-1';
 import {byName,searchText} from './selection-order.js?v=selection-1';
-import {setupJobFields,jobNotes} from './job-tools.js?v=job-tasks-1';
-import {installPurchases} from './purchases.js?v=overview-periods-1';
+import {setupJobFields,jobNotes} from './job-tools.js?v=warranty-1';
+import {installPurchases} from './purchases.js?v=warranty-1';
 import {accountLabel,roleLabel} from './worker-accounts.js?v=finance-detail-1';
 import {updateProfileIdentity} from './profile-identity.js?v=profile-identity-1';
-import {arrivalReviewMarkup,installArrivalReview} from './arrival-review.js?v=departure-review-1';
+import {arrivalReviewMarkup,installArrivalReview} from './arrival-review.js?v=warranty-1';
 import {orderedJobChoices,pragueToday} from './arrival-order.js?v=jobs-read-1';
-import {billingBadge,installJobPreferences,readJobPreferences,writeJobPreferences} from './job-preferences.js?v=group-recovery-1';
-import {renderMobileDaily,getMobilePlanState,setMobilePlanState} from './mobile-daily.js?v=visible-drivers-1';
-import {contactMarkup,decoratePlanActions} from './plan-usability.js?v=jobs-read-1';
+import {billingBadge,installJobPreferences,readJobPreferences,writeJobPreferences} from './job-preferences.js?v=warranty-1';
+import {renderMobileDaily,getMobilePlanState,setMobilePlanState} from './mobile-daily.js?v=warranty-1';
+import {contactMarkup,decoratePlanActions} from './plan-usability.js?v=warranty-1';
 import {sendInvitation} from './invitations.js?v=invite-1';
-import {installExperience} from './experience.js?v=arrival-absence-1';
-import {installFinance} from './finance-ui.js?v=invoice-details-1';
+import {installExperience} from './experience.js?v=warranty-1';
+import {installFinance} from './finance-ui.js?v=warranty-1';
 import {rememberLogin,remembered} from './session-storage.js?v=jobs-read-1';
 import './planner-scroll.js?v=scroll-1';
 import {decoratePlannerLayout} from './planner-layout.js?v=jobs-read-1';
 import {decorateRecordTables} from './record-layout.js?v=jobs-read-1';
 import {arrangeJobCards} from './job-card-layout.js?v=job-tasks-1';
-import {installVehicleBlocks} from './vehicle-blocks.js?v=jobs-read-1';
-import {installRegistration} from './registration.js?v=shared-groups-1';
-import {installCompanyMail} from './company-mail.js?v=shared-groups-1';
-import {installOperations} from './operations.js?v=free-vehicles-1';
+import {installVehicleBlocks} from './vehicle-blocks.js?v=warranty-1';
+import {installRegistration} from './registration.js?v=warranty-1';
+import {installCompanyMail} from './company-mail.js?v=warranty-1';
+import {installOperations} from './operations.js?v=warranty-1';
 import './passwords.js?v=shared-groups-1';
 import {invitationsEnabled} from './features.js?v=jobs-read-1';
-import {historicalRows,upgrade,bookings,jobTotals,saveAssignment,moveBooking,seed,DEMO_DAY,COLORS,uid,esc,dateKey,localDate,fmtHours,time,hours,safeColor,safeUrl,actual,mismatch,arrive,depart,reportRows} from './data.js?v=overhead-unbilled-1';
+import {historicalRows,upgrade,bookings,jobTotals,saveAssignment,moveBooking,seed,DEMO_DAY,COLORS,uid,esc,dateKey,localDate,fmtHours,time,hours,safeColor,safeUrl,actual,mismatch,arrive,depart,reportRows} from './data.js?v=warranty-1';
 import {client,createConnection} from './connection.js?v=shared-groups-1';
 const remote=createConnection();protectPlannerSave(remote);let saving=false,sessionUser=null,sessionGeneration=0,loadingSession=false;
 import {icon} from './icons.js?v=attendance-checks-2';
@@ -85,7 +86,7 @@ function render(){
  const active=openWork();document.querySelector('[data-action=arrive]').disabled=!me||!!active;document.querySelector('[data-action=depart]').disabled=!me||!active;document.querySelector('.workbar [data-action=fuel]').disabled=!me&&!['owner','admin','dispatcher'].includes(effectiveRole());
  $('switch-job').hidden=!active;$('work-state').innerHTML=active?`<span class="online-dot"></span>V práci od <strong>${time(active.start)}</strong> · ${esc(label('jobs',active.job))}`:'Příchod není zaznamenaný';
  if(page==='overview')overviewUI.mount();if(page==='plan')renderPlan();if(page==='finance')financeUI.mount();if(page==='overheads')overheadsUI.mount();if(page==='purchases')purchasesUI.mount();
- if(page==='jobs')renderJobs();if(page==='workers')renderWorkers();if(page==='vehicles')renderVehicles();if(page==='attendance')renderAttendance();if(page==='fuel')renderFuel();if(page==='reports'){renderReports();$('content').insertAdjacentHTML('afterbegin',btn('worker-export','Měsíční výkaz pracovníka','secondary'));}if(page==='settings')renderSettings();if(page==='profile')renderProfile();operationsUI.decorate(page);vehicleDrivers.decorate(page);vehicleBlocks.decorate();if(page==='jobs'){arrangeJobCards();installJobPreferences(state,sessionUser,{canEdit:['owner','admin','dispatcher'].includes(effectiveRole()),admin:role==='admin',saveGroups:async groups=>{const next=structuredClone(state);for(const j of next.jobs)if(Object.hasOwn(groups,j.id))j.groupName=groups[j.id];adopt(await remote.save(next));render()},error:message});}if(page==='attendance'||page==='fuel')decorateRecordTables();if(page==='plan'){decoratePlannerLayout(render,sessionUser);decoratePlanActions(state);}experience.decorate(page);plannerMemory.after(page==='plan');document.getElementById('role-view-notice')?.remove();if(viewRole){const notice=document.createElement('div');notice.id='role-view-notice';notice.className='notice';notice.style.cssText='margin:12px 16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center';notice.innerHTML='Pohled: '+esc(roleLabel(viewRole))+' · stále jste přihlášený jako administrátor. <button type="button" id="role-view-return">Zpět na administrátora</button>';document.querySelector('.workbar').before(notice);notice.querySelector('button').onclick=()=>switchRoleView('admin');}
+ if(page==='jobs')renderJobs();if(page==='workers')renderWorkers();if(page==='vehicles')renderVehicles();if(page==='attendance')renderAttendance();if(page==='fuel')renderFuel();if(page==='reports'){renderReports();$('content').insertAdjacentHTML('afterbegin',btn('worker-export','Měsíční výkaz pracovníka','secondary'));}if(page==='settings')renderSettings();if(page==='profile')renderProfile();operationsUI.decorate(page);vehicleDrivers.decorate(page);vehicleBlocks.decorate();if(page==='jobs'){arrangeJobCards();installJobPreferences(state,sessionUser,{canEdit:['owner','admin','dispatcher'].includes(effectiveRole()),admin:role==='admin',saveGroups:async groups=>{const next=structuredClone(state);for(const j of next.jobs)if(Object.hasOwn(groups,j.id))j.groupName=groups[j.id];adopt(await remote.save(next));render()},error:message});}if(page==='attendance'||page==='fuel')decorateRecordTables();if(page==='plan'){decoratePlannerLayout(render,sessionUser);decoratePlanActions(state);}experience.decorate(page);warrantyUI.decorate();plannerMemory.after(page==='plan');document.getElementById('role-view-notice')?.remove();if(viewRole){const notice=document.createElement('div');notice.id='role-view-notice';notice.className='notice';notice.style.cssText='margin:12px 16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center';notice.innerHTML='Pohled: '+esc(roleLabel(viewRole))+' · stále jste přihlášený jako administrátor. <button type="button" id="role-view-return">Zpět na administrátora</button>';document.querySelector('.workbar').before(notice);notice.querySelector('button').onclick=()=>switchRoleView('admin');}
 }
 function heading(title,sub,actions=''){return `<div class="page-heading"><div><h1>${title}</h1><p class="subtle">${sub}</p></div><div class="toolbar">${actions}</div></div>`}
 function getDays(){if(todayOnly){const now=new Date();now.setDate(now.getDate()+dayOffset);return [dateKey(now)]}const d=new Date(DEMO_DAY+'T12:00:00');d.setDate(d.getDate()-(d.getDay()||7)+1+weekOffset*7);return Array.from({length:showWeekend?7:5},(_,i)=>{const x=new Date(d);x.setDate(x.getDate()+i);return dateKey(x)})}
@@ -277,7 +278,7 @@ const vehicleBlocks=installVehicleBlocks({state:()=>state,manager:isManager,run:
 
 const overheadsUI=installOverheads({remote,state:()=>state,admin:()=>role==='admin',navigate:target=>{page=target;render();window.scrollTo(0,0)}});
 const financeUI=installFinance({overheads:()=>overheadsUI.open(),purchases:job=>purchasesUI.open(job),navigate:target=>{if($('dialog').open)$('dialog').close();page=target;render();window.scrollTo(0,0)},user:()=>sessionUser,admin:()=>role==='admin',state:()=>state,message,read:async()=>{const version=remote.snapshot.company.version,data=await overheadsUI.finance();adopt(await remote.refresh());return {...data,version}},save:async(action,p,baseline)=>{const data=await guardedDomainSave(client,remote,'saas_finance',action,p,baseline);try{adopt(await remote.refresh());render()}catch{message('Doklad je uložený. Obnovení ostatních dat se nezdařilo.')}return data}});
-const experience=installExperience({run:runFeature,requestAttendance:id=>attendanceFollowupUI.request(id),role:()=>role,guideRole:()=>remote.snapshot?.membership.role,version:()=>remote.snapshot?.company.version,user:()=>sessionUser,me:()=>me,state:()=>state,render,message,shared:()=>remote.sharedPlan(),audit:()=>remote.audit(),pin:(w,value)=>remote.pin(w,value)});
+const experience=installExperience({planDay:(date,job)=>{if(!financeUI.canLeave())return;const days=(a,b)=>Math.round((Date.parse(a)-Date.parse(b))/86400000);dayOffset=days(date,dateKey(new Date()));todayOnly=true;view='workers';planScope='all';query='';$('search').value='';setMobilePlanState({date,view:'workers'});page='plan';render();document.querySelectorAll('[data-job]').forEach(el=>{if(el.dataset.job===job)el.style.outline='2px solid #2878df'})},run:runFeature,requestAttendance:id=>attendanceFollowupUI.request(id),role:()=>role,guideRole:()=>remote.snapshot?.membership.role,version:()=>remote.snapshot?.company.version,user:()=>sessionUser,me:()=>me,state:()=>state,render,message,shared:()=>remote.sharedPlan(),audit:()=>remote.audit(),pin:(w,value)=>remote.pin(w,value)});
 
 
 matchMedia('(max-width:700px)').addEventListener('change',()=>{if(sessionUser&&page==='plan'&&!document.querySelector('dialog[open]'))render()});
@@ -311,3 +312,5 @@ const vehicleDrivers=installVehicleDrivers({state:()=>state,manager:isManager,re
 document.addEventListener('click',e=>{if(e.target.closest('[data-purchase-company-settings]'))purchasesUI.settings()});
 
 document.addEventListener('click',e=>{if(e.target.closest('[data-cost-category-settings]'))openCategorySettings({admin:()=>role==='admin',company:()=>remote.companyId,refresh:()=>remote.refresh().then(adopt),message})});
+
+const warrantyUI=installWarranty({manager:isManager,state:()=>state,purchases:()=>remote.purchases(),refresh:async()=>{adopt(await remote.refresh())},message,save:async p=>{const r=await client.rpc('saas_warranty_save',{c:remote.companyId,p,expected_version:remote.snapshot.company.version});if(r.error)throw Error(r.error.message);adopt(await remote.refresh());render()}});

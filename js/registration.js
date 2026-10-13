@@ -1,5 +1,5 @@
 import {client} from './connection.js?v=shared-groups-1';
-import {esc} from './data.js?v=jobs-read-1';
+import {esc} from './data.js?v=warranty-1';
 export function installRegistration(){
  const panel=document.getElementById('login-panel'),login=document.getElementById('login-form');
  const button=document.createElement('button');button.type='button';button.className='secondary';button.id='register-company';button.textContent='Zaregistrovat novou firmu';login.append(button);

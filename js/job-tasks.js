@@ -1,5 +1,5 @@
 import {client} from './connection.js?v=shared-groups-1';
-import {esc} from './data.js?v=overhead-unbilled-1';
+import {esc} from './data.js?v=warranty-1';
 export function installJobTasks({remote,state,role}){
  const d=document.createElement('dialog');d.className='operations-dialog';d.style.cssText='width:min(680px,94vw);max-height:90dvh;overflow:auto';document.body.append(d);let job=null,data=null,epoch=0,busy=false;
  const close=()=>{epoch++;job=null;data=null;d.close();d.replaceChildren()};

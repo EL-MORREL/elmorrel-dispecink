@@ -1,4 +1,4 @@
-import {holidayName} from './holidays.js?v=finance-categories-1';
+import {holidayName} from './holidays.js?v=warranty-1';
 export function workedDays(rows){return new Set(rows.filter(r=>Number(r.hours)>0).map(r=>(r.workerId||r.worker)+'|'+r.date)).size;}
 export function workedDaysLabel(count){return count+' '+(count===1?'den':count>=2&&count<=4?'dny':'dnů');}
 export function nonWorkingDays(rows){

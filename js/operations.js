@@ -1,11 +1,11 @@
-import {arrivalDriverMarkup,driverChoice} from './arrival-driver.js?v=free-vehicles-1';
-import {replacementButton} from './attendance-replace.js?v=attendance-replace-1';
-import {attendancePromptsMarkup,pendingAttendancePrompts} from './attendance-followup.js?v=attendance-checks-2';
-import {holidayName} from './holidays.js?v=finance-categories-1';
+import {arrivalDriverMarkup,driverChoice} from './arrival-driver.js?v=warranty-1';
+import {replacementButton} from './attendance-replace.js?v=warranty-1';
+import {attendancePromptsMarkup,pendingAttendancePrompts} from './attendance-followup.js?v=warranty-1';
+import {holidayName} from './holidays.js?v=warranty-1';
 import {byName,searchText} from './selection-order.js?v=selection-1';
 import {nextPlanTime} from './next-plan-time.js?v=next-plan-1';
 import {blockingAbsences,absenceMessage} from './absence-planning.js?v=absence-notes-1';
-import {esc,DEMO_DAY,time,fmtHours,uid} from './data.js?v=jobs-read-1';
+import {esc,DEMO_DAY,time,fmtHours,uid} from './data.js?v=warranty-1';
 import {workbook,download} from './xlsx.js?v=jobs-read-1';
 const $=s=>document.querySelector(s),E=esc;
 const button=(a,t,id='')=>`<button type="button" class="secondary" data-op="${a}" data-key="${E(id)}">${t}</button>`;

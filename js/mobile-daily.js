@@ -1,15 +1,15 @@
-import {driverMarkup} from './driver-labels.js?v=visible-drivers-1';
-import {missingAttendanceMarkup} from './missing-attendance.js?v=attendance-replace-1';
+import {driverMarkup} from './driver-labels.js?v=warranty-1';
+import {missingAttendanceMarkup} from './missing-attendance.js?v=warranty-1';
 import {byStart} from './plan-order.js?v=plan-order-1';
 import {roleLabel} from './worker-accounts.js?v=finance-detail-1';
-import {dayBadge,holidayName} from './holidays.js?v=finance-categories-1';
+import {dayBadge,holidayName} from './holidays.js?v=warranty-1';
 import {blockingAbsences} from './absence-planning.js?v=absence-notes-1';
-import {jobNotes} from './job-tools.js?v=job-tasks-1';
-import {arrivalReviewMarkup} from './arrival-review.js?v=arrival-review-1';
-import {billingBadge} from './job-preferences.js?v=group-recovery-1';
-import {avatar,glyph,teamMarkup,plannedTime} from './daily-details.js?v=jobs-read-1';
-import {esc,dateKey,safeColor} from './data.js?v=jobs-read-1';
-import {contactMarkup} from './plan-usability.js?v=jobs-read-1';
+import {jobNotes} from './job-tools.js?v=warranty-1';
+import {arrivalReviewMarkup} from './arrival-review.js?v=warranty-1';
+import {billingBadge} from './job-preferences.js?v=warranty-1';
+import {avatar,glyph,teamMarkup,plannedTime} from './daily-details.js?v=warranty-1';
+import {esc,dateKey,safeColor} from './data.js?v=warranty-1';
+import {contactMarkup} from './plan-usability.js?v=warranty-1';
 let date=dateKey(new Date()),filter='all',search='',sheet;
 export function getMobilePlanState(){return {date,filter,search}}
 export function setMobilePlanState(p={}){p=p||{};date=/^\d{4}-\d{2}-\d{2}$/.test(p.date||'')&&Number.isFinite(Date.parse(p.date))?p.date:dateKey(new Date());filter=['all','empty','collision'].includes(p.filter)?p.filter:'all';search=typeof p.search==='string'?p.search.slice(0,200):'';}

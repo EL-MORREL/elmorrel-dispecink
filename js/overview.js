@@ -1,14 +1,14 @@
-import {driverMarkup} from './driver-labels.js?v=visible-drivers-1';
+import {driverMarkup} from './driver-labels.js?v=warranty-1';
 import {fuelDate} from './fuel-filters.js?v=fuel-filters-1';
 import {allocationsOf} from './purchase-shares.js?v=partial-purchases-1';
-import {esc,fmtHours,hours,localDate,safeColor} from './data.js?v=overhead-unbilled-1';
+import {esc,fmtHours,hours,localDate,safeColor} from './data.js?v=warranty-1';
 import {pragueToday} from './arrival-order.js?v=jobs-read-1';
 import {byStart} from './plan-order.js?v=plan-order-1';
-import {avatar,teamMarkup,plannedTime} from './daily-details.js?v=jobs-read-1';
-import {contactMarkup} from './plan-usability.js?v=jobs-read-1';
-import {jobNotes} from './job-tools.js?v=job-tasks-1';
-import {arrivalReviewMarkup} from './arrival-review.js?v=arrival-review-1';
-import {financeMetrics,money} from './finance-overview.js?v=partial-purchases-1';
+import {avatar,teamMarkup,plannedTime} from './daily-details.js?v=warranty-1';
+import {contactMarkup} from './plan-usability.js?v=warranty-1';
+import {jobNotes} from './job-tools.js?v=warranty-1';
+import {arrivalReviewMarkup} from './arrival-review.js?v=warranty-1';
+import {financeMetrics,money} from './finance-overview.js?v=warranty-1';
 export function greeting(name=''){
  const first=name.trim().split(/\s+/)[0],names={Jakub:'Jakube',Radek:'Radku',Petr:'Petře',Jan:'Jane',Martin:'Martine',Jaroslav:'Jaroslave',Daniel:'Danieli',Jonáš:'Jonáši',Jiří:'Jiří',Tomáš:'Tomáši',Pavel:'Pavle',Josef:'Josefe',Lukáš:'Lukáši',Michal:'Michale',David:'Davide',Ondřej:'Ondřeji',Václav:'Václave',Anna:'Anno',Eva:'Evo',Jana:'Jano',Lucie:'Lucie'};
  return names[first]?'Dobrý den, '+names[first]:'Dobrý den';

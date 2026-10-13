@@ -1,5 +1,5 @@
-import {installGroupRecovery} from './group-recovery.js?v=group-recovery-1';
-import {esc} from './data.js?v=jobs-read-1';
+import {installGroupRecovery} from './group-recovery.js?v=warranty-1';
+import {esc} from './data.js?v=warranty-1';
 export function billingBadge(state,a){const job=state.jobs.find(j=>j.id===a.job),billed=(state.extras?.billing||[]).some(b=>b.job_id===a.job&&b.date===a.date&&b.locked);return job?.status==='invoiced'||billed?`<span class="value-pill billing-badge">✓ ${job?.status==='invoiced'?'Celá zakázka vyfakturována':'Den vyfakturován'}</span>`:''}
 export function installJobPreferences(state,user,ctx={}){
  const grid=document.querySelector('#content .list-grid');if(!grid)return;const key='planner-job-preferences:'+user+':'+state.company.id;let prefs={filter:'all',sort:'name',group:'',groups:{},favorites:[]};try{Object.assign(prefs,JSON.parse(localStorage.getItem(key)||'{}'))}catch{}

@@ -1,6 +1,7 @@
+import {warrantyWork,warrantyPurchases} from './warranty-data.js?v=warranty-1';
 import {purchaseShares} from './purchase-shares.js?v=partial-purchases-1';
-import {costReport} from './costs.js?v=partial-purchases-1';
-import {esc,localDate,hours} from './data.js?v=overhead-unbilled-1';
+import {costReport} from './costs.js?v=warranty-1';
+import {esc,localDate,hours} from './data.js?v=warranty-1';
 export const categories=[['labor','Práce'],['material','Materiál'],['transport','Doprava'],['other','Ostatní'],['unclassified','Nerozčleněno']];
 export const categoryList=data=>data?.categories?.length?data.categories.map(c=>[c.id,c.name]):categories;
 export function categoryOf(item){if(item.category)return item.category;const n=String(item.name||'').trim().toLocaleLowerCase('cs');return ({'práce':'labor','materiál':'material','doprava':'transport'})[n]||'unclassified';}
@@ -9,11 +10,11 @@ export function categoryComparison(s,data,job){
  const rows=new Map(categoryList(data).map(([id,name])=>[id,{id,name,offer:0,invoiced:0,purchases:0,cost:0,billedCost:0}]));rows.set('overhead',{id:'overhead',name:'Režie',offer:0,invoiced:0,purchases:0,cost:0,billedCost:0});
  const entries=(data.entries||[]).filter(e=>e.job_id===job),invoices=entries.filter(e=>e.kind==='invoice'),invoiceIds=new Set(invoices.map(e=>e.id)),days=new Set(invoices.flatMap(e=>e.dates||[]));
  for(const e of entries.filter(e=>e.kind==='budget'||e.kind==='invoice'||e.kind==='change'&&e.status==='approved')){const key=e.kind==='invoice'?'invoiced':'offer',items=e.line_items||[];let sum=0;for(const item of items){(rows.get(categoryOf(item))||rows.get('unclassified'))[key]+=Number(item.amount);sum+=Number(item.amount)}const remainder=Number(e.amount)-sum;if(Math.abs(remainder)>=0.005)rows.get('unclassified')[key]+=remainder;}
- for(const p of purchaseShares(data).filter(p=>p.job_id===job)){const r=rows.get(p.is_overhead?'overhead':p.cost_category)||rows.get('unclassified');if(p.is_overhead)continue;r.purchases+=Number(p.amount);r.cost+=Number(p.amount);if(invoiceIds.has(p.invoice_id))r.billedCost+=Number(p.amount);}
+ for(const p of warrantyPurchases(s,purchaseShares(data)).filter(p=>p.job_id===job)){const r=rows.get(p.is_overhead?'overhead':p.cost_category)||rows.get('unclassified');if(p.is_overhead)continue;r.purchases+=Number(p.amount);r.cost+=Number(p.amount);if(invoiceIds.has(p.invoice_id))r.billedCost+=Number(p.amount);}
  const report=costReport(s,data,'1900-01-01','9999-12-31'),metric=report.jobs.find(j=>j.id===job),rates=(data.entries||[]).filter(e=>e.kind==='rate').sort((a,b)=>b.valid_from.localeCompare(a.valid_from));let missing=false;
  if(metric){rows.get('labor').cost+=metric.actualCost;rows.get('overhead').cost+=metric.actualOverhead;}
- const actual=s.attendance.filter(a=>a.job===job&&a.end).map(a=>({worker:a.worker,date:localDate(a.start),hours:hours(a)})).concat((s.extras?.historicalHours||[]).filter(a=>a.job_id===job).map(a=>({worker:a.worker_id,date:a.date,hours:Number(a.hours)})));
- for(const a of actual.filter(a=>days.has(a.date))){const rate=rates.find(r=>r.worker_id===a.worker&&r.valid_from<=a.date),pool=report.pools.get('actual'+a.date.slice(0,7));rows.get('labor').billedCost+=(rate?Number(rate.amount):0)*a.hours;if(!metric?.overhead&&pool?.hours)rows.get('overhead').billedCost+=pool.cost*a.hours/pool.hours;missing||=a.hours>0&&!rate||!metric?.overhead&&!!pool?.missing;}
+ const actual=warrantyWork(s,s.attendance.filter(a=>a.end).map(a=>({sourceId:a.id,sourceType:'attendance',job:a.job,worker:a.worker,date:localDate(a.start),hours:hours(a)})).concat((s.extras?.historicalHours||[]).map(a=>({sourceId:a.id,sourceType:'historical',job:a.job_id,worker:a.worker_id,date:a.date,hours:Number(a.hours)})))).filter(a=>a.job===job);
+ for(const a of actual.filter(a=>a.warranty||days.has(a.date))){const rate=rates.find(r=>r.worker_id===a.worker&&r.valid_from<=a.date),pool=report.pools.get('actual'+a.date.slice(0,7));rows.get('labor').billedCost+=(rate?Number(rate.amount):0)*a.hours;if(!metric?.overhead&&pool?.hours)rows.get('overhead').billedCost+=pool.cost*a.hours/pool.hours;missing||=a.hours>0&&!rate||!metric?.overhead&&!!pool?.missing;}
  const unknown=rows.get('unclassified'),incomplete=Math.abs(unknown.invoiced)>0.005||unknown.billedCost>0.005;
  for(const r of rows.values()){r.profit=metric?.overhead||missing||incomplete||!invoices.length?null:r.invoiced-r.billedCost;r.margin=r.profit!==null&&r.invoiced>0?r.profit/r.invoiced*100:null;}
  return {hasOffer:entries.some(e=>e.kind==='budget'),rows:[...rows.values()],missing,missingActual:!!metric?.missingRates,incomplete,overhead:!!metric?.overhead};

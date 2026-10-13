@@ -72,8 +72,8 @@ export function reportRows(state,options){
  const overhead=new Set((state.extras?.jobKinds||[]).filter(k=>k.overhead).map(k=>k.job_id));
  const billedDays=new Set((state.extras?.billing||[]).filter(b=>b.locked).map(b=>b.job_id+'|'+b.date));
  const isBilled=r=>jobs.get(r.jobId)?.status==='invoiced'||billedDays.has(r.jobId+'|'+r.date);
- const raw=state.attendance.filter(t=>t.end&&localDate(t.start).startsWith(month)).map(t=>({date:localDate(t.start),workerId:t.worker,jobId:t.job,arrival:time(t.start),departure:time(t.end),breakMinutes:t.breakMinutes||0,hours:hours(t)}))
- .concat(historicalRows(state).filter(h=>h.date.startsWith(month)).map(h=>({date:h.date,workerId:h.worker_id,jobId:h.job_id,arrival:'',departure:'',breakMinutes:0,hours:Number(h.hours),note:h.note,source:'Výkaz 2026'})));
+ const raw=state.attendance.filter(t=>t.end&&localDate(t.start).startsWith(month)).map(t=>({sourceType:'attendance',sourceId:t.id,date:localDate(t.start),workerId:t.worker,jobId:t.job,arrival:time(t.start),departure:time(t.end),breakMinutes:t.breakMinutes||0,hours:hours(t)}))
+ .concat(historicalRows(state).filter(h=>h.date.startsWith(month)).map(h=>({sourceType:'historical',sourceId:h.id,date:h.date,workerId:h.worker_id,jobId:h.job_id,arrival:'',departure:'',breakMinutes:0,hours:Number(h.hours),note:h.note,source:'Výkaz 2026'})));
  // Same full-month productive-hour denominator as costReport. Filter job/worker only afterwards.
  let productive=0,covered=0;
  for(const r of raw)if(jobs.has(r.jobId)&&!overhead.has(r.jobId)){productive+=r.hours;if(isBilled(r))covered+=r.hours}
@@ -81,6 +81,6 @@ export function reportRows(state,options){
  return raw.filter(r=>(!job||r.jobId===job)&&(!worker||r.workerId===worker)).map(r=>{
   const share=isBilled(r)?1:overhead.has(r.jobId)?coveredShare:0;
   const factor=billing==='all'?1:billing==='billed'?share:1-share;
-  return {...r,worker:workers.get(r.workerId)??'—',job:jobs.get(r.jobId)?.name??'—',hours:r.hours*factor,overheadAllocation:billing!=='all'&&overhead.has(r.jobId)};
+  return {...r,worker:workers.get(r.workerId)??'—',job:jobs.get(r.jobId)?.name??'—',hours:(billing==='all'?r.hours:Math.max(0,r.hours-Number(state.extras?.warranty?.find(w=>w.source_type===r.sourceType&&w.source_id===r.sourceId)?.quantity||0)))*factor,overheadAllocation:billing!=='all'&&overhead.has(r.jobId)};
  }).filter(r=>billing==='all'||r.hours>1e-9).sort((a,b)=>a.date.localeCompare(b.date));
 }
