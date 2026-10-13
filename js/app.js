@@ -8,7 +8,7 @@ import {missingAttendanceMarkup,installMissingAttendance} from './missing-attend
 import {monthWorkdaysMarkup,workedDays,workedDaysLabel,workedDayBreakdownMarkup} from './month-workdays.js?v=nonworking-days-1';
 import {vacationRows,absenceRows,vehicleRows} from './resource-reports.js?v=absence-reports-1';
 import {installVehicleDrivers} from './vehicle-drivers.js?v=driver-claims-1';
-import {installOverview} from './overview.js?v=partial-purchases-1';
+import {installOverview} from './overview.js?v=overview-periods-1';
 import {filteredFuel,fuelDate} from './fuel-filters.js?v=fuel-filters-1';
 import {installOverheads} from './overheads.js?v=drafts-1';
 import {byStart} from './plan-order.js?v=plan-order-1';
@@ -17,7 +17,7 @@ import {installJobTasks} from './job-tasks.js?v=foreman-create-1';
 import {dayBadge,dayOffLabel} from './holidays.js?v=finance-categories-1';
 import {byName,searchText} from './selection-order.js?v=selection-1';
 import {setupJobFields,jobNotes} from './job-tools.js?v=job-tasks-1';
-import {installPurchases} from './purchases.js?v=drafts-1';
+import {installPurchases} from './purchases.js?v=overview-periods-1';
 import {accountLabel,roleLabel} from './worker-accounts.js?v=finance-detail-1';
 import {updateProfileIdentity} from './profile-identity.js?v=profile-identity-1';
 import {arrivalReviewMarkup,installArrivalReview} from './arrival-review.js?v=departure-review-1';
