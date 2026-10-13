@@ -1,5 +1,5 @@
 import {openCategorySettings} from './category-settings.js?v=custom-categories-1';
-import {arrivalDriverMarkup,driverChoice} from './arrival-driver.js?v=driver-claims-1';
+import {arrivalDriverMarkup,driverChoice} from './arrival-driver.js?v=free-vehicles-1';
 import {driverMarkup} from './driver-labels.js?v=visible-drivers-1';
 import {installAttendanceReplacement} from './attendance-replace.js?v=attendance-replace-1';
 import {installAttendanceFollowup} from './attendance-followup.js?v=attendance-checks-2';
@@ -35,7 +35,7 @@ import {arrangeJobCards} from './job-card-layout.js?v=job-tasks-1';
 import {installVehicleBlocks} from './vehicle-blocks.js?v=jobs-read-1';
 import {installRegistration} from './registration.js?v=shared-groups-1';
 import {installCompanyMail} from './company-mail.js?v=shared-groups-1';
-import {installOperations} from './operations.js?v=driver-claims-1';
+import {installOperations} from './operations.js?v=free-vehicles-1';
 import './passwords.js?v=shared-groups-1';
 import {invitationsEnabled} from './features.js?v=jobs-read-1';
 import {historicalRows,upgrade,bookings,jobTotals,saveAssignment,moveBooking,seed,DEMO_DAY,COLORS,uid,esc,dateKey,localDate,fmtHours,time,hours,safeColor,safeUrl,actual,mismatch,arrive,depart,reportRows} from './data.js?v=overhead-unbilled-1';
