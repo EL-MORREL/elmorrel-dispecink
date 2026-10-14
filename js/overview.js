@@ -55,6 +55,7 @@ export function installOverview(ctx){
   const vehicleRows=s.vehicleBookings.filter(b=>inPeriod(b.date)&&(manager||own.some(a=>a.job===b.job&&a.date===b.date)));
   grid.insertAdjacentHTML('beforeend','<section class="overview-panel"><h2>Vozidla v plánu</h2>'+list(vehicleRows,b=>'<article><strong>'+esc(s.vehicles.find(v=>v.id===b.vehicle)?.name||'Vozidlo')+'</strong><p>'+dateLabel(b.date)+esc(s.jobs.find(j=>j.id===b.job)?.name||'Zakázka')+' · '+fmtHours(Number(b.hours)||0)+' h</p>'+driverMarkup(b)+(manager&&!b.driver?'<button type="button" data-driver-kind="booking" data-driver-id="'+esc(b.id)+'">Doplnit řidiče</button>':'')+'</article>')+nav('plan','Otevřít plánovač')+'</section>');
   if(period!=='day'){document.querySelector('.overview > .overview-stats').remove();grid.classList.add('period-summary');grid.innerHTML=periodSummary(s,me,manager,selected,period,admin)+(admin?'<section class="overview-panel" id="overview-finance" aria-live="polite">Načítám finance…</section>':'');}
+  ctx.information?.();
   if(manager){
    grid.insertAdjacentHTML('beforeend','<section class="overview-panel" id="overview-purchases" aria-live="polite"><h2>Objednávky za vybrané období</h2><p>Načítám objednávky…</p></section>');
    const key=ctx.identity(),token=epoch;
