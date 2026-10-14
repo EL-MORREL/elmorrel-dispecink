@@ -10,16 +10,16 @@ import {missingAttendanceMarkup,installMissingAttendance} from './missing-attend
 import {monthWorkdaysMarkup,workedDays,workedDaysLabel,workedDayBreakdownMarkup} from './month-workdays.js?v=warranty-1';
 import {vacationRows,absenceRows,vehicleRows} from './resource-reports.js?v=warranty-1';
 import {installVehicleDrivers} from './vehicle-drivers.js?v=warranty-1';
-import {installOverview} from './overview.js?v=period-workers-1';
+import {installOverview} from './overview.js?v=complete-jobs-1';
 import {filteredFuel,fuelDate} from './fuel-filters.js?v=fuel-filters-1';
-import {installOverheads} from './overheads.js?v=warranty-1';
+import {installOverheads} from './overheads.js?v=complete-jobs-1';
 import {byStart} from './plan-order.js?v=plan-order-1';
 import {createPlannerMemory} from './planner-memory.js?v=planner-position-1';
 import {installJobTasks} from './job-tasks.js?v=warranty-1';
 import {dayBadge,dayOffLabel} from './holidays.js?v=warranty-1';
 import {byName,searchText} from './selection-order.js?v=selection-1';
 import {setupJobFields,jobNotes} from './job-tools.js?v=warranty-1';
-import {installPurchases} from './purchases.js?v=warranty-1';
+import {installPurchases} from './purchases.js?v=complete-jobs-1';
 import {accountLabel,roleLabel} from './worker-accounts.js?v=finance-detail-1';
 import {updateProfileIdentity} from './profile-identity.js?v=profile-identity-1';
 import {arrivalReviewMarkup,installArrivalReview} from './arrival-review.js?v=warranty-1';
@@ -29,7 +29,7 @@ import {renderMobileDaily,getMobilePlanState,setMobilePlanState} from './mobile-
 import {contactMarkup,decoratePlanActions} from './plan-usability.js?v=warranty-1';
 import {sendInvitation} from './invitations.js?v=invite-1';
 import {installExperience} from './experience.js?v=warranty-1';
-import {installFinance} from './finance-ui.js?v=warranty-1';
+import {installFinance} from './finance-ui.js?v=complete-jobs-1';
 import {rememberLogin,remembered} from './session-storage.js?v=jobs-read-1';
 import './planner-scroll.js?v=scroll-1';
 import {decoratePlannerLayout} from './planner-layout.js?v=jobs-read-1';
@@ -60,7 +60,7 @@ const btn=(action,text,cls='secondary',id='')=>`<button type="button" class="${c
 let viewRole=null,fullState=null;
 const actualAdmin=()=>['owner','admin'].includes(remote.snapshot?.membership.role);
 const effectiveRole=()=>actualAdmin()&&viewRole?viewRole:remote.snapshot?.membership.role;
-function adopt(next){fullState=next;if(!actualAdmin())viewRole=null;state=structuredClone(next);for(const b of state.vehicleBookings){const row=remote.snapshot.data.saas_vehicle_bookings.find(x=>x.id===b.id);b.driver=row?row.driver_id||null:b.driver||null;b.driverName=row?row.driver_name||'':b.driverName||''}for(const v of state.vehicles){const row=remote.snapshot.data.saas_vehicles.find(x=>x.id===v.id);v.defaultDriver=row?.default_driver_id||null;v.defaultDriverName=row?.default_driver_name||''}for(const entry of state.extras?.workerRoles||[]){const w=state.workers.find(w=>w.id===entry.worker_id);if(w)w.role=entry.role}const m=remote.snapshot.membership,r=effectiveRole();foreman=r==='foreman';me=m.worker_id;role=['owner','admin'].includes(r)?'admin':['dispatcher','editor'].includes(r)?'dispatcher':'worker';if(viewRole&&role==='worker'){state.attendance=state.attendance.filter(t=>t.worker===me||foreman&&state.assignments.some(a=>a.worker===me&&a.job===t.job&&a.date===localDate(t.start)));state.fuel=state.fuel.filter(t=>t.worker===me);for(const key of ['requests','absences'])if(state.extras?.[key])state.extras[key]=state.extras[key].filter(t=>t.worker_id===me);}const control=$('role');control.disabled=!actualAdmin();control.value=foreman?'foreman':role;control.setAttribute('aria-label',actualAdmin()?'Zobrazit aplikaci jako':'Oprávnění účtu');control.title=actualAdmin()?'Přepnout pohled; uložená oprávnění účtu se nemění.':'';}
+function adopt(next){fullState=next;if(!actualAdmin())viewRole=null;state=structuredClone(next);for(const j of state.jobs){const raw=remote.snapshot?.data?.saas_jobs?.find(r=>r.id===j.id);if(raw)Object.assign(j,{createdAt:raw.created_at,closedAt:raw.closed_at,mergedInto:raw.merged_into});}state.jobs=state.jobs.filter(j=>j.status!=='merged');for(const b of state.vehicleBookings){const row=remote.snapshot.data.saas_vehicle_bookings.find(x=>x.id===b.id);b.driver=row?row.driver_id||null:b.driver||null;b.driverName=row?row.driver_name||'':b.driverName||''}for(const v of state.vehicles){const row=remote.snapshot.data.saas_vehicles.find(x=>x.id===v.id);v.defaultDriver=row?.default_driver_id||null;v.defaultDriverName=row?.default_driver_name||''}for(const entry of state.extras?.workerRoles||[]){const w=state.workers.find(w=>w.id===entry.worker_id);if(w)w.role=entry.role}const m=remote.snapshot.membership,r=effectiveRole();foreman=r==='foreman';me=m.worker_id;role=['owner','admin'].includes(r)?'admin':['dispatcher','editor'].includes(r)?'dispatcher':'worker';if(viewRole&&role==='worker'){state.attendance=state.attendance.filter(t=>t.worker===me||foreman&&state.assignments.some(a=>a.worker===me&&a.job===t.job&&a.date===localDate(t.start)));state.fuel=state.fuel.filter(t=>t.worker===me);for(const key of ['requests','absences'])if(state.extras?.[key])state.extras[key]=state.extras[key].filter(t=>t.worker_id===me);}const control=$('role');control.disabled=!actualAdmin();control.value=foreman?'foreman':role;control.setAttribute('aria-label',actualAdmin()?'Zobrazit aplikaci jako':'Oprávnění účtu');control.title=actualAdmin()?'Přepnout pohled; uložená oprávnění účtu se nemění.':'';}
 function switchRoleView(value){if(!financeUI.canLeave()){$('role').value=foreman?'foreman':role;return;}attendanceReplacementUI.reset();attendanceFollowupUI.reset();missingAttendanceUI.reset();if(!actualAdmin()||!['admin','dispatcher','foreman','worker'].includes(value))return;if(saving){$('role').value=foreman?'foreman':role;message('Počkejte na dokončení ukládání.');return}document.querySelectorAll('dialog[open]').forEach(d=>d.close());reportDrivers=null;reportDriverError='';vehicleDrivers.reset();overviewUI.reset();financeUI.reset();overheadsUI.reset();purchasesUI.reset();jobTasksUI.reset();experience.reset();viewRole=value==='admin'?null:value;planScope=null;query='';$('search').value='';attendanceWorker='';fuelFilters={vehicle:'',worker:'',month:'',from:'',to:''};adopt(fullState);page='overview';render();}
 $('role').addEventListener('change',e=>switchRoleView(e.target.value));
 

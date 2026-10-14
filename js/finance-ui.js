@@ -4,16 +4,16 @@ import {purchaseShares} from './purchase-shares.js?v=partial-purchases-1';
 import {byName,searchText} from './selection-order.js?v=selection-1';
 import {costReport} from './costs.js?v=warranty-1';
 import {esc,localDate,hours,safeUrl,fmtHours} from './data.js?v=warranty-1';
-import {financeOverview,money,financeButton as button} from './finance-overview.js?v=warranty-1';
+import {financeOverview,money,financeButton as button} from './finance-overview.js?v=complete-jobs-1';
 import {readJobPreferences,writeJobPreferences} from './job-preferences.js?v=warranty-1';
 export function installFinance(ctx){
  const dialog=document.createElement('section');dialog.className='finance-page';let generation=0;
  let draftForm=null,draftBaseline='';
  const fingerprint=form=>JSON.stringify([...form.querySelectorAll('input,select,textarea')].filter(x=>!['daysFrom','daysTo'].includes(x.name)).map(x=>[x.name||x.getAttribute('aria-label')||x.dataset.purchaseAmount,x.type==='checkbox'?x.checked:x.value]).concat([form.selectedInvoiceDays?.()||[]]));
- const dirty=()=>draftForm?.isConnected&&fingerprint(draftForm)!==draftBaseline;
+ const dirty=()=>draftForm&&fingerprint(draftForm)!==draftBaseline;
  const leave=()=>!dirty()||window.confirm('Máte neuložené změny. Opuštěním formuláře je ztratíte. Opravdu odejít?');
  window.addEventListener('beforeunload',event=>{if(dirty()){event.preventDefault();event.returnValue=''}});
- document.addEventListener('click',event=>{const el=event.target.closest('a,[data-finance],[data-action]');if(!el||!dirty())return;const link=el.tagName==='A';if(link&&(el.target==='_blank'||event.ctrlKey||event.metaKey||event.shiftKey||el.hasAttribute('download')))return;const exiting=link||el.dataset.finance==='back'||(!dialog.contains(el)&&['nav','finance','purchases','overheads','logout'].includes(el.dataset.action));if(exiting&&!leave()){event.preventDefault();event.stopImmediatePropagation()}},true);
+ document.addEventListener('click',event=>{const el=event.target.closest('a,[data-finance],[data-action]');if(!el||!dirty())return;const link=el.tagName==='A';if(link&&(el.target==='_blank'||event.ctrlKey||event.metaKey||event.shiftKey||el.hasAttribute('download')))return;const exiting=link||el.dataset.finance==='back'||el.dataset.action==='logout';if(exiting&&!leave()){event.preventDefault();event.stopImmediatePropagation()}},true);
  let data,selected='',summary=false,tab='budget',from='',to='',search='',workerId='';
  const today=()=>localDate(new Date().toISOString());
  const input=(n,label,value='',type='text',extra='')=>`<label>${label}<input name="${n}" type="${type}" ${type==='number'?'step="0.01"':''} value="${esc(value??'')}" ${extra}></label>`;
@@ -23,7 +23,7 @@ export function installFinance(ctx){
  function mount(){const content=document.getElementById('content');if(dialog.parentElement!==content)content.replaceChildren(dialog)}
  function reset(){generation++;data=null;selected=workerId=from=to=search='';summary=false;tab='budget';dialog.replaceChildren()}
  async function begin(job='',worker=''){if(!ctx.admin())return;const request=++generation;workerId=worker;selected=job;tab=job?'invoice':'budget';ctx.navigate('finance');shell('Finance zakázek','<p role="status">Načítám finance…</p>');try{const next=await ctx.read();if(request!==generation)return;data=next;render()}catch(e){if(request!==generation)return;shell('Finance zakázek',button('reload','Zkusit načíst znovu'));fail(e)}}
- async function open(job){return begin(job||'')}
+ async function open(job){if(!job&&data&&dialog.childNodes.length){ctx.navigate('finance');mount();return}return begin(job||'')}
  async function worker(id){return begin('',id)}
  function render(){
   if(workerId){const w=ctx.state().workers.find(w=>w.id===workerId);shell('Hodinové náklady · '+esc(w?.name||''),`<p>Sazby platí od zvoleného dne. Pro novou sazbu přidejte záznam s novým datem.</p>${button('rate','Přidat sazbu')} ${(data.entries||[]).filter(e=>e.kind==='rate'&&e.worker_id===workerId).sort((a,b)=>b.valid_from.localeCompare(a.valid_from)).map(e=>`<article class="finance-record"><strong>${esc(e.valid_from)} · ${money(Number(e.amount))}/h</strong><p>${esc(e.note)}</p>${button('rate','Upravit',e.id)} ${button('delete','Smazat',e.id)}</article>`).join('')||'<p>Sazba zatím není zadaná.</p>'}`);return}

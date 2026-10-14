@@ -15,7 +15,7 @@ export function installOverheads(ctx){
  function shell(body){root.innerHTML='<div class="page-heading"><h1>Režijní náklady</h1></div><div class="panel-content"><p role="alert"></p>'+body+'</div>'}
  function fail(e){root.querySelector('[role=alert]').textContent=e.message}
  async function call(action='read',p={}){if(busy)return;const n=epoch,c=ctx.remote.companyId;busy=true;root.querySelectorAll('button').forEach(b=>b.disabled=true);try{const r=action==='read'?await client.rpc('saas_overheads',{c,action,p,expected_version:null}):{data:await guardedDomainSave(client,ctx.remote,'saas_overheads',action,p,data)};if(n!==epoch||c!==ctx.remote.companyId)return;if(r.error)throw Error(r.error.message);data=r.data;draw();if(action!=='read')window.dispatchEvent(new Event('planner-data-changed'));}catch(e){if(n===epoch)fail(e)}finally{if(n===epoch){busy=false;root.querySelectorAll('button').forEach(b=>b.disabled=false)}}}
- async function open(){if(!ctx.admin())return;reset();ctx.navigate('overheads');shell('<p>Načítám režijní náklady…</p>'+button('reload','Obnovit'));await call()}
+ async function open(){if(!ctx.admin())return;if(data&&root.childNodes.length){ctx.navigate('overheads');mount();return;}reset();ctx.navigate('overheads');shell('<p>Načítám režijní náklady…</p>'+button('reload','Obnovit'));await call()}
  function draw(){
   const entries=data.finance.entries.filter(e=>e.kind==='overhead'&&e.valid_from.slice(0,7)===month),pending=data.templates.filter(t=>due(t,month)&&!entries.some(e=>e.overhead_template_id===t.id));
   const visible=e=>(!category||(e.category||e.overhead_category||'Ostatní')===category)&&(!query||[e.name,e.note].join(' ').toLocaleLowerCase('cs').includes(query.toLocaleLowerCase('cs')));
