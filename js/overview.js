@@ -1,4 +1,4 @@
-import {periodSummary,periodFinance} from './period-summary.js?v=period-summary-1';
+import {periodSummary,periodFinance} from './period-summary.js?v=period-workers-1';
 import {driverMarkup} from './driver-labels.js?v=warranty-1';
 import {fuelDate} from './fuel-filters.js?v=fuel-filters-1';
 import {allocationsOf} from './purchase-shares.js?v=partial-purchases-1';
@@ -9,7 +9,7 @@ import {avatar,teamMarkup,plannedTime} from './daily-details.js?v=warranty-1';
 import {contactMarkup} from './plan-usability.js?v=warranty-1';
 import {jobNotes} from './job-tools.js?v=warranty-1';
 import {arrivalReviewMarkup} from './arrival-review.js?v=warranty-1';
-import {financeMetrics,money} from './finance-overview.js?v=warranty-1';
+import {financeMetrics,money} from './finance-overview.js?v=period-workers-1';
 export function greeting(name=''){
  const first=name.trim().split(/\s+/)[0],names={Jakub:'Jakube',Radek:'Radku',Petr:'Petře',Jan:'Jane',Martin:'Martine',Jaroslav:'Jaroslave',Daniel:'Danieli',Jonáš:'Jonáši',Jiří:'Jiří',Tomáš:'Tomáši',Pavel:'Pavle',Josef:'Josefe',Lukáš:'Lukáši',Michal:'Michale',David:'Davide',Ondřej:'Ondřeji',Václav:'Václave',Anna:'Anno',Eva:'Evo',Jana:'Jano',Lucie:'Lucie'};
  return names[first]?'Dobrý den, '+names[first]:'Dobrý den';
@@ -54,7 +54,7 @@ export function installOverview(ctx){
   grid.insertAdjacentHTML('beforeend','<section class="overview-panel"><h2>Docházka za vybrané období</h2>'+list(dayAttendance,a=>'<article><strong>'+esc(name(a.worker))+'</strong><p>'+esc(s.jobs.find(j=>j.id===a.job)?.name||'Bez zakázky')+'</p><p>'+clock(a.start)+' – '+(a.end?clock(a.end):'Odchod nezapsán')+(a.end?' · '+fmtHours(hours(a))+' h':'')+'</p></article>')+nav('attendance','Otevřít docházku')+'</section><section class="overview-panel"><h2>Tankování vozidel</h2>'+list(dayFuel,f=>'<article><strong>'+esc(f.vehicle?s.vehicles.find(v=>v.id===f.vehicle)?.name||'Vozidlo':'Soukromé vozidlo')+'</strong><p>'+esc(name(f.worker))+' · '+clock(f.at)+'</p><p>'+esc(f.note||'')+'</p></article>')+nav('fuel','Otevřít tankování')+'</section><section class="overview-panel"><h2>Volno a dovolené</h2>'+list(absences,a=>'<article><strong>'+esc(name(a.worker_id))+'</strong><p>'+dateLabel(a.date)+'</p><p>'+esc(s.extras.absenceTypes?.find(t=>t.id===a.type_id)?.name||'Volno')+' · '+fmtHours(Number(a.hours)||0)+' h · '+(a.status==='approved'?'Schváleno':'Čeká na schválení')+'</p></article>')+'<button type="button" data-action="notifications">Žádosti a upozornění</button></section>');
   const vehicleRows=s.vehicleBookings.filter(b=>inPeriod(b.date)&&(manager||own.some(a=>a.job===b.job&&a.date===b.date)));
   grid.insertAdjacentHTML('beforeend','<section class="overview-panel"><h2>Vozidla v plánu</h2>'+list(vehicleRows,b=>'<article><strong>'+esc(s.vehicles.find(v=>v.id===b.vehicle)?.name||'Vozidlo')+'</strong><p>'+dateLabel(b.date)+esc(s.jobs.find(j=>j.id===b.job)?.name||'Zakázka')+' · '+fmtHours(Number(b.hours)||0)+' h</p>'+driverMarkup(b)+(manager&&!b.driver?'<button type="button" data-driver-kind="booking" data-driver-id="'+esc(b.id)+'">Doplnit řidiče</button>':'')+'</article>')+nav('plan','Otevřít plánovač')+'</section>');
-  if(period!=='day'){document.querySelector('.overview > .overview-stats').remove();grid.classList.add('period-summary');grid.innerHTML=periodSummary(s,me,manager,selected,period)+(admin?'<section class="overview-panel" id="overview-finance" aria-live="polite">Načítám finance…</section>':'');}
+  if(period!=='day'){document.querySelector('.overview > .overview-stats').remove();grid.classList.add('period-summary');grid.innerHTML=periodSummary(s,me,manager,selected,period,admin)+(admin?'<section class="overview-panel" id="overview-finance" aria-live="polite">Načítám finance…</section>':'');}
   if(manager){
    grid.insertAdjacentHTML('beforeend','<section class="overview-panel" id="overview-purchases" aria-live="polite"><h2>Objednávky za vybrané období</h2><p>Načítám objednávky…</p></section>');
    const key=ctx.identity(),token=epoch;

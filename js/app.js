@@ -1,4 +1,4 @@
-import './search-filters.js?v=period-summary-1';
+import './search-filters.js?v=period-workers-1';
 import {installWarranty} from './warranty-ui.js?v=warranty-1';
 import {protectPlannerSave,guardedDomainSave} from './save-guard.js?v=drafts-1';
 import {openCategorySettings} from './category-settings.js?v=warranty-1';
@@ -10,7 +10,7 @@ import {missingAttendanceMarkup,installMissingAttendance} from './missing-attend
 import {monthWorkdaysMarkup,workedDays,workedDaysLabel,workedDayBreakdownMarkup} from './month-workdays.js?v=warranty-1';
 import {vacationRows,absenceRows,vehicleRows} from './resource-reports.js?v=warranty-1';
 import {installVehicleDrivers} from './vehicle-drivers.js?v=warranty-1';
-import {installOverview} from './overview.js?v=period-summary-1';
+import {installOverview} from './overview.js?v=period-workers-1';
 import {filteredFuel,fuelDate} from './fuel-filters.js?v=fuel-filters-1';
 import {installOverheads} from './overheads.js?v=warranty-1';
 import {byStart} from './plan-order.js?v=plan-order-1';
@@ -24,7 +24,7 @@ import {accountLabel,roleLabel} from './worker-accounts.js?v=finance-detail-1';
 import {updateProfileIdentity} from './profile-identity.js?v=profile-identity-1';
 import {arrivalReviewMarkup,installArrivalReview} from './arrival-review.js?v=warranty-1';
 import {orderedJobChoices,pragueToday} from './arrival-order.js?v=jobs-read-1';
-import {billingBadge,installJobPreferences,readJobPreferences,writeJobPreferences} from './job-preferences.js?v=warranty-1';
+import {billingBadge,installJobPreferences,readJobPreferences,writeJobPreferences} from './job-preferences.js?v=period-workers-1';
 import {renderMobileDaily,getMobilePlanState,setMobilePlanState} from './mobile-daily.js?v=warranty-1';
 import {contactMarkup,decoratePlanActions} from './plan-usability.js?v=warranty-1';
 import {sendInvitation} from './invitations.js?v=invite-1';
