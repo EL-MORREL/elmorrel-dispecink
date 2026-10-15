@@ -1,6 +1,6 @@
 import {costReport} from './costs.js?v=overhead-categories-1';
 import {esc,localDate,hours} from './data.js?v=workspace-2';
-import {jobPicker} from './job-picker.js?v=workspace-2';
+import {jobPicker} from './job-picker.js?v=picker-dismiss-1';
 export function installWarranty(ctx){
  let scope='',day='',costs=null;
  const dialog=document.createElement('dialog');dialog.className='operations-dialog';document.body.append(dialog);

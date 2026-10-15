@@ -1,4 +1,5 @@
-import {rankJobs} from './job-picker.js?v=workspace-2';
+import {registerPicker} from './picker-dismiss.js?v=picker-dismiss-1';
+import {rankJobs} from './job-picker.js?v=picker-dismiss-1';
 // Keep the original select and its change handlers; typing only searches, selection applies.
 export function enhanceFilters(root=document){
  const selector='.job-preferences select[data-pref=party],.job-preferences select[data-pref=lead],.attendance-filters select,.fuel-filters select,#report-worker,#report-job,#report-vehicle,#report-driver,select[name="billing-filter"],#purchase-filters select,[data-filter] select';
@@ -12,8 +13,9 @@ export function enhanceFilters(root=document){
   const choose=o=>{select.value=o.id;sync();close();select.dispatchEvent(new Event('change',{bubbles:true}))};
   const highlight=()=>{[...list.children].forEach((n,i)=>n.setAttribute('aria-selected',String(i===active)));if(matches.length)input.setAttribute('aria-activedescendant',list.children[active].id)};
   const show=()=>{matches=input.value.trim()?rankJobs(options,input.value):options;active=0;list.replaceChildren();matches.forEach((o,i)=>{const n=document.createElement('div');n.id=list.id+'-'+i;n.setAttribute('role','option');n.textContent=o.name;n.onmousedown=e=>e.preventDefault();n.onclick=()=>choose(o);list.append(n)});if(!matches.length)list.textContent='Žádná shoda.';list.hidden=false;input.setAttribute('aria-expanded','true');highlight()};
+  registerPicker(wrap,()=>{sync();close()});
   input.onfocus=show;input.oninput=()=>{if(!input.value&&select.value!==fallback.id){choose(fallback);if(!input.isConnected)return;}show()};
-  input.onkeydown=e=>{if(e.key==='Escape'){sync();close()}if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();if(list.hidden)show();else if(matches.length)active=(active+(e.key==='ArrowDown'?1:-1)+matches.length)%matches.length;highlight();list.children[active]?.scrollIntoView({block:'nearest'})}if(e.key==='Enter'&&!list.hidden){e.preventDefault();if(matches[active])choose(matches[active])}};
+  input.onkeydown=e=>{if(e.key==='Escape'&&!list.hidden){e.preventDefault();e.stopPropagation();sync();close();return;}if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();if(list.hidden)show();else if(matches.length)active=(active+(e.key==='ArrowDown'?1:-1)+matches.length)%matches.length;highlight();list.children[active]?.scrollIntoView({block:'nearest'})}if(e.key==='Enter'&&!list.hidden){e.preventDefault();if(matches[active])choose(matches[active])}};
   wrap.onfocusout=e=>{if(!wrap.contains(e.relatedTarget)){sync();close()}};
  }
 }
