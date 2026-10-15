@@ -1,5 +1,5 @@
 import {installNotifications} from './notifications.js?v=workspace-2';
-import {installDirectory} from './directory.js?v=workspace-2';
+import {installDirectory} from './directory.js?v=directory-web-1';
 import './search-filters.js?v=workspace-2';
 import {installWarranty} from './warranty-ui.js?v=workspace-2';
 import {protectPlannerSave,guardedDomainSave} from './save-guard.js?v=workspace-2';
@@ -22,7 +22,7 @@ import {installJobTasks} from './job-tasks.js?v=workspace-2';
 import {dayBadge,dayOffLabel} from './holidays.js?v=workspace-2';
 import {byName,searchText} from './selection-order.js?v=workspace-2';
 import {setupJobFields,jobNotes} from './job-tools.js?v=workspace-2';
-import {installPurchases} from './purchases.js?v=workspace-2';
+import {installPurchases} from './purchases.js?v=directory-web-1';
 import {accountLabel,roleLabel} from './worker-accounts.js?v=workspace-2';
 import {updateProfileIdentity} from './profile-identity.js?v=workspace-2';
 import {arrivalReviewMarkup,installArrivalReview} from './arrival-review.js?v=workspace-2';
