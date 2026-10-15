@@ -22,7 +22,7 @@ import {installJobTasks} from './job-tasks.js?v=workspace-2';
 import {dayBadge,dayOffLabel} from './holidays.js?v=workspace-2';
 import {byName,searchText} from './selection-order.js?v=workspace-2';
 import {setupJobFields,jobNotes} from './job-tools.js?v=workspace-2';
-import {installPurchases} from './purchases.js?v=overhead-categories-1';
+import {installPurchases} from './purchases.js?v=invoice-purchase-edit-1';
 import {accountLabel,roleLabel} from './worker-accounts.js?v=workspace-2';
 import {updateProfileIdentity} from './profile-identity.js?v=workspace-2';
 import {arrivalReviewMarkup,installArrivalReview} from './arrival-review.js?v=workspace-2';
@@ -32,7 +32,7 @@ import {renderMobileDaily,getMobilePlanState,setMobilePlanState} from './mobile-
 import {contactMarkup,decoratePlanActions} from './plan-usability.js?v=workspace-2';
 import {sendInvitation} from './invitations.js?v=workspace-2';
 import {installExperience} from './experience.js?v=workspace-2';
-import {installFinance} from './finance-ui.js?v=overhead-categories-1';
+import {installFinance} from './finance-ui.js?v=invoice-purchase-edit-1';
 import {rememberLogin,remembered} from './session-storage.js?v=workspace-2';
 import './planner-scroll.js?v=workspace-2';
 import {decoratePlannerLayout} from './planner-layout.js?v=workspace-2';
@@ -284,14 +284,14 @@ const vehicleBlocks=installVehicleBlocks({state:()=>state,manager:isManager,run:
 
 
 const overheadsUI=installOverheads({remote,state:()=>state,admin:()=>role==='admin',navigate:target=>{page=target;render();window.scrollTo(0,0)}});
-const financeUI=installFinance({overheads:()=>overheadsUI.open(),purchases:job=>purchasesUI.open(job),navigate:target=>{if($('dialog').open)$('dialog').close();page=target;render();window.scrollTo(0,0)},user:()=>sessionUser,admin:()=>role==='admin',state:()=>state,message,read:async()=>{const version=remote.snapshot.company.version,data=await overheadsUI.finance();adopt(await remote.refresh());return {...data,version}},save:async(action,p,baseline)=>{const data=await guardedDomainSave(client,remote,'saas_finance',action,p,baseline);try{adopt(await remote.refresh());render()}catch{message('Doklad je uložený. Obnovení ostatních dat se nezdařilo.')}return data}});
+const financeUI=installFinance({editPurchase:id=>purchasesUI.editInline(id),overheads:()=>overheadsUI.open(),purchases:job=>purchasesUI.open(job),navigate:target=>{if($('dialog').open)$('dialog').close();page=target;render();window.scrollTo(0,0)},user:()=>sessionUser,admin:()=>role==='admin',state:()=>state,message,read:async()=>{const version=remote.snapshot.company.version,data=await overheadsUI.finance();adopt(await remote.refresh());return {...data,version}},save:async(action,p,baseline)=>{const data=await guardedDomainSave(client,remote,'saas_finance',action,p,baseline);try{adopt(await remote.refresh());render()}catch{message('Doklad je uložený. Obnovení ostatních dat se nezdařilo.')}return data}});
 const experience=installExperience({planDay:(date,job)=>{if(!financeUI.canLeave())return;const days=(a,b)=>Math.round((Date.parse(a)-Date.parse(b))/86400000);dayOffset=days(date,dateKey(new Date()));todayOnly=true;view='workers';planScope='all';query='';$('search').value='';setMobilePlanState({date,view:'workers'});page='plan';render();document.querySelectorAll('[data-job]').forEach(el=>{if(el.dataset.job===job)el.style.outline='2px solid #2878df'})},run:runFeature,requestAttendance:id=>attendanceFollowupUI.request(id),role:()=>role,guideRole:()=>remote.snapshot?.membership.role,version:()=>remote.snapshot?.company.version,user:()=>sessionUser,me:()=>me,state:()=>state,render,message,shared:()=>remote.sharedPlan(),audit:()=>remote.audit(),pin:(w,value)=>remote.pin(w,value)});
 
 
 matchMedia('(max-width:700px)').addEventListener('change',()=>{if(sessionUser&&page==='plan'&&!document.querySelector('dialog[open]'))render()});
 
 const directoryUI=installDirectory({page:()=>page,navigate:()=>{page='directory';render()},remote,state:()=>state,manager:isManager,message,refresh:async()=>adopt(await remote.refresh())});
-const purchasesUI=installPurchases({directory:directoryUI,manager:isManager,admin:()=>role==='admin',state:()=>state,navigate:target=>{if($('dialog').open)$('dialog').close();page=target;render();window.scrollTo(0,0)},read:async()=>{const version=remote.snapshot.company.version;return {...await remote.purchases(),version}},save:async(action,p,baseline)=>{const result=await guardedDomainSave(client,remote,'saas_purchases',action,p,baseline);try{adopt(await remote.refresh())}catch{message('Záznam je uložený. Obnovení ostatních dat se nezdařilo.')}return result}});
+const purchasesUI=installPurchases({message,directory:directoryUI,manager:isManager,admin:()=>role==='admin',state:()=>state,navigate:target=>{if($('dialog').open)$('dialog').close();page=target;render();window.scrollTo(0,0)},read:async()=>{const version=remote.snapshot.company.version;return {...await remote.purchases(),version}},save:async(action,p,baseline)=>{const result=await guardedDomainSave(client,remote,'saas_purchases',action,p,baseline);try{adopt(await remote.refresh())}catch{message('Záznam je uložený. Obnovení ostatních dat se nezdařilo.')}return result}});
 
 
 document.addEventListener('change',e=>{if(page!=='attendance')return;const n=e.target.name;if(n==='attendance-month')attendanceMonth=e.target.value;else if(n==='attendance-worker')attendanceWorker=e.target.value;else if(n==='attendance-job')attendanceJob=e.target.value;else return;render()});
