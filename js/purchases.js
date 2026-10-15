@@ -1,4 +1,4 @@
-import {partyDetails} from './directory.js?v=directory-1';
+import {partyDetails} from './directory.js?v=directory-tab-1';
 import {jobPicker} from './job-picker.js?v=warranty-1';
 import {categoryOptions} from './finance-categories.js?v=warranty-1';
 import {allocationsOf,unallocated} from './purchase-shares.js?v=partial-purchases-1';

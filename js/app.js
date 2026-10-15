@@ -1,4 +1,4 @@
-import {installDirectory} from './directory.js?v=directory-1';
+import {installDirectory} from './directory.js?v=directory-tab-1';
 import './search-filters.js?v=directory-1';
 import {installWarranty} from './warranty-ui.js?v=warranty-1';
 import {protectPlannerSave,guardedDomainSave} from './save-guard.js?v=drafts-1';
@@ -21,7 +21,7 @@ import {installJobTasks} from './job-tasks.js?v=warranty-1';
 import {dayBadge,dayOffLabel} from './holidays.js?v=warranty-1';
 import {byName,searchText} from './selection-order.js?v=selection-1';
 import {setupJobFields,jobNotes} from './job-tools.js?v=warranty-1';
-import {installPurchases} from './purchases.js?v=directory-1';
+import {installPurchases} from './purchases.js?v=directory-tab-1';
 import {accountLabel,roleLabel} from './worker-accounts.js?v=finance-detail-1';
 import {updateProfileIdentity} from './profile-identity.js?v=profile-identity-1';
 import {arrivalReviewMarkup,installArrivalReview} from './arrival-review.js?v=warranty-1';
@@ -46,7 +46,7 @@ import {invitationsEnabled} from './features.js?v=jobs-read-1';
 import {historicalRows,upgrade,bookings,jobTotals,saveAssignment,moveBooking,seed,DEMO_DAY,COLORS,uid,esc,dateKey,localDate,fmtHours,time,hours,safeColor,safeUrl,actual,mismatch,arrive,depart,reportRows} from './data.js?v=warranty-1';
 import {client,createConnection} from './connection.js?v=shared-groups-1';
 const remote=createConnection();protectPlannerSave(remote);let saving=false,sessionUser=null,sessionGeneration=0,loadingSession=false;
-import {icon} from './icons.js?v=attendance-checks-2';
+import {icon} from './icons.js?v=directory-tab-1';
 import {workbook,download} from './xlsx.js?v=jobs-read-1';
 const $=id=>document.getElementById(id),KEY='planner-design-v3';
 let state=upgrade(seed());
@@ -74,8 +74,10 @@ function render(){
  plannerMemory.before();
  updateProfileIdentity(document.querySelector('.profile .avatar'),state.workers,me);
  const allowed=role==='worker'?['overview','plan','attendance','jobs','fuel','profile']:role==='admin'?[...menu.map(m=>m[0]),'finance','purchases','overheads']:[...menu.map(m=>m[0]),'purchases'];
+ allowed.push('directory');
  if(!allowed.includes(page))page='overview';
  const entries=role==='worker'?[['overview','home','Přehled'],['plan','calendar','Můj den'],['attendance','clock','Moje docházka'],['jobs','briefcase','Zakázky'],['fuel','fuel','Moje tankování'],['profile','users','Profil']]:menu.filter(m=>allowed.includes(m[0]));
+ entries.push(['directory','addressBook','Adresář']);
  $('navigation').innerHTML=entries.map(([p,i,n])=>btn('nav',icon(i)+n,`nav-item ${page===p?'active':''}`,p)).join('');
  $('mobile-nav').innerHTML=entries.filter(m=>['overview','plan','attendance','fuel'].includes(m[0])).map(([p,i,n])=>btn('nav',icon(i)+n,page===p?'active':'',p)).join('');
  $('mobile-nav').insertAdjacentHTML('beforeend',btn('more','<span aria-hidden="true">•••</span>Více'));
@@ -88,8 +90,8 @@ function render(){
  $('brand-name').textContent=state.company.name;$('brand-logo').innerHTML=state.company.logo?`<img alt="Logo firmy" src="${esc(state.company.logo)}">`:'';
  const active=openWork();document.querySelector('[data-action=arrive]').disabled=!me||!!active;document.querySelector('[data-action=depart]').disabled=!me||!active;document.querySelector('.workbar [data-action=fuel]').disabled=!me&&!['owner','admin','dispatcher'].includes(effectiveRole());
  $('switch-job').hidden=!active;$('work-state').innerHTML=active?`<span class="online-dot"></span>V práci od <strong>${time(active.start)}</strong> · ${esc(label('jobs',active.job))}`:'Příchod není zaznamenaný';
- if(page==='overview')overviewUI.mount();if(page==='plan')renderPlan();if(page==='finance')financeUI.mount();if(page==='overheads')overheadsUI.mount();if(page==='purchases')purchasesUI.mount();
- if(page==='jobs')renderJobs();if(page==='workers')renderWorkers();if(page==='vehicles')renderVehicles();if(page==='attendance')renderAttendance();if(page==='fuel')renderFuel();if(page==='reports'){renderReports();$('content').insertAdjacentHTML('afterbegin',btn('worker-export','Měsíční výkaz pracovníka','secondary'));}if(page==='settings')renderSettings();if(page==='profile')renderProfile();operationsUI.decorate(page);vehicleDrivers.decorate(page);vehicleBlocks.decorate();if(page==='jobs'){arrangeJobCards();installJobPreferences(state,sessionUser,{canEdit:['owner','admin','dispatcher'].includes(effectiveRole()),admin:role==='admin',saveGroups:async groups=>{const next=structuredClone(state);for(const j of next.jobs)if(Object.hasOwn(groups,j.id))j.groupName=groups[j.id];adopt(await remote.save(next));render()},error:message});}if(page==='attendance'||page==='fuel')decorateRecordTables();if(page==='plan'){decoratePlannerLayout(render,sessionUser);decoratePlanActions(state);}directoryUI.decorate();if(page!=='overview')jobInformationUI.decorate(page);experience.decorate(page);warrantyUI.decorate();plannerMemory.after(page==='plan');document.getElementById('role-view-notice')?.remove();if(viewRole){const notice=document.createElement('div');notice.id='role-view-notice';notice.className='notice';notice.style.cssText='margin:12px 16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center';notice.innerHTML='Pohled: '+esc(roleLabel(viewRole))+' · stále jste přihlášený jako administrátor. <button type="button" id="role-view-return">Zpět na administrátora</button>';document.querySelector('.workbar').before(notice);notice.querySelector('button').onclick=()=>switchRoleView('admin');}
+ if(page==='directory')directoryUI.mount();if(page==='overview')overviewUI.mount();if(page==='plan')renderPlan();if(page==='finance')financeUI.mount();if(page==='overheads')overheadsUI.mount();if(page==='purchases')purchasesUI.mount();
+ if(page==='jobs')renderJobs();if(page==='workers')renderWorkers();if(page==='vehicles')renderVehicles();if(page==='attendance')renderAttendance();if(page==='fuel')renderFuel();if(page==='reports'){renderReports();$('content').insertAdjacentHTML('afterbegin',btn('worker-export','Měsíční výkaz pracovníka','secondary'));}if(page==='settings')renderSettings();if(page==='profile')renderProfile();operationsUI.decorate(page);vehicleDrivers.decorate(page);vehicleBlocks.decorate();if(page==='jobs'){arrangeJobCards();installJobPreferences(state,sessionUser,{canEdit:['owner','admin','dispatcher'].includes(effectiveRole()),admin:role==='admin',saveGroups:async groups=>{const next=structuredClone(state);for(const j of next.jobs)if(Object.hasOwn(groups,j.id))j.groupName=groups[j.id];adopt(await remote.save(next));render()},error:message});}if(page==='attendance'||page==='fuel')decorateRecordTables();if(page==='plan'){decoratePlannerLayout(render,sessionUser);decoratePlanActions(state);}if(page!=='overview')jobInformationUI.decorate(page);experience.decorate(page);warrantyUI.decorate();plannerMemory.after(page==='plan');document.getElementById('role-view-notice')?.remove();if(viewRole){const notice=document.createElement('div');notice.id='role-view-notice';notice.className='notice';notice.style.cssText='margin:12px 16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center';notice.innerHTML='Pohled: '+esc(roleLabel(viewRole))+' · stále jste přihlášený jako administrátor. <button type="button" id="role-view-return">Zpět na administrátora</button>';document.querySelector('.workbar').before(notice);notice.querySelector('button').onclick=()=>switchRoleView('admin');}
 }
 function heading(title,sub,actions=''){return `<div class="page-heading"><div><h1>${title}</h1><p class="subtle">${sub}</p></div><div class="toolbar">${actions}</div></div>`}
 function getDays(){if(todayOnly){const now=new Date();now.setDate(now.getDate()+dayOffset);return [dateKey(now)]}const d=new Date(DEMO_DAY+'T12:00:00');d.setDate(d.getDate()-(d.getDay()||7)+1+weekOffset*7);return Array.from({length:showWeekend?7:5},(_,i)=>{const x=new Date(d);x.setDate(x.getDate()+i);return dateKey(x)})}
@@ -287,7 +289,7 @@ const experience=installExperience({planDay:(date,job)=>{if(!financeUI.canLeave(
 
 matchMedia('(max-width:700px)').addEventListener('change',()=>{if(sessionUser&&page==='plan'&&!document.querySelector('dialog[open]'))render()});
 
-const directoryUI=installDirectory({remote,state:()=>state,manager:isManager,message,refresh:async()=>adopt(await remote.refresh())});
+const directoryUI=installDirectory({page:()=>page,navigate:()=>{page='directory';render()},remote,state:()=>state,manager:isManager,message,refresh:async()=>adopt(await remote.refresh())});
 const purchasesUI=installPurchases({directory:directoryUI,manager:isManager,admin:()=>role==='admin',state:()=>state,navigate:target=>{if($('dialog').open)$('dialog').close();page=target;render();window.scrollTo(0,0)},read:async()=>{const version=remote.snapshot.company.version;return {...await remote.purchases(),version}},save:async(action,p,baseline)=>{const result=await guardedDomainSave(client,remote,'saas_purchases',action,p,baseline);try{adopt(await remote.refresh())}catch{message('Záznam je uložený. Obnovení ostatních dat se nezdařilo.')}return result}});
 
 
