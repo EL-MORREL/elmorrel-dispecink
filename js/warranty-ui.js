@@ -1,4 +1,4 @@
-import {costReport} from './costs.js?v=workspace-2';
+import {costReport} from './costs.js?v=overhead-categories-1';
 import {esc,localDate,hours} from './data.js?v=workspace-2';
 import {jobPicker} from './job-picker.js?v=workspace-2';
 export function installWarranty(ctx){

@@ -1,6 +1,6 @@
 import {partyDetails} from './directory.js?v=directory-web-1';
 import {jobPicker} from './job-picker.js?v=workspace-2';
-import {categoryOptions} from './finance-categories.js?v=workspace-2';
+import {categoryOptions} from './finance-categories.js?v=overhead-categories-1';
 import {allocationsOf,unallocated} from './purchase-shares.js?v=workspace-2';
 import {byName,searchText} from './selection-order.js?v=workspace-2';
 import {esc,localDate,safeUrl} from './data.js?v=workspace-2';

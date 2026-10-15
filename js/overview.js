@@ -1,4 +1,4 @@
-import {periodSummary,periodFinance} from './period-summary.js?v=workspace-2';
+import {periodSummary,periodFinance} from './period-summary.js?v=overhead-categories-1';
 import {driverMarkup} from './driver-labels.js?v=workspace-2';
 import {fuelDate} from './fuel-filters.js?v=workspace-2';
 import {allocationsOf} from './purchase-shares.js?v=workspace-2';
@@ -9,7 +9,7 @@ import {avatar,teamMarkup,plannedTime} from './daily-details.js?v=workspace-2';
 import {contactMarkup} from './plan-usability.js?v=workspace-2';
 import {jobNotes} from './job-tools.js?v=workspace-2';
 import {arrivalReviewMarkup} from './arrival-review.js?v=workspace-2';
-import {financeMetrics,money} from './finance-overview.js?v=workspace-2';
+import {financeMetrics,money} from './finance-overview.js?v=overhead-categories-1';
 export function greeting(name=''){
  const first=name.trim().split(/\s+/)[0],names={Jakub:'Jakube',Radek:'Radku',Petr:'Petře',Jan:'Jane',Martin:'Martine',Jaroslav:'Jaroslave',Daniel:'Danieli',Jonáš:'Jonáši',Jiří:'Jiří',Tomáš:'Tomáši',Pavel:'Pavle',Josef:'Josefe',Lukáš:'Lukáši',Michal:'Michale',David:'Davide',Ondřej:'Ondřeji',Václav:'Václave',Anna:'Anno',Eva:'Evo',Jana:'Jano',Lucie:'Lucie'};
  return names[first]?'Dobrý den, '+names[first]:'Dobrý den';

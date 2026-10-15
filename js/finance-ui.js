@@ -1,10 +1,10 @@
 import {warrantyWork,warrantyPurchases} from './warranty-data.js?v=workspace-2';
-import {categoryOf,categoryOptions} from './finance-categories.js?v=workspace-2';
+import {categoryOf,categoryOptions} from './finance-categories.js?v=overhead-categories-1';
 import {purchaseShares} from './purchase-shares.js?v=workspace-2';
 import {byName,searchText} from './selection-order.js?v=workspace-2';
-import {costReport} from './costs.js?v=workspace-2';
+import {costReport} from './costs.js?v=overhead-categories-1';
 import {esc,localDate,hours,safeUrl,fmtHours} from './data.js?v=workspace-2';
-import {financeOverview,money,financeButton as button} from './finance-overview.js?v=workspace-2';
+import {financeOverview,money,financeButton as button} from './finance-overview.js?v=overhead-categories-1';
 import {readJobPreferences,writeJobPreferences} from './job-preferences.js?v=workspace-2';
 export function installFinance(ctx){
  const dialog=document.createElement('section');dialog.className='finance-page';let generation=0;
