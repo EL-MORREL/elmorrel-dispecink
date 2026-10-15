@@ -1,9 +1,9 @@
-import {replacementButton} from './attendance-replace.js?v=warranty-1';
-import {overlapMarkup,installOverlapRepair} from './overlap-repair.js?v=warranty-1';
-import {auditMarkup} from './audit-labels.js?v=warranty-1';
-import {byName} from './selection-order.js?v=selection-1';
-import {attendanceChecks} from './checks.js?v=warranty-1';
-import {esc,reportRows,localDate} from './data.js?v=warranty-1';
+import {replacementButton} from './attendance-replace.js?v=workspace-2';
+import {overlapMarkup,installOverlapRepair} from './overlap-repair.js?v=workspace-2';
+import {auditMarkup} from './audit-labels.js?v=workspace-2';
+import {byName} from './selection-order.js?v=workspace-2';
+import {attendanceChecks} from './checks.js?v=workspace-2';
+import {esc,reportRows,localDate} from './data.js?v=workspace-2';
 export function installExperience(ctx){
  const dialog=document.createElement('dialog');document.body.append(dialog);
  // Close read-only panels only when the gesture starts and ends on the backdrop.
@@ -34,7 +34,9 @@ export function installExperience(ctx){
  if(a==='edit-pin'&&ctx.role()==='admin'){show('PIN tankovací karty',`<form id="card-pin-form"><label>Pracovník<select name="worker">${byName(ctx.state().workers).map(w=>`<option value="${w.id}">${esc(w.name)}</option>`).join('')}</select></label><label>Nový PIN<input type="password" name="pin" inputmode="numeric" pattern="[0-9]{4,12}" required autocomplete="off"></label><button>Uložit</button><p role="alert"></p></form>`);dialog.querySelector('form').onsubmit=async e=>{e.preventDefault();try{await ctx.pin(e.target.worker.value,e.target.pin.value);dialog.close()}catch(err){e.target.querySelector('p').textContent=err.message}}}
  }
  document.addEventListener('click',e=>{const b=e.target.closest('[data-experience]');if(b)act(b.dataset.experience).catch(e=>ctx.message(e.message))});
- function decorate(page){apply();const nav=document.getElementById('navigation');nav.insertAdjacentHTML('beforeend',button('preferences','Vzhled a rozložení')+button('guide','Nápověda')+(ctx.role()==='admin'?button('audit','Historie změn'):'')+(['admin','dispatcher'].includes(ctx.role())?button('checks','Kontrola docházky')+button('unbilled','Nevyfakturovaná práce'):''));
+ function decorate(page){apply();const nav=document.getElementById('navigation');nav.insertAdjacentHTML('beforeend',button('guide','Nápověda'));
+ if(page==='settings')document.getElementById('content').insertAdjacentHTML('afterbegin','<section class="panel"><div class="panel-content"><h2>Osobní nastavení</h2>'+button('preferences','Vzhled a rozložení')+'<div id="notification-preferences"></div></div></section>');
+ if(page==='finance')document.getElementById('content').insertAdjacentHTML('afterbegin',button('unbilled','Nevyfakturovaná práce'));
  if(page==='plan'&&ctx.me())document.getElementById('content').insertAdjacentHTML('afterbegin',button('pin','PIN mojí karty'));
  
  if(localStorage.getItem('planner-guide:'+ctx.user())!==ctx.guideRole()&&!document.querySelector('dialog[open]')){localStorage.setItem('planner-guide:'+ctx.user(),ctx.guideRole());guide()}

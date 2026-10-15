@@ -1,9 +1,9 @@
-import {periodWorkers} from './period-workers.js?v=period-workers-1';
-import {esc,fmtHours,hours} from './data.js?v=warranty-1';
-import {fuelDate} from './fuel-filters.js?v=fuel-filters-1';
-import {attendanceChecks} from './checks.js?v=warranty-1';
-import {costReport} from './costs.js?v=warranty-1';
-import {money} from './finance-overview.js?v=complete-jobs-1';
+import {periodWorkers} from './period-workers.js?v=workspace-2';
+import {esc,fmtHours,hours} from './data.js?v=workspace-2';
+import {fuelDate} from './fuel-filters.js?v=workspace-2';
+import {attendanceChecks} from './checks.js?v=workspace-2';
+import {costReport} from './costs.js?v=workspace-2';
+import {money} from './finance-overview.js?v=workspace-2';
 const metric=(label,value)=>`<div class="overview-stat"><span>${label}</span><strong>${value}</strong></div>`;
 export function periodBounds(selected,period){const year=Number(selected.slice(0,4)),month=Number(selected.slice(5,7));return period==='year'?[year+'-01-01',year+'-12-31']:[selected.slice(0,7)+'-01',new Date(Date.UTC(year,month,0)).toISOString().slice(0,10)];}
 export function periodSummary(s,me,manager,selected,period,admin=false){

@@ -1,9 +1,9 @@
-import {partyDetails} from './directory.js?v=directory-tab-1';
-import {jobPicker} from './job-picker.js?v=warranty-1';
-import {categoryOptions} from './finance-categories.js?v=warranty-1';
-import {allocationsOf,unallocated} from './purchase-shares.js?v=partial-purchases-1';
-import {byName,searchText} from './selection-order.js?v=selection-1';
-import {esc,localDate,safeUrl} from './data.js?v=warranty-1';
+import {partyDetails} from './directory.js?v=workspace-2';
+import {jobPicker} from './job-picker.js?v=workspace-2';
+import {categoryOptions} from './finance-categories.js?v=workspace-2';
+import {allocationsOf,unallocated} from './purchase-shares.js?v=workspace-2';
+import {byName,searchText} from './selection-order.js?v=workspace-2';
+import {esc,localDate,safeUrl} from './data.js?v=workspace-2';
 const defaultWorkflow=[{id:'normal',name:''},{id:'in_list',name:'V soupisu'},{id:'unresolved',name:'Nedořešená'},{id:'returned',name:'Vratka'},{id:'ready',name:'Připraveno na montáž'},{id:'awaiting_delivery',name:'Čekáme na dodání'}];
 const isFree=x=>!allocationsOf(x).length||unallocated(x)>0;
 export const purchaseArchived=(x,statuses=[{id:'returned',archived:true}])=>statuses.some(s=>s.id===x.workflow_status&&s.archived)||(allocationsOf(x).length>0&&unallocated(x)===0&&allocationsOf(x).every(a=>a.invoice_id));

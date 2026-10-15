@@ -1,6 +1,6 @@
 import {client,operations,decode} from './connection.js?v=shared-groups-1';
-import {esc} from './data.js?v=warranty-1';
-import {jobPicker} from './job-picker.js?v=warranty-1';
+import {esc} from './data.js?v=workspace-2';
+import {jobPicker} from './job-picker.js?v=workspace-2';
 const roles={customer:'Zákazník',supplier:'Dodavatel',partner:'Spolupracující firma'};
 const normalize=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 export function partyDetails(p){return !p?'':`<p>${esc(p.ico?'IČ: '+p.ico:'')}${p.billing_address?' · '+esc(p.billing_address):''}</p>${p.activity?'<p>'+esc(p.activity)+'</p>':''}${(p.contacts||[]).map(c=>`<p><strong>${esc(c.name)}</strong>${c.position?' · '+esc(c.position):''}<br>${esc(c.phone||'')} ${esc(c.email||'')}</p>`).join('')}`;}

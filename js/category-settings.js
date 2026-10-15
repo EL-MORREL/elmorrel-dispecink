@@ -1,5 +1,5 @@
 import {client} from './connection.js?v=shared-groups-1';
-import {esc} from './data.js?v=warranty-1';
+import {esc} from './data.js?v=workspace-2';
 export async function openCategorySettings(ctx){
  if(!ctx.admin())return;
  const dialog=document.createElement('dialog');dialog.className='operations-dialog';

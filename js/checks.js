@@ -1,6 +1,6 @@
-import {attendanceOverlaps} from './overlap-repair.js?v=warranty-1';
-import {missingAttendance} from './missing-attendance.js?v=warranty-1';
-import {pragueToday} from './arrival-order.js?v=jobs-read-1';
+import {attendanceOverlaps} from './overlap-repair.js?v=workspace-2';
+import {missingAttendance} from './missing-attendance.js?v=workspace-2';
+import {pragueToday} from './arrival-order.js?v=workspace-2';
 export function attendanceChecks(state,from='',to=pragueToday()){
  const date=s=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Prague'}).format(new Date(s)),issues=[],seen=new Set();
  for(const a of state.assignments||[]){const key=[a.worker,a.job,a.date].join('|');if(a.date<from||a.date>to||seen.has(key))continue;seen.add(key);const missing=missingAttendance(state,a);if(missing)issues.push({worker:a.worker,job:a.job,date:a.date,assignment:a.id,attendance:missing.record?.id,text:missing.record?'Chybí odchod':'Chybí příchod a odchod',missing:true});}

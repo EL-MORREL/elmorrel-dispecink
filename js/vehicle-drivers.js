@@ -1,6 +1,6 @@
-import {defaultDriverMarkup} from './driver-labels.js?v=warranty-1';
-import {esc} from './data.js?v=warranty-1';
-import {byName} from './selection-order.js?v=selection-1';
+import {defaultDriverMarkup} from './driver-labels.js?v=workspace-2';
+import {esc} from './data.js?v=workspace-2';
+import {byName} from './selection-order.js?v=workspace-2';
 export function installVehicleDrivers(ctx){
  const dialog=document.createElement('dialog');dialog.className='operations-dialog';document.body.append(dialog);let generation=0,noticeGeneration=0;
  function reset(){generation++;noticeGeneration++;document.getElementById('driver-conflicts')?.remove();dialog.close();dialog.replaceChildren()}

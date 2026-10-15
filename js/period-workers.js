@@ -1,6 +1,6 @@
-import {esc,fmtHours,hours} from './data.js?v=warranty-1';
-import {fuelDate} from './fuel-filters.js?v=fuel-filters-1';
-import {attendanceChecks} from './checks.js?v=warranty-1';
+import {esc,fmtHours,hours} from './data.js?v=workspace-2';
+import {fuelDate} from './fuel-filters.js?v=workspace-2';
+import {attendanceChecks} from './checks.js?v=workspace-2';
 export function workerPeriodRows(s,me,manager,from,to){
  const inside=d=>d>=from&&d<=to,types=s.extras?.absenceTypes||[],issues=attendanceChecks(s,from,to);
  const work=[...s.attendance.filter(a=>a.end).map(a=>({worker:a.worker,date:fuelDate(a.start),hours:hours(a)})),...(s.extras?.historicalHours||[]).map(a=>({worker:a.worker_id,date:a.date,hours:Number(a.hours)}))].filter(a=>inside(a.date)&&a.hours>0);

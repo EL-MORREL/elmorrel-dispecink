@@ -1,4 +1,4 @@
-import {esc} from './data.js?v=warranty-1';
+import {esc} from './data.js?v=workspace-2';
 export function arrivalDriverMarkup(state,worker,job,date){
  const rows=state.vehicleBookings.filter(b=>b.job===job&&b.date===date),own=rows.find(b=>b.driver===worker),free=(state.extras?.arrivalFreeVehicles||[]).filter(v=>v.date===date&&!rows.some(b=>b.vehicle===v.id)),available=[...rows,...free];
  const absences=(state.extras?.absences||[]).filter(a=>a.worker_id===worker&&a.date===date&&['approved','pending'].includes(a.status));

@@ -1,7 +1,7 @@
-import {guardedDomainSave} from './save-guard.js?v=drafts-1';
+import {guardedDomainSave} from './save-guard.js?v=workspace-2';
 import {client} from './connection.js?v=shared-groups-1';
-import {esc,localDate} from './data.js?v=warranty-1';
-import {costReport} from './costs.js?v=warranty-1';
+import {esc,localDate} from './data.js?v=workspace-2';
+import {costReport} from './costs.js?v=workspace-2';
 const money=n=>new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:2}).format(n);
 const legacyCats=['Nájem','Operátoři','Půjčky','Leasingy','Pojištění','Software','Energie','Ostatní'];
 const due=(t,m)=>{const n=Number(m.slice(0,4))*12+Number(m.slice(5)),s=Number(t.start_month.slice(0,4))*12+Number(t.start_month.slice(5,7));return t.active&&n>=s&&(!t.end_month||m<=t.end_month.slice(0,7))&&(n-s)%t.interval_months===0};

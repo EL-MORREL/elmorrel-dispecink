@@ -1,7 +1,7 @@
-import {warrantyWork,warrantyPurchases} from './warranty-data.js?v=warranty-1';
-import {purchaseShares} from './purchase-shares.js?v=partial-purchases-1';
-import {costReport} from './costs.js?v=warranty-1';
-import {esc,localDate,hours} from './data.js?v=warranty-1';
+import {warrantyWork,warrantyPurchases} from './warranty-data.js?v=workspace-2';
+import {purchaseShares} from './purchase-shares.js?v=workspace-2';
+import {costReport} from './costs.js?v=workspace-2';
+import {esc,localDate,hours} from './data.js?v=workspace-2';
 export const categories=[['labor','Práce'],['material','Materiál'],['transport','Doprava'],['other','Ostatní'],['unclassified','Nerozčleněno']];
 export const categoryList=data=>data?.categories?.length?data.categories.map(c=>[c.id,c.name]):categories;
 export function categoryOf(item){if(item.category)return item.category;const n=String(item.name||'').trim().toLocaleLowerCase('cs');return ({'práce':'labor','materiál':'material','doprava':'transport'})[n]||'unclassified';}

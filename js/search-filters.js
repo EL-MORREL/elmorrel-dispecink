@@ -1,4 +1,4 @@
-import {rankJobs} from './job-picker.js?v=purchase-filter-1';
+import {rankJobs} from './job-picker.js?v=workspace-2';
 // Keep the original select and its change handlers; typing only searches, selection applies.
 export function enhanceFilters(root=document){
  const selector='.job-preferences select[data-pref=party],.job-preferences select[data-pref=lead],.attendance-filters select,.fuel-filters select,#report-worker,#report-job,#report-vehicle,#report-driver,select[name="billing-filter"],#purchase-filters select,[data-filter] select';

@@ -81,6 +81,6 @@ export function reportRows(state,options){
  return raw.filter(r=>(!job||r.jobId===job)&&(!worker||r.workerId===worker)).map(r=>{
   const share=isBilled(r)?1:overhead.has(r.jobId)?coveredShare:0;
   const factor=billing==='all'?1:billing==='billed'?share:1-share;
-  return {...r,worker:workers.get(r.workerId)??'—',job:jobs.get(r.jobId)?.name??'—',hours:(billing==='all'?r.hours:Math.max(0,r.hours-Number(state.extras?.warranty?.find(w=>w.source_type===r.sourceType&&w.source_id===r.sourceId)?.quantity||0)))*factor,overheadAllocation:billing!=='all'&&overhead.has(r.jobId)};
+  return {...r,worker:workers.get(r.workerId)??'—',job:(jobs.get(r.jobId)?.name??'—')+(state.extras?.warranty?.some(w=>w.source_type===r.sourceType&&w.source_id===r.sourceId)?' (reklamace)':''),hours:(billing==='all'?r.hours:Math.max(0,r.hours-Number(state.extras?.warranty?.find(w=>w.source_type===r.sourceType&&w.source_id===r.sourceId)?.quantity||0)))*factor,overheadAllocation:billing!=='all'&&overhead.has(r.jobId)};
  }).filter(r=>billing==='all'||r.hours>1e-9).sort((a,b)=>a.date.localeCompare(b.date));
 }

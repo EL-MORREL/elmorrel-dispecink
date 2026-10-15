@@ -1,8 +1,8 @@
-import {warrantyWork,warrantyPurchases} from './warranty-data.js?v=warranty-1';
-import {categoryComparisonMarkup} from './finance-categories.js?v=warranty-1';
-import {purchaseShares} from './purchase-shares.js?v=partial-purchases-1';
-import {esc,safeColor,localDate,hours} from './data.js?v=warranty-1';
-import {costReport} from './costs.js?v=warranty-1';
+import {warrantyWork,warrantyPurchases} from './warranty-data.js?v=workspace-2';
+import {categoryComparisonMarkup} from './finance-categories.js?v=workspace-2';
+import {purchaseShares} from './purchase-shares.js?v=workspace-2';
+import {esc,safeColor,localDate,hours} from './data.js?v=workspace-2';
+import {costReport} from './costs.js?v=workspace-2';
 export const money=n=>n===null||!Number.isFinite(n)?'—':new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:0}).format(n);
 export const financeButton=(a,label,id='',job='')=>`<button type="button" data-finance="${a}" data-id="${esc(id)}" data-job="${esc(job)}">${label}</button>`;
 export function financeMetrics(s,data){

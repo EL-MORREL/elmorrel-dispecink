@@ -1,5 +1,5 @@
-import {warrantyWork,warrantyPurchases} from './warranty-data.js?v=warranty-1';
-import {purchaseShares} from './purchase-shares.js?v=partial-purchases-1';
+import {warrantyWork,warrantyPurchases} from './warranty-data.js?v=workspace-2';
+import {purchaseShares} from './purchase-shares.js?v=workspace-2';
 export function costReport(state,finance,from,to){
  const shares=warrantyPurchases(state,purchaseShares(finance));
  const entries=finance.entries||[],kinds=new Set((finance.jobKinds||[]).filter(k=>k.overhead).map(k=>k.job_id));

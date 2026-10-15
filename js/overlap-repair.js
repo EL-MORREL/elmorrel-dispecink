@@ -1,5 +1,5 @@
-import {replacementButton} from './attendance-replace.js?v=warranty-1';
-import {esc,localDate,time} from './data.js?v=warranty-1';
+import {replacementButton} from './attendance-replace.js?v=workspace-2';
+import {esc,localDate,time} from './data.js?v=workspace-2';
 export function attendanceOverlaps(rows,from,to){
  const minute=v=>Math.floor(Date.parse(v)/60000)*60000;
  const out=[],groups=new Map(),date=s=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Prague'}).format(new Date(s));

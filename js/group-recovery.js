@@ -1,4 +1,4 @@
-import {esc} from './data.js?v=warranty-1';
+import {esc} from './data.js?v=workspace-2';
 
 // Recover only group labels for IDs already present in this company's jobs.
 // Keep conflicting personal versions separate; never guess which one is right.

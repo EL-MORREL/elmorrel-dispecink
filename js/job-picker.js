@@ -1,4 +1,4 @@
-import {searchText} from './selection-order.js?v=selection-1';
+import {searchText} from './selection-order.js?v=workspace-2';
 export function rankJobs(jobs,query){const q=searchText(query).trim(),words=q.split(/\s+/);return jobs.filter(j=>words.every(w=>searchText(j.name+' '+(j.address||'')).includes(w))).sort((a,b)=>{const score=j=>{const n=searchText(j.name);return n===q?0:n.startsWith(q)?1:2};return score(a)-score(b)||a.name.localeCompare(b.name,'cs')});}
 export function jobPicker(select,jobs,onChange,emptyLabel='Volná objednávka — vyhledejte zakázku'){
  const label=select.parentElement,wrap=document.createElement('div'),input=document.createElement('input'),list=document.createElement('div');

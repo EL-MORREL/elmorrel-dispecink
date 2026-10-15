@@ -1,7 +1,7 @@
-import {esc,fmtHours} from './data.js?v=warranty-1';
-import {byName} from './selection-order.js?v=selection-1';
-import {pragueToday} from './arrival-order.js?v=jobs-read-1';
-import {workbook,download} from './xlsx.js?v=jobs-read-1';
+import {esc,fmtHours} from './data.js?v=workspace-2';
+import {byName} from './selection-order.js?v=workspace-2';
+import {pragueToday} from './arrival-order.js?v=workspace-2';
+import {workbook,download} from './xlsx.js?v=workspace-2';
 
 export function vacationRows(state,filters){
  return (state.extras?.absences||[]).filter(a=>a.status==='approved'&&state.extras?.absenceTypes?.some(t=>t.id===a.type_id&&t.bucket==='vacation')&&(!filters.worker||a.worker_id===filters.worker)&&(!filters.from||a.date>=filters.from)&&(!filters.to||a.date<=filters.to)).sort((a,b)=>a.date.localeCompare(b.date)||(state.workers.find(w=>w.id===a.worker_id)?.name||'').localeCompare(state.workers.find(w=>w.id===b.worker_id)?.name||'','cs')).map(a=>({date:a.date,worker:state.workers.find(w=>w.id===a.worker_id)?.name||'Pracovník',hours:Number(a.hours)||0}));

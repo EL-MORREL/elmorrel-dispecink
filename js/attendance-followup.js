@@ -1,4 +1,4 @@
-import {esc,localDate,time} from './data.js?v=warranty-1';
+import {esc,localDate,time} from './data.js?v=workspace-2';
 export function pendingAttendancePrompts(s){return (s.extras?.attendancePrompts||[]).filter(p=>p.status==='requested'&&!s.attendance.some(t=>t.worker===p.worker_id&&t.job===p.job_id&&localDate(t.start)===p.date&&t.end)&&!(s.extras?.historicalHours||[]).some(t=>t.worker_id===p.worker_id&&t.job_id===p.job_id&&t.date===p.date));}
 export function attendancePromptsMarkup(s,me){const rows=pendingAttendancePrompts(s).filter(p=>p.worker_id===me);return rows.length?'<div class="full"><h3>Doplňte docházku ('+rows.length+')</h3>'+rows.map(p=>'<section class="op-item"><strong>'+esc(s.jobs.find(j=>j.id===p.job_id)?.name||'Zakázka')+' · '+esc(p.date)+'</strong><p>Dispečink žádá návrh skutečného příchodu a odchodu.</p><button type="button" data-attendance-proposal="'+esc(p.id)+'">Navrhnout časy ke schválení</button></section>').join('')+'</div>':'';}
 export function installAttendanceFollowup(ctx){
