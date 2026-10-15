@@ -22,7 +22,7 @@ import {installJobTasks} from './job-tasks.js?v=workspace-2';
 import {dayBadge,dayOffLabel} from './holidays.js?v=workspace-2';
 import {byName,searchText} from './selection-order.js?v=workspace-2';
 import {setupJobFields,jobNotes} from './job-tools.js?v=workspace-2';
-import {installPurchases} from './purchases.js?v=purchase-edit-access-1';
+import {installPurchases} from './purchases.js?v=missing-category-1';
 import {accountLabel,roleLabel} from './worker-accounts.js?v=workspace-2';
 import {updateProfileIdentity} from './profile-identity.js?v=workspace-2';
 import {arrivalReviewMarkup,installArrivalReview} from './arrival-review.js?v=workspace-2';
@@ -32,7 +32,7 @@ import {renderMobileDaily,getMobilePlanState,setMobilePlanState} from './mobile-
 import {contactMarkup,decoratePlanActions} from './plan-usability.js?v=workspace-2';
 import {sendInvitation} from './invitations.js?v=workspace-2';
 import {installExperience} from './experience.js?v=workspace-2';
-import {installFinance} from './finance-ui.js?v=purchase-edit-access-1';
+import {installFinance} from './finance-ui.js?v=missing-category-1';
 import {rememberLogin,remembered} from './session-storage.js?v=workspace-2';
 import './planner-scroll.js?v=workspace-2';
 import {decoratePlannerLayout} from './planner-layout.js?v=workspace-2';
