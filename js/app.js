@@ -1,3 +1,4 @@
+import {installPrivateTrips} from './private-trips.js?v=private-trips-1';
 import {capturePageView} from './stable-view.js?v=period-finance-1';
 import {installNotifications} from './notifications.js?v=billed-job-changes-1';
 import {installDirectory} from './directory.js?v=picker-dismiss-1';
@@ -149,6 +150,8 @@ async function action(a,id,target){
  if(a==='copy-address'){const address=document.querySelector('#fields [name=address]')?.value||find('jobs',id)?.address;if(!address)throw Error('Adresa není vyplněná.');try{await navigator.clipboard.writeText(address);target.textContent='Zkopírováno';}catch{show('Adresa ke zkopírování',field('copy','Označte a zkopírujte adresu',address),null);document.querySelector('[name=copy]').select();}return}
  if(a==='complete-job'||a==='reopen-job'){await runFeature(a==='complete-job'?'job_complete':'job_reopen',{id});return}
  if(a==='duplicate-job'){const original=find('jobs',id);if(!isManager()||!original)return;openJob(null,id);return}
+ if(a==='private-trip'){await privateTripsUI.open();return}
+ if(a==='reload-app'){if(confirm('Obnovit aplikaci? Neuložené rozpracované formuláře se při restartu ztratí.'))location.reload();return}
  if(a==='logout'){const {error}=await client.auth.signOut();if(error)throw error;hideSession();return}
  if(a==='correct'){operationsUI.request(id);return}if(a==='review'){arrivalReviewUI.open(...id.split('|'));return}
  if(a==='export'||a==='export-fuel'){if(a==='export'&&reportMonth&&reportMode!=='vehicles'&&!absenceReport())await remote.report(reportMonth);if(a==='export'&&reportMode==='vehicles'){const data=await driverRequest();reportDrivers=Object.fromEntries(data.bookings.map(b=>[b.booking_id,b.driver_id]));}adopt(await remote.refresh());if(!isManager())throw Error('Nemáte oprávnění k exportu.');}
@@ -326,3 +329,5 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-cost-category-s
 const warrantyUI=installWarranty({day:async(j,d,reason,h)=>{const r=await client.rpc('saas_warranty_day',{c:remote.companyId,j,d,reason,h,expected_version:remote.snapshot.company.version});if(r.error)throw Error(r.error.message);adopt(await remote.refresh());render()},finance:()=>remote.finance(),plan:async(a,reason)=>{const r=await client.rpc('saas_warranty_plan',{c:remote.companyId,a,reason,expected_version:remote.snapshot.company.version});if(r.error)throw Error(r.error.message);adopt(await remote.refresh());render()},resolve:async p=>{const r=await client.rpc('saas_warranty_resolution',{c:remote.companyId,p,expected_version:remote.snapshot.company.version});if(r.error)throw Error(r.error.message);adopt(await remote.refresh());render()},manager:isManager,state:()=>state,purchases:()=>remote.purchases(),refresh:async()=>{adopt(await remote.refresh())},message,save:async p=>{const r=await client.rpc('saas_warranty_save',{c:remote.companyId,p,expected_version:remote.snapshot.company.version});if(r.error)throw Error(r.error.message);adopt(await remote.refresh());render()}});
 
 const notificationsUI=installNotifications({finance:job=>financeUI.open(job),state:()=>state,user:()=>sessionUser,company:()=>remote.companyId,me:()=>me,manager:isManager,admin:()=>role==='admin',inbox:()=>operationsUI.inboxMarkup()});
+
+const privateTripsUI=installPrivateTrips({company:()=>remote.companyId,state:()=>state,manager:()=>['owner','admin','dispatcher','editor'].includes(effectiveRole()),worker:()=>me,message});
