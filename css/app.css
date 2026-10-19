@@ -18,3 +18,5 @@
 .attendance-buttons .trip-actions{display:flex;gap:8px;flex:1 0 100%;width:100%;grid-column:1 / -1}
 
 .archive-unlock{background:#b91c1c!important;color:white!important;border-color:#991b1b!important}
+
+.plan-customer{display:block;font-size:12px;line-height:1.4;font-weight:500;color:#425675;margin-top:3px;white-space:normal}.plan-calendar{display:inline-flex;flex-direction:column;gap:3px;font-size:12px}.plan-calendar input{width:auto;min-width:150px}.daily-date .plan-calendar{margin:8px 0}
