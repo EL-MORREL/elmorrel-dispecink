@@ -1,6 +1,6 @@
 import {missingCategoryNotice} from './purchase-category-check.js?v=missing-category-1';
 import {warrantyWork,warrantyPurchases} from './warranty-data.js?v=workspace-2';
-import {categoryComparisonMarkup} from './finance-categories.js?v=overhead-categories-1';
+import {categoryComparisonMarkup} from './finance-categories.js?v=period-finance-1';
 import {purchaseShares} from './purchase-shares.js?v=workspace-2';
 import {esc,safeColor,localDate,hours} from './data.js?v=workspace-2';
 import {costReport} from './costs.js?v=overhead-categories-1';

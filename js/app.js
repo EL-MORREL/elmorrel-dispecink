@@ -1,7 +1,8 @@
+import {capturePageView} from './stable-view.js?v=period-finance-1';
 import {installNotifications} from './notifications.js?v=billed-job-changes-1';
 import {installDirectory} from './directory.js?v=picker-dismiss-1';
 import './search-filters.js?v=picker-dismiss-1';
-import {installWarranty} from './warranty-ui.js?v=picker-dismiss-1';
+import {installWarranty} from './warranty-ui.js?v=period-finance-1';
 import {protectPlannerSave,guardedDomainSave} from './save-guard.js?v=workspace-2';
 import {openCategorySettings} from './category-settings.js?v=workspace-2';
 import {arrivalDriverMarkup,driverChoice} from './arrival-driver.js?v=workspace-2';
@@ -12,7 +13,7 @@ import {missingAttendanceMarkup,installMissingAttendance} from './missing-attend
 import {monthWorkdaysMarkup,workedDays,workedDaysLabel,workedDayBreakdownMarkup} from './month-workdays.js?v=workspace-2';
 import {vacationRows,absenceRows,vehicleRows} from './resource-reports.js?v=workspace-2';
 import {installVehicleDrivers} from './vehicle-drivers.js?v=workspace-2';
-import {installOverview} from './overview.js?v=missing-party-filter-1';
+import {installOverview} from './overview.js?v=period-finance-1';
 import {filteredFuel,fuelDate} from './fuel-filters.js?v=workspace-2';
 import {installOverheads} from './overheads.js?v=overhead-categories-1';
 import {byStart} from './plan-order.js?v=workspace-2';
@@ -22,7 +23,7 @@ import {installJobTasks} from './job-tasks.js?v=workspace-2';
 import {dayBadge,dayOffLabel} from './holidays.js?v=workspace-2';
 import {byName,searchText} from './selection-order.js?v=workspace-2';
 import {setupJobFields,jobNotes} from './job-tools.js?v=missing-party-filter-1';
-import {installPurchases} from './purchases.js?v=duplicate-drafts-1';
+import {installPurchases} from './purchases.js?v=period-finance-1';
 import {accountLabel,roleLabel} from './worker-accounts.js?v=workspace-2';
 import {updateProfileIdentity} from './profile-identity.js?v=workspace-2';
 import {arrivalReviewMarkup,installArrivalReview} from './arrival-review.js?v=workspace-2';
@@ -32,7 +33,7 @@ import {renderMobileDaily,getMobilePlanState,setMobilePlanState} from './mobile-
 import {contactMarkup,decoratePlanActions} from './plan-usability.js?v=workspace-2';
 import {sendInvitation} from './invitations.js?v=workspace-2';
 import {installExperience} from './experience.js?v=workspace-2';
-import {installFinance} from './finance-ui.js?v=missing-party-filter-1';
+import {installFinance} from './finance-ui.js?v=period-finance-1';
 import {rememberLogin,remembered} from './session-storage.js?v=workspace-2';
 import './planner-scroll.js?v=workspace-2';
 import {decoratePlannerLayout} from './planner-layout.js?v=workspace-2';
@@ -259,7 +260,7 @@ client.auth.onAuthStateChange((event,session)=>{setTimeout(async()=>{
 },0)});
 let refreshing=false;
 let refreshAfter=0,refreshFailures=0;
-async function refreshSafely(){if(['finance','purchases','overheads'].includes(page)||Date.now()<refreshAfter)return;if(refreshing||loadingSession||!remote.snapshot||!sessionUser||saving||dragging||$('dialog').open||document.querySelector('dialog[open]')||document.hidden)return;refreshing=true;try{const previousSnapshot=remote.snapshot,previous=previousSnapshot?.company.version;const next=await remote.refresh({ifChanged:true});refreshFailures=0;refreshAfter=0;if(document.querySelector('dialog[open]')){remote.restoreSnapshot(previousSnapshot);return;}if(previous!==remote.snapshot.company.version){const board=document.querySelector('.board-wrap'),left=board?.scrollLeft||0,top=board?.scrollTop||0;adopt(next);render();const fresh=document.querySelector('.board-wrap');if(fresh){fresh.scrollLeft=left;fresh.scrollTop=top;}}message('')}catch(error){refreshAfter=Date.now()+Math.min(120000,30000*2**refreshFailures++);message('Spojení se přerušilo. Zobrazená data zůstávají zachovaná, připojení zkusíme znovu.')}finally{refreshing=false}}
+async function refreshSafely(){if(['finance','purchases','overheads'].includes(page)||Date.now()<refreshAfter||document.activeElement?.matches('input,select,textarea,[contenteditable=true]'))return;if(refreshing||loadingSession||!remote.snapshot||!sessionUser||saving||dragging||$('dialog').open||document.querySelector('dialog[open]')||document.hidden)return;refreshing=true;try{const previousSnapshot=remote.snapshot,previous=previousSnapshot?.company.version;const next=await remote.refresh({ifChanged:true});refreshFailures=0;refreshAfter=0;if(document.querySelector('dialog[open]')){remote.restoreSnapshot(previousSnapshot);return;}if(previous!==remote.snapshot.company.version){const board=document.querySelector('.board-wrap'),left=board?.scrollLeft||0,top=board?.scrollTop||0;const view=capturePageView();adopt(next);render();view();const fresh=document.querySelector('.board-wrap');if(fresh){fresh.scrollLeft=left;fresh.scrollTop=top;}}message('')}catch(error){refreshAfter=Date.now()+Math.min(120000,30000*2**refreshFailures++);message('Spojení se přerušilo. Zobrazená data zůstávají zachovaná, připojení zkusíme znovu.')}finally{refreshing=false}}
 setInterval(refreshSafely,30000);let refreshTimer;const queueRefresh=()=>{clearTimeout(refreshTimer);refreshTimer=setTimeout(refreshSafely,300)};window.addEventListener('online',()=>{refreshAfter=0;queueRefresh()});window.addEventListener('planner-data-changed',queueRefresh);document.addEventListener('visibilitychange',()=>{if(!document.hidden)queueRefresh()});
 
 const attendanceReplacementUI=installAttendanceReplacement({state:()=>state,manager:()=>['owner','admin','dispatcher'].includes(effectiveRole()),run:runFeature});
@@ -322,6 +323,6 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-purchase-compan
 
 document.addEventListener('click',e=>{if(e.target.closest('[data-cost-category-settings]'))openCategorySettings({admin:()=>role==='admin',company:()=>remote.companyId,refresh:()=>remote.refresh().then(adopt),message})});
 
-const warrantyUI=installWarranty({finance:()=>remote.finance(),plan:async(a,reason)=>{const r=await client.rpc('saas_warranty_plan',{c:remote.companyId,a,reason,expected_version:remote.snapshot.company.version});if(r.error)throw Error(r.error.message);adopt(await remote.refresh());render()},resolve:async p=>{const r=await client.rpc('saas_warranty_resolution',{c:remote.companyId,p,expected_version:remote.snapshot.company.version});if(r.error)throw Error(r.error.message);adopt(await remote.refresh());render()},manager:isManager,state:()=>state,purchases:()=>remote.purchases(),refresh:async()=>{adopt(await remote.refresh())},message,save:async p=>{const r=await client.rpc('saas_warranty_save',{c:remote.companyId,p,expected_version:remote.snapshot.company.version});if(r.error)throw Error(r.error.message);adopt(await remote.refresh());render()}});
+const warrantyUI=installWarranty({day:async(j,d,reason,h)=>{const r=await client.rpc('saas_warranty_day',{c:remote.companyId,j,d,reason,h,expected_version:remote.snapshot.company.version});if(r.error)throw Error(r.error.message);adopt(await remote.refresh());render()},finance:()=>remote.finance(),plan:async(a,reason)=>{const r=await client.rpc('saas_warranty_plan',{c:remote.companyId,a,reason,expected_version:remote.snapshot.company.version});if(r.error)throw Error(r.error.message);adopt(await remote.refresh());render()},resolve:async p=>{const r=await client.rpc('saas_warranty_resolution',{c:remote.companyId,p,expected_version:remote.snapshot.company.version});if(r.error)throw Error(r.error.message);adopt(await remote.refresh());render()},manager:isManager,state:()=>state,purchases:()=>remote.purchases(),refresh:async()=>{adopt(await remote.refresh())},message,save:async p=>{const r=await client.rpc('saas_warranty_save',{c:remote.companyId,p,expected_version:remote.snapshot.company.version});if(r.error)throw Error(r.error.message);adopt(await remote.refresh());render()}});
 
 const notificationsUI=installNotifications({finance:job=>financeUI.open(job),state:()=>state,user:()=>sessionUser,company:()=>remote.companyId,me:()=>me,manager:isManager,admin:()=>role==='admin',inbox:()=>operationsUI.inboxMarkup()});
