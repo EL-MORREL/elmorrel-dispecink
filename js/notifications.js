@@ -1,4 +1,4 @@
-import {installBilledChanges} from './billed-job-changes.js?v=office-workflow-1';
+import {installBilledChanges} from './billed-job-changes.js?v=billing-relevance-1';
 import {client} from './connection.js?v=shared-groups-1';
 import {attendanceChecks} from './checks.js?v=workspace-2';
 import {icon} from './icons.js?v=workspace-2';

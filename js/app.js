@@ -3,7 +3,7 @@ import {customerMarkup,customerName,jobLabel,informationButton} from './job-cust
 import {calendarOffsets} from './plan-calendar.js?v=customer-calendar-1';
 import {installPrivateTrips} from './private-trips.js?v=private-trips-1';
 import {capturePageView} from './stable-view.js?v=period-finance-1';
-import {installNotifications} from './notifications.js?v=office-workflow-1';
+import {installNotifications} from './notifications.js?v=billing-relevance-1';
 import {installDirectory} from './directory.js?v=conflict-preserve-2';
 import './search-filters.js?v=office-workflow-1';
 import {installWarranty} from './warranty-ui.js?v=office-workflow-1';
