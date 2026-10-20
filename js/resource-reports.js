@@ -1,6 +1,7 @@
+import {jobLabel,customerJobs} from './job-customer.js?v=office-workflow-1';
 import {esc,fmtHours} from './data.js?v=workspace-2';
 import {byName} from './selection-order.js?v=workspace-2';
-import {pragueToday} from './arrival-order.js?v=workspace-2';
+import {pragueToday} from './arrival-order.js?v=office-workflow-1';
 import {workbook,download} from './xlsx.js?v=workspace-2';
 
 export function vacationRows(state,filters){
@@ -10,7 +11,7 @@ export function absenceRows(state,filters){
  return (state.extras?.absences||[]).filter(a=>a.status==='approved'&&a.type_id===filters.type&&(!filters.worker||a.worker_id===filters.worker)&&(!filters.from||a.date>=filters.from)&&(!filters.to||a.date<=filters.to)).sort((a,b)=>a.date.localeCompare(b.date)||(state.workers.find(w=>w.id===a.worker_id)?.name||'').localeCompare(state.workers.find(w=>w.id===b.worker_id)?.name||'','cs')).map(a=>({date:a.date,workerId:a.worker_id,worker:state.workers.find(w=>w.id===a.worker_id)?.name||'Pracovník',hours:Number(a.hours)||0}));
 }
 export function vehicleRows(state,drivers,filters){
- return state.vehicleBookings.filter(b=>(!filters.from||b.date>=filters.from)&&(!filters.to||b.date<=filters.to)&&(!filters.job||b.job===filters.job)&&(!filters.vehicle||b.vehicle===filters.vehicle)&&(!filters.worker||(filters.worker==='none'?!drivers[b.id]:drivers[b.id]===filters.worker))).sort((a,b)=>a.date.localeCompare(b.date)||(state.vehicles.find(v=>v.id===a.vehicle)?.name||'').localeCompare(state.vehicles.find(v=>v.id===b.vehicle)?.name||'','cs')).map(b=>({id:b.id,date:b.date,vehicle:state.vehicles.find(v=>v.id===b.vehicle)?.name||'Vozidlo',plate:state.vehicles.find(v=>v.id===b.vehicle)?.plate||'',job:state.jobs.find(j=>j.id===b.job)?.name||'Zakázka',worker:state.workers.find(w=>w.id===drivers[b.id])?.name||'Řidič neurčen',hours:Number(b.hours)||0}));
+ return state.vehicleBookings.filter(b=>(!filters.from||b.date>=filters.from)&&(!filters.to||b.date<=filters.to)&&(!filters.job||b.job===filters.job)&&(!filters.vehicle||b.vehicle===filters.vehicle)&&(!filters.worker||(filters.worker==='none'?!drivers[b.id]:drivers[b.id]===filters.worker))).sort((a,b)=>a.date.localeCompare(b.date)||(state.vehicles.find(v=>v.id===a.vehicle)?.name||'').localeCompare(state.vehicles.find(v=>v.id===b.vehicle)?.name||'','cs')).map(b=>({id:b.id,date:b.date,vehicle:state.vehicles.find(v=>v.id===b.vehicle)?.name||'Vozidlo',plate:state.vehicles.find(v=>v.id===b.vehicle)?.plate||'',job:jobLabel(state,b.job),worker:state.workers.find(w=>w.id===drivers[b.id])?.name||'Řidič neurčen',hours:Number(b.hours)||0}));
 }
 export function installResourceReports(ctx){
  const dialog=document.createElement('dialog');dialog.className='operations-dialog resource-report';dialog.style.cssText='width:min(1100px,96vw);max-height:92dvh;overflow:auto';document.body.append(dialog);

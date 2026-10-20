@@ -1,5 +1,5 @@
 import {esc} from './data.js?v=workspace-2';
-import {readJobPreferences} from './job-preferences.js?v=missing-party-filter-1';
+import {readJobPreferences} from './job-preferences.js?v=office-workflow-1';
 const cache=new Map();
 export function setupJobFields(root,state,user,id){
  const prefs=readJobPreferences(state,user),label=document.createElement('label');

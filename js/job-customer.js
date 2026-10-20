@@ -3,3 +3,7 @@ export function customerIds(s,job){return (s.extras?.jobParties||[]).filter(x=>x
 export function customerName(s,job){const ids=customerIds(s,job);return (s.extras?.directory||[]).filter(p=>ids.includes(p.id)).map(p=>p.name).join(' · ')}
 export function customerMarkup(s,job){const name=customerName(s,job);return name?'<small class="plan-customer">'+esc(name)+'</small>':''}
 export function matchesCustomer(s,job,value){const ids=customerIds(s,job);return !value||value==='none'&&!ids.length||ids.includes(value)}
+
+export function jobLabel(s,id){return [s.jobs?.find(j=>j.id===id)?.name||'Zakázka',customerName(s,id)].filter(Boolean).join(' · ')}
+export function customerJobs(s){return s.jobs.map(j=>({...j,name:jobLabel(s,j.id)}))}
+export function informationButton(id){return '<button type="button" data-job-information="'+esc(id)+'">Napsat kanceláři</button>'}

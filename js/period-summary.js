@@ -4,7 +4,7 @@ import {esc,fmtHours,hours} from './data.js?v=workspace-2';
 import {fuelDate} from './fuel-filters.js?v=workspace-2';
 import {attendanceChecks} from './checks.js?v=workspace-2';
 import {costReport} from './costs.js?v=overhead-categories-1';
-import {money} from './finance-overview.js?v=period-finance-1';
+import {money} from './finance-overview.js?v=office-workflow-1';
 const metric=(label,value)=>`<div class="overview-stat"><span>${label}</span><strong>${value}</strong></div>`;
 export function periodBounds(selected,period){const year=Number(selected.slice(0,4)),month=Number(selected.slice(5,7));return period==='year'?[year+'-01-01',year+'-12-31']:[selected.slice(0,7)+'-01',new Date(Date.UTC(year,month,0)).toISOString().slice(0,10)];}
 export function periodSummary(s,me,manager,selected,period,admin=false){

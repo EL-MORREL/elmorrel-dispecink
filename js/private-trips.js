@@ -1,6 +1,6 @@
 import {client} from './connection.js?v=shared-groups-1';
 import {esc} from './data.js?v=workspace-2';
-import {pragueToday} from './arrival-order.js?v=workspace-2';
+import {pragueToday} from './arrival-order.js?v=office-workflow-1';
 export function installPrivateTrips(ctx){
  let dialog=null,busy=false;
  async function open(){

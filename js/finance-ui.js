@@ -1,3 +1,4 @@
+import {customerJobs,jobLabel} from './job-customer.js?v=office-workflow-1';
 import {missingCategoryNotice} from './purchase-category-check.js?v=missing-category-1';
 import {warrantyWork,warrantyPurchases} from './warranty-data.js?v=workspace-2';
 import {categoryOf,categoryOptions} from './finance-categories.js?v=period-finance-1';
@@ -5,8 +6,8 @@ import {purchaseShares} from './purchase-shares.js?v=workspace-2';
 import {byName,searchText} from './selection-order.js?v=workspace-2';
 import {costReport} from './costs.js?v=overhead-categories-1';
 import {esc,localDate,hours,safeUrl,fmtHours} from './data.js?v=workspace-2';
-import {financeOverview,money,financeButton as button} from './finance-overview.js?v=customer-calendar-1';
-import {readJobPreferences,writeJobPreferences} from './job-preferences.js?v=missing-party-filter-1';
+import {financeOverview,money,financeButton as button} from './finance-overview.js?v=office-workflow-1';
+import {readJobPreferences,writeJobPreferences} from './job-preferences.js?v=office-workflow-1';
 export function installFinance(ctx){
  const dialog=document.createElement('section');dialog.className='finance-page';let generation=0;
  let draftForm=null,draftBaseline='';
@@ -33,12 +34,12 @@ export function installFinance(ctx){
  }
  function wireSave(form,action,payload){form.onsubmit=async event=>{event.preventDefault();const save=form.querySelector('button.primary');save.disabled=true;try{const p=payload(new FormData(form));if(action==='save'&&['invoice','budget','change'].includes(p.kind)&&String(p.name||'').trim()){const same=data.entries.filter(x=>x.id!==p.id&&x.kind===p.kind&&String(x.name||'').trim().toLocaleLowerCase('cs')===String(p.name).trim().toLocaleLowerCase('cs'));if(same.length&&!window.confirm('Doklad se stejným číslem / názvem již existuje ('+same.length+'×). Opravdu uložit další?'))return;}data=await ctx.save(action,p,data);render()}catch(e){fail(e)}finally{save.disabled=false}}}
  function remove(id){const e=data.entries.find(x=>x.id===id);if(!e)throw Error('Záznam není dostupný.');shell('Smazat finanční záznam',`<p>${esc(e.name||e.kind)} · ${money(Number(e.amount))}</p>${e.kind==='invoice'?'<p>Navázané nákupy se označí jako nezahrnuté. Jeho dny se uvolní k fakturaci, pokud nejsou zahrnuté v jiné fakturaci. Označení celé zakázky jako vyfakturované se zruší.</p>':''}<form>${input('reason','Důvod smazání','','text','required maxlength="500"')}<label class="checkbox-row"><input name="confirmed" type="checkbox" required> Potvrzuji smazání tohoto záznamu</label><div class="toolbar"><button class="primary">Smazat</button>${button('back','Zrušit')}</div></form>`);wireSave(dialog.querySelector('form'),'delete',f=>({id,reason:f.get('reason'),confirmed:f.has('confirmed')}))}
- function jobStatus(job){const j=ctx.state().jobs.find(j=>j.id===job),v=data.jobStates?.find(j=>j.job_id===job)||{closed:j.status==='completed'||j.status==='invoiced',billed:j.status==='invoiced'};shell('Stav zakázky · '+esc(j.name),`<form><label class="checkbox-row"><input type="checkbox" name="closed" ${v.closed?'checked':''}> Zakázka je uzavřená</label><label class="checkbox-row"><input type="checkbox" name="billed" ${v.billed?'checked':''}> Celá zakázka je vyfakturovaná</label><p>Fakturace jednotlivých dnů zůstávají evidované samostatně. Částku fakturace zadáte v záložce Fakturace.</p><div class="toolbar"><button class="primary">Uložit</button>${button('back','Zrušit')}</div></form>`);wireSave(dialog.querySelector('form'),'job_status',f=>({job,closed:f.has('closed'),billed:f.has('billed')}))}
+ function jobStatus(job){const j=ctx.state().jobs.find(j=>j.id===job),v=data.jobStates?.find(j=>j.job_id===job)||{closed:j.status==='completed'||j.status==='invoiced',billed:j.status==='invoiced'};shell('Stav zakázky · '+esc(jobLabel(ctx.state(),j.id)),`<form><label class="checkbox-row"><input type="checkbox" name="closed" ${v.closed?'checked':''}> Zakázka je uzavřená</label><label class="checkbox-row"><input type="checkbox" name="billed" ${v.billed?'checked':''}> Celá zakázka je vyfakturovaná</label><p>Fakturace jednotlivých dnů zůstávají evidované samostatně. Částku fakturace zadáte v záložce Fakturace.</p><div class="toolbar"><button class="primary">Uložit</button>${button('back','Zrušit')}</div></form>`);wireSave(dialog.querySelector('form'),'job_status',f=>({job,closed:f.has('closed'),billed:f.has('billed')}))}
  function edit(kind,id='',job=selected){
   if(kind==='budget'&&!id)id=data.entries.find(e=>e.kind==='budget'&&e.job_id===job)?.id||'';
   const e=data.entries.find(x=>x.id===id)||{job_id:job,worker_id:workerId},s=ctx.state(),itemized=['budget','change','invoice'].includes(kind);let fields='';
   if(kind==='rate')fields+=choices('worker','Pracovník',s.workers,e.worker_id);
-  if(['budget','change','invoice','kind'].includes(kind))fields+=choices('job','Zakázka',[...s.jobs].filter(j=>j.status!=='merged'||j.id===e.job_id).sort((a,b)=>a.name.localeCompare(b.name,'cs')),e.job_id);
+  if(['budget','change','invoice','kind'].includes(kind))fields+=choices('job','Zakázka',customerJobs(s).filter(j=>j.status!=='merged'||j.id===e.job_id).sort((a,b)=>a.name.localeCompare(b.name,'cs')),e.job_id);
   if(kind==='kind')fields+=`<label class="checkbox-row"><input type="checkbox" name="overhead" ${data.jobKinds.some(k=>k.job_id===e.job_id&&k.overhead)?'checked':''}> Režijní činnost (kancelář, sklad, školení…)</label>`;
   else if(kind.endsWith('_month'))fields+=input('month','Měsíc',(from||today()).slice(0,7),'month','required')+input('reason','Důvod','','text','required');
   else{
