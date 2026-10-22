@@ -1,3 +1,4 @@
+import {attendancePromptsMarkup} from './attendance-followup.js?v=overview-prompts-1';
 import {customerMarkup,jobLabel,informationButton} from './job-customer.js?v=office-workflow-1';
 import {capturePageView} from './stable-view.js?v=period-finance-1';
 import {periodSummary,periodFinance} from './period-summary.js?v=period-finance-1';
@@ -60,6 +61,8 @@ export function installOverview(ctx){
   if(period!=='day'){document.querySelector('.overview > .overview-stats').remove();grid.classList.add('period-summary');grid.innerHTML=periodSummary(s,me,manager,selected,period,admin)+(admin?'<section class="overview-panel" id="overview-finance" aria-live="polite">Načítám finance…</section>':'');}
 
   }
+  const followup=me?attendancePromptsMarkup(s,me):'';
+  if(followup)document.querySelector('.overview > .page-heading').insertAdjacentHTML('afterend','<section class="overview-panel" id="overview-attendance-prompts" aria-label="Docházka k doplnění">'+followup+'</section>');
   ctx.information?.();
   if(manager){
    grid.insertAdjacentHTML('beforeend','<section class="overview-panel" id="overview-purchases" aria-live="polite"><h2>Objednávky za vybrané období</h2><p>Načítám objednávky…</p></section>');
