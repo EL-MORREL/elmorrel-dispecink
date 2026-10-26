@@ -37,7 +37,7 @@ import {renderMobileDaily,getMobilePlanState,setMobilePlanState} from './mobile-
 import {contactMarkup,decoratePlanActions} from './plan-usability.js?v=workspace-2';
 import {sendInvitation} from './invitations.js?v=workspace-2';
 import {installExperience} from './experience.js?v=office-workflow-1';
-import {installFinance} from './finance-ui.js?v=office-workflow-1';
+import {installFinance} from './finance-ui.js?v=discount-lines-1';
 import {rememberLogin,remembered} from './session-storage.js?v=workspace-2';
 import './planner-scroll.js?v=workspace-2';
 import {decoratePlannerLayout} from './planner-layout.js?v=workspace-2';
