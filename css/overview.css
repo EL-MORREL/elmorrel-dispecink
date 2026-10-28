@@ -20,3 +20,6 @@
 .period-summary #overview-purchases,.period-summary #overview-finance{order:1}.period-summary>section:not(.period-work):not(.period-issues):not(#overview-purchases):not(#overview-finance){order:2;grid-column:1/-1}.period-summary .period-issues{order:3}.period-summary:not(:has(#overview-finance)) #overview-purchases{grid-column:1/-1}.period-issues summary::before{content:"▸";margin-right:10px}.period-issues details[open]>summary::before{content:"▾"}.period-issues summary strong{margin-left:auto}
 
 .period-summary .period-workers{grid-column:1/-1;order:2;min-width:0}.period-workers td,.period-workers th{white-space:nowrap}.period-workers td details{white-space:normal;min-width:160px}.period-workers .table-wrap{overflow-x:auto}.period-workers td:first-child{font-weight:600}
+
+/* The casual role has only personal attendance and assigned jobs. */
+.casual-role [data-action="fuel"],.casual-role [data-action="private-trip"],.casual-role [data-action="pin"],.casual-role [data-job-information],.casual-role [data-job-tasks],.casual-role [data-info-nav],.casual-role [data-op="card-pin"],.casual-role [data-id="fuel"],.casual-role [data-id="plan"]{display:none!important}

@@ -11,7 +11,7 @@ export function installRegistration(){
  async function pickCompany(memberships,session){
   if(memberships.length===1)return memberships[0].company_id;
   show(onboarding);
-  if(memberships.length){const {data,error}=await client.from('saas_companies').select('id,name');if(error)throw error;onboarding.innerHTML=`<h1>Vyberte firmu</h1><label>Firma<select name="company">${data.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></label><button class="primary">Otevřít plánovač</button>`;
+  if(memberships.length){const {data,error}=await client.from('saas_companies').select('id,name');if(error)throw error;for(const m of memberships){if(data.some(c=>c.id===m.company_id))continue;const r=await client.rpc('saas_snapshot',{target_company:m.company_id});if(r.error)throw r.error;data.push({id:r.data.company.id,name:r.data.company.name});}onboarding.innerHTML=`<h1>Vyberte firmu</h1><label>Firma<select name="company">${data.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></label><button class="primary">Otevřít plánovač</button>`;
    return new Promise(resolve=>{resolveCompany=resolve;onboarding.onsubmit=e=>{e.preventDefault();onboarding.hidden=true;resolve(String(new FormData(onboarding).get('company')));resolveCompany=null}})
   }
   const u=session.user.user_metadata||{};

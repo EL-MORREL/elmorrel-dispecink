@@ -4,4 +4,4 @@ export function accountLabel(a){
  if(a?.invitation_created)return 'Pozvánka vytvořena · odeslání nepotvrzené';
  return 'Bez připojeného účtu a pozvánky';
 }
-export const roleLabel=role=>({owner:'Administrátor',admin:'Administrátor',dispatcher:'Dispečer',editor:'Dispečer',foreman:'Vedoucí realizace',worker:'Realizace',reader:'Realizace'})[role]||'Bez přiděleného oprávnění';
+export const roleLabel=role=>({owner:'Administrátor',admin:'Administrátor',dispatcher:'Dispečer',editor:'Dispečer',foreman:'Vedoucí realizace',casual:'Brigádník',worker:'Realizace',reader:'Realizace'})[role]||'Bez přiděleného oprávnění';
