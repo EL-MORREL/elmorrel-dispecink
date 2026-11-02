@@ -1,4 +1,4 @@
-import {confirmAttendanceTransition} from './attendance-transition.js?v=transition-1';
+import {confirmAttendanceTransition} from './attendance-transition.js?v=transition-2';
 import {showWorkerRates} from './worker-rates.js?v=current-rates-1';
 import {affectedClosedDays,confirmClosedAttendance} from './closed-attendance.js?v=transition-1';
 import {customerMarkup,customerName,jobLabel,informationButton} from './job-customer.js?v=office-workflow-1';
