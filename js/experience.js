@@ -40,7 +40,12 @@ export function installExperience(ctx){
  document.addEventListener('click',e=>{const b=e.target.closest('[data-experience]');if(b)act(b.dataset.experience).catch(e=>ctx.message(e.message))});
  function decorate(page){apply();const nav=document.getElementById('navigation');nav.insertAdjacentHTML('beforeend',button('guide','Nápověda'));
  if(page==='settings')document.getElementById('content').insertAdjacentHTML('afterbegin','<section class="panel"><div class="panel-content"><h2>Osobní nastavení</h2>'+button('preferences','Vzhled a rozložení')+'<div id="notification-preferences"></div></div></section>');
- if(page==='finance')document.getElementById('content').insertAdjacentHTML('afterbegin',button('unbilled','Nevyfakturovaná práce'));
+ if(page==='finance'){
+  const content=document.getElementById('content'),existing=[...content.querySelectorAll('[data-experience="unbilled"]')];
+  // Finance keeps its form mounted during refreshes; decorate must not add another button.
+  if(!existing.length)content.insertAdjacentHTML('afterbegin',button('unbilled','Nevyfakturovaná práce'));
+  else existing.slice(1).forEach(b=>b.remove());
+ }
  if(page==='plan'&&ctx.me())document.getElementById('content').insertAdjacentHTML('afterbegin',button('pin','PIN mojí karty'));
  
  if(localStorage.getItem('planner-guide:'+ctx.user())!==ctx.guideRole()&&!document.querySelector('dialog[open]')){localStorage.setItem('planner-guide:'+ctx.user(),ctx.guideRole());guide()}
