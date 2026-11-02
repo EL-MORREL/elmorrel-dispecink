@@ -3,7 +3,8 @@ import {jobLabel} from './job-customer.js?v=office-workflow-1';
 export function affectedClosedDays(s,action,p){
  if(action!=='direct_time'&&!(action==='admin_record'&&p.action==='attendance_update'))return [];
  const old=s.attendance.find(x=>x.id===(p.attendance||p.id));
- const pairs=[{job:p.job,date:p.start?localDate(p.start):''},...(old?[{job:old.job,date:localDate(old.start)}]:[])];
+ const previous=s.attendance.find(x=>x.id===p.finish_previous&&x.worker===p.worker);
+ const pairs=[...(previous?[{job:previous.job,date:localDate(previous.start)}]:[]),{job:p.job,date:p.start?localDate(p.start):''},...(old?[{job:old.job,date:localDate(old.start)}]:[])];
  return pairs.filter((x,i)=>x.job&&x.date&&pairs.findIndex(y=>y.job===x.job&&y.date===x.date)===i).filter(x=>['completed','invoiced'].includes(s.jobs.find(j=>j.id===x.job)?.status)||(s.extras?.billing||[]).some(b=>b.job_id===x.job&&b.date===x.date&&b.locked));
 }
 export function confirmClosedAttendance(s,rows,reason=''){
