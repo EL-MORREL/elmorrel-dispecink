@@ -1,4 +1,4 @@
-.board-wrap{max-height:72vh;max-height:72dvh;position:relative;isolation:isolate;overscroll-behavior:contain;scroll-padding:60px 140px}
+.board-wrap{max-height:85vh;max-height:85dvh;position:relative;isolation:isolate;overscroll-behavior:contain;scroll-padding:60px 140px}
 .schedule thead th{position:sticky;top:0;z-index:4;background:#fbfdff}
 .schedule .person-cell{position:sticky;left:0;z-index:3;background:#fff;vertical-align:top}
 .schedule th:first-child{width:140px;position:sticky;left:0;z-index:5}
