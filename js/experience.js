@@ -5,7 +5,7 @@ import {overlapMarkup,installOverlapRepair} from './overlap-repair.js?v=workspac
 import {auditMarkup} from './audit-labels.js?v=workspace-2';
 import {byName} from './selection-order.js?v=workspace-2';
 import {attendanceChecks} from './checks.js?v=workspace-2';
-import {esc,reportRows,localDate} from './data.js?v=invoice-days-1';
+import {esc,reportRows,localDate} from './data.js?v=invoice-days-2';
 export function installExperience(ctx){
  const dialog=document.createElement('dialog');document.body.append(dialog);
  // Close read-only panels only when the gesture starts and ends on the backdrop.
