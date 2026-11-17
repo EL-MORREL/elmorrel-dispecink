@@ -41,7 +41,7 @@ import {billingBadge,installJobPreferences,readJobPreferences,writeJobPreference
 import {renderMobileDaily,getMobilePlanState,setMobilePlanState} from './mobile-daily.js?v=casual-dates-1';
 import {contactMarkup,decoratePlanActions} from './plan-usability.js?v=workspace-2';
 import {sendInvitation} from './invitations.js?v=workspace-2';
-import {installExperience} from './experience.js?v=unbilled-order-1';
+import {installExperience} from './experience.js?v=invoice-days-1';
 import {installFinance} from './finance-ui.js?v=finance-hours-refresh-1';
 import {rememberLogin,remembered} from './session-storage.js?v=workspace-2';
 import './planner-scroll.js?v=workspace-2';
@@ -298,7 +298,7 @@ const vehicleBlocks=installVehicleBlocks({state:()=>state,manager:isManager,run:
 
 const overheadsUI=installOverheads({remote,state:()=>state,admin:()=>role==='admin',navigate:target=>{page=target;render();window.scrollTo(0,0)}});
 const financeUI=installFinance({editPurchase:id=>purchasesUI.editInline(id),overheads:()=>overheadsUI.open(),purchases:job=>purchasesUI.open(job),navigate:target=>{if($('dialog').open)$('dialog').close();page=target;render();window.scrollTo(0,0)},user:()=>sessionUser,admin:()=>role==='admin',state:()=>state,message,read:async()=>{const version=remote.snapshot.company.version,data=await overheadsUI.finance();adopt(await remote.refresh());return {...data,version}},save:async(action,p,baseline)=>{const data=await guardedDomainSave(client,remote,'saas_finance',action,p,baseline);try{adopt(await remote.refresh());await purchasesUI.refresh();render()}catch{message('Doklad je uložený. Obnovení ostatních dat se nezdařilo.')}return data}});
-const experience=installExperience({planDay:(date,job)=>{if(!financeUI.canLeave())return;const days=(a,b)=>Math.round((Date.parse(a)-Date.parse(b))/86400000);dayOffset=days(date,dateKey(new Date()));todayOnly=true;view='workers';planScope='all';query='';$('search').value='';setMobilePlanState({date,view:'workers'});page='plan';render();document.querySelectorAll('[data-job]').forEach(el=>{if(el.dataset.job===job)el.style.outline='2px solid #2878df'})},run:runFeature,requestAttendance:id=>attendanceFollowupUI.request(id),role:()=>role,guideRole:()=>remote.snapshot?.membership.role,version:()=>remote.snapshot?.company.version,user:()=>sessionUser,me:()=>me,state:()=>state,render,message,shared:()=>remote.sharedPlan(),audit:()=>remote.audit(),pin:(w,value)=>remote.pin(w,value)});
+const experience=installExperience({invoiceEntries:async()=>{const data=await remote.finance();adopt(await remote.refresh());return data.entries;},planDay:(date,job)=>{if(!financeUI.canLeave())return;const days=(a,b)=>Math.round((Date.parse(a)-Date.parse(b))/86400000);dayOffset=days(date,dateKey(new Date()));todayOnly=true;view='workers';planScope='all';query='';$('search').value='';setMobilePlanState({date,view:'workers'});page='plan';render();document.querySelectorAll('[data-job]').forEach(el=>{if(el.dataset.job===job)el.style.outline='2px solid #2878df'})},run:runFeature,requestAttendance:id=>attendanceFollowupUI.request(id),role:()=>role,guideRole:()=>remote.snapshot?.membership.role,version:()=>remote.snapshot?.company.version,user:()=>sessionUser,me:()=>me,state:()=>state,render,message,shared:()=>remote.sharedPlan(),audit:()=>remote.audit(),pin:(w,value)=>remote.pin(w,value)});
 
 
 matchMedia('(max-width:700px)').addEventListener('change',()=>{if(sessionUser&&page==='plan'&&!document.querySelector('dialog[open]'))render()});

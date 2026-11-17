@@ -71,7 +71,8 @@ export function reportRows(state,options){
  const jobs=new Map(state.jobs.map(j=>[j.id,j])),workers=new Map(state.workers.map(w=>[w.id,w.name]));
  const overhead=new Set((state.extras?.jobKinds||[]).filter(k=>k.overhead).map(k=>k.job_id));
  const billedDays=new Set((state.extras?.billing||[]).filter(b=>b.locked).map(b=>b.job_id+'|'+b.date));
- const isBilled=r=>jobs.get(r.jobId)?.status==='invoiced'||billedDays.has(r.jobId+'|'+r.date);
+ const invoiceDays=options.invoiceDays;
+ const isBilled=r=>invoiceDays?invoiceDays.has(r.jobId+'|'+r.date):jobs.get(r.jobId)?.status==='invoiced'||billedDays.has(r.jobId+'|'+r.date);
  const raw=state.attendance.filter(t=>t.end&&localDate(t.start).startsWith(month)).map(t=>({sourceType:'attendance',sourceId:t.id,date:localDate(t.start),workerId:t.worker,jobId:t.job,arrival:time(t.start),departure:time(t.end),breakMinutes:t.breakMinutes||0,hours:hours(t)}))
  .concat(historicalRows(state).filter(h=>h.date.startsWith(month)).map(h=>({sourceType:'historical',sourceId:h.id,date:h.date,workerId:h.worker_id,jobId:h.job_id,arrival:h.arrived_at?time(h.arrived_at):'',departure:h.left_at?time(h.left_at)+' (dle výkazu)':'',breakMinutes:h.break_minutes||0,hours:Number(h.hours),note:[h.note,h.time_source?'Příchod z FREKR; odchod dopočítán podle výkazu. Přestávka není ve zdroji evidována.':''].filter(Boolean).join(' · '),source:'Výkaz 2026'})));
  // Same full-month productive-hour denominator as costReport. Filter job/worker only afterwards.
