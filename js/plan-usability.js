@@ -1,5 +1,6 @@
 import {glyph} from './daily-details.js?v=workspace-2';
-import {esc} from './data.js?v=workspace-2';
+import {esc,safeUrl} from './data.js?v=workspace-2';
+export function planDocuments(job){const links=(job?.documents||[]).filter(d=>safeUrl(d.url));return '<section class="plan-documents"><strong>Dokumenty zakázky</strong>'+ (links.map(d=>'<a class="document-link" href="'+esc(safeUrl(d.url))+'" target="_blank" rel="noopener noreferrer">'+esc(d.name||'Otevřít dokument')+' ↗</a>').join('')||'<p class="subtle">Zatím nejsou přidané dokumenty.</p>')+'</section>';}
 export function contactMarkup(job){
  if(!job)return '';
  const phone=String(job.phone||'').replace(/[^+\d]/g,'');
@@ -18,8 +19,8 @@ export function decoratePlanActions(state){
  });
  board.querySelectorAll('.card-tools').forEach(tools=>{
   const actions=[...tools.children].filter(el=>el.matches('button'));
-  if(!actions.length)return;
+  let card=tools.previousElementSibling;while(card&&!card.matches('.job-card'))card=card.previousElementSibling;const job=state.jobs.find(j=>j.id===card?.dataset.job);if(!actions.length&&!job)return;
   const more=document.createElement('details');more.className='plan-more';more.innerHTML='<summary>Více …</summary><div class="plan-more-actions"></div>';
-  actions.forEach(el=>more.lastElementChild.append(el));tools.append(more);
+  if(job)more.lastElementChild.insertAdjacentHTML('beforeend',planDocuments(job));actions.forEach(el=>more.lastElementChild.append(el));tools.append(more);
  });
 }
