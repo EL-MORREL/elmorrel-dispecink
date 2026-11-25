@@ -1,3 +1,4 @@
+import {attendanceAbsenceOverlap} from './absence-overlap.js?v=1';
 import {attendanceOverlaps} from './overlap-repair.js?v=workspace-2';
 import {missingAttendance} from './missing-attendance.js?v=workspace-2';
 import {pragueToday} from './arrival-order.js?v=office-workflow-1';
@@ -7,7 +8,7 @@ export function attendanceChecks(state,from='',to=pragueToday()){
  const rows=state.attendance.filter(a=>date(a.start)>=from&&date(a.start)<=to);
  for(const a of rows){const d=date(a.start),base={worker:a.worker,job:a.job,date:d,attendance:a.id};
  if(!a.end&&d<pragueToday()&&!issues.some(r=>r.attendance===a.id))issues.push({...base,text:'Chybí odchod'});
- if((state.extras?.absences||[]).some(x=>x.worker_id===a.worker&&x.date===d&&x.status==='approved'))issues.push({...base,text:'Práce v den schváleného volna — ověřte rozsah'});
+ if((state.extras?.absences||[]).some(x=>attendanceAbsenceOverlap(a,x)))issues.push({...base,text:'Práce se časově překrývá se schváleným volnem — upravte čas práce nebo volna'});
  }
  issues.push(...attendanceOverlaps(state.attendance,from,to));
  for(const r of state.extras?.requests||[]){const d=date(r.proposed_start);if(r.status==='pending'&&d>=from&&d<=to&&!issues.some(i=>i.worker===r.worker_id&&i.job===r.job_id&&i.date===d))issues.push({worker:r.worker_id,job:r.job_id,date:d,attendance:r.attendance_id,text:'Návrh opravy čeká na schválení'});}

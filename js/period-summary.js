@@ -1,8 +1,8 @@
 import {periodMargin} from './invoice-allocation.js?v=period-finance-1';
-import {periodWorkers} from './period-workers.js?v=workspace-2';
+import {periodWorkers} from './period-workers.js?v=partial-overlap-1';
 import {esc,fmtHours,hours} from './data.js?v=workspace-2';
 import {fuelDate} from './fuel-filters.js?v=workspace-2';
-import {attendanceChecks} from './checks.js?v=workspace-2';
+import {attendanceChecks} from './checks.js?v=partial-overlap-1';
 import {costReport} from './costs.js?v=overhead-categories-1';
 import {money} from './finance-overview.js?v=office-workflow-1';
 const metric=(label,value)=>`<div class="overview-stat"><span>${label}</span><strong>${value}</strong></div>`;

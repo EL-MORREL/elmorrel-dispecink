@@ -1,6 +1,6 @@
 import {installBilledChanges} from './billed-job-changes.js?v=billing-noise-2';
 import {client} from './connection.js?v=shared-groups-1';
-import {attendanceChecks} from './checks.js?v=workspace-2';
+import {attendanceChecks} from './checks.js?v=partial-overlap-1';
 import {icon} from './icons.js?v=workspace-2';
 export function installNotifications(ctx){
  let billedCount=0;const billed=installBilledChanges(ctx,n=>{billedCount=n;bell()});

@@ -9,7 +9,7 @@ import {customerMarkup,customerName,jobLabel,informationButton} from './job-cust
 import {calendarOffsets} from './plan-calendar.js?v=customer-calendar-1';
 import {installPrivateTrips} from './private-trips.js?v=private-trips-1';
 import {capturePageView} from './stable-view.js?v=period-finance-1';
-import {installNotifications} from './notifications.js?v=billing-noise-2';
+import {installNotifications} from './notifications.js?v=partial-overlap-1';
 import {installDirectory} from './directory.js?v=visible-contacts-1';
 import './search-filters.js?v=office-workflow-1';
 import {installWarranty} from './warranty-ui.js?v=office-workflow-1';
@@ -42,7 +42,7 @@ import {billingBadge,installJobPreferences,readJobPreferences,writeJobPreference
 import {renderMobileDaily,getMobilePlanState,setMobilePlanState} from './mobile-daily.js?v=plan-documents-1';
 import {contactMarkup,decoratePlanActions} from './plan-usability.js?v=plan-documents-1';
 import {sendInvitation} from './invitations.js?v=workspace-2';
-import {installExperience} from './experience.js?v=unbilled-zero-1';
+import {installExperience} from './experience.js?v=partial-overlap-1';
 import {installFinance} from './finance-ui.js?v=finance-hours-refresh-1';
 import {rememberLogin,remembered} from './session-storage.js?v=workspace-2';
 import './planner-scroll.js?v=workspace-2';
